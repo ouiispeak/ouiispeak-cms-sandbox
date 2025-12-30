@@ -92,10 +92,10 @@ export function DynamicSlideForm({
         }}>
           <strong>Configuration Required</strong>
         </div>
-        <div style={{ marginTop: uiTokens.space.md, fontSize: uiTokens.font.body.size, color: uiTokens.color.text }}>
+        <div style={{ marginTop: uiTokens.space.md, fontSize: uiTokens.font.label.size, color: uiTokens.color.text }}>
           No configuration found for slide type: <strong>{slideType}</strong>
         </div>
-        <div style={{ marginTop: uiTokens.space.md, fontSize: uiTokens.font.body.size, color: uiTokens.color.text }}>
+        <div style={{ marginTop: uiTokens.space.md, fontSize: uiTokens.font.label.size, color: uiTokens.color.text }}>
           Slide configurations are required. Please create a configuration for this slide type:
         </div>
         <div style={{ marginTop: uiTokens.space.sm }}>
