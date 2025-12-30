@@ -84,7 +84,7 @@ export function useSlideFormData(slideId: string | undefined) {
       logger.debug("[Load] Slide loaded:", {
         slideId: slide.id,
         slideGroupId: slide.groupId,
-        slideLabel: slide.propsJson?.label
+        slideLabel: (slide.propsJson as { label?: string })?.label
       });
 
       // Extract props with type safety
