@@ -29,6 +29,11 @@ const ChoiceElementMapper = dynamic(
   { ssr: false }
 );
 
+const SpeechChoiceVerifyElementMapper = dynamic(
+  () => import("../ui/SpeechChoiceVerifyElementMapper"),
+  { ssr: false }
+);
+
 const AudioFileSelector = dynamic(
   () => import("../ui/AudioFileSelector"),
   { ssr: false }
@@ -40,6 +45,7 @@ interface FieldRendererProps {
   onChange: (value: any) => void;
   defaultLang?: string;
   bucketName?: string;
+  slideType?: string; // Used to determine which mapper component to use
 }
 
 /**
@@ -50,7 +56,8 @@ export function FieldRenderer({
   value,
   onChange,
   defaultLang,
-  bucketName = "lesson-audio"
+  bucketName = "lesson-audio",
+  slideType
 }: FieldRendererProps) {
   // Don't render if field is not visible
   if (!fieldConfig.visible) {
@@ -79,7 +86,8 @@ export function FieldRenderer({
       value,
       onChange,
       defaultLang,
-      bucketName
+      bucketName,
+      slideType
     );
   }
 
@@ -96,7 +104,8 @@ function renderComplexComponent(
   value: any,
   onChange: (value: any) => void,
   defaultLang?: string,
-  bucketName?: string
+  bucketName?: string,
+  slideType?: string
 ) {
   const componentProps = {
     ...fieldDefinition.componentProps,
@@ -118,8 +127,29 @@ function renderComplexComponent(
       break;
 
     case "ChoiceElementMapper":
+      // Use SpeechChoiceVerifyElementMapper for speech-choice-verify slides
+      if (slideType === "speech-choice-verify") {
+        component = (
+          <SpeechChoiceVerifyElementMapper
+            elements={value || []}
+            onElementsChange={onChange}
+            {...componentProps}
+          />
+        );
+      } else {
+        component = (
+          <ChoiceElementMapper
+            elements={value || []}
+            onElementsChange={onChange}
+            {...componentProps}
+          />
+        );
+      }
+      break;
+
+    case "SpeechChoiceVerifyElementMapper":
       component = (
-        <ChoiceElementMapper
+        <SpeechChoiceVerifyElementMapper
           elements={value || []}
           onElementsChange={onChange}
           {...componentProps}
@@ -154,9 +184,6 @@ function renderComplexComponent(
       infoTooltip={fieldDefinition.infoTooltip}
     >
       {component}
-      <div className="metaText" style={{ marginTop: uiTokens.space.xs, fontSize: uiTokens.font.meta.size, color: "#999" }}>
-        [{fieldConfig.fieldId}]
-      </div>
     </FormField>
   );
 }
@@ -270,9 +297,6 @@ function renderStandardField(
       infoTooltip={fieldDefinition.infoTooltip}
     >
       {inputComponent}
-      <div className="metaText" style={{ marginTop: uiTokens.space.xs, fontSize: uiTokens.font.meta.size, color: "#999" }}>
-        [{fieldConfig.fieldId}]
-      </div>
     </FormField>
   );
 }

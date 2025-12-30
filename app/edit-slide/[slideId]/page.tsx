@@ -5,7 +5,6 @@ import { useEffect, useMemo, useRef } from "react";
 import CmsPageShell from "../../../components/cms/CmsPageShell";
 import CmsOutlineView from "../../../components/cms/CmsOutlineView";
 import { uiTokens } from "../../../lib/uiTokens";
-import { shouldUseDynamicForm } from "../../../lib/config/featureFlags";
 import { DynamicSlideForm } from "../../../components/slide-editor/DynamicSlideForm";
 import { createFormChangeHandler } from "../../../lib/utils/formStateMapper";
 import { SLIDE_TYPES, type ChoiceElement, isSpeechMatchSlideProps } from "../../../lib/types/slideProps";
@@ -16,15 +15,6 @@ import { useSlideFormValidation } from "../../../lib/hooks/slides/useSlideFormVa
 import { useSlideFormSave } from "../../../lib/hooks/slides/useSlideFormSave";
 import { SlideFormLoader } from "../../../components/slide-editor/SlideFormLoader";
 import { SlideFormActions } from "../../../components/slide-editor/SlideFormActions";
-import { IdentitySection } from "../../../components/slide-editor/IdentitySection";
-import { CoreContentSection } from "../../../components/slide-editor/CoreContentSection";
-import { SlideTypeSpecificContentSection } from "../../../components/slide-editor/SlideTypeSpecificContentSection";
-import { LanguageSection } from "../../../components/slide-editor/LanguageSection";
-import { MediaSection } from "../../../components/slide-editor/MediaSection";
-import { SpeechAudioInteractionSection } from "../../../components/slide-editor/SpeechAudioInteractionSection";
-import { InteractionFlagsSection } from "../../../components/slide-editor/InteractionFlagsSection";
-import { InteractionFlowSection } from "../../../components/slide-editor/InteractionFlowSection";
-import { AuthoringMetadataSection } from "../../../components/slide-editor/AuthoringMetadataSection";
 import { logger } from "../../../lib/utils/logger";
 
 /**
@@ -43,8 +33,8 @@ export default function EditSlidePage() {
   // Extract initial values when data loads (memoized to prevent infinite loops)
   const initialValues = useMemo(() => {
     if (!data) return null;
-    return extractInitialFormValues(data.slide, data.props, data.meta);
-  }, [data?.slide.id, data?.slide.propsJson, data?.slide.metaJson, data?.group?.id]);
+    return extractInitialFormValues(data.slide, data.props, data.meta, data.group);
+  }, [data?.slide.id, data?.slide.propsJson, data?.slide.metaJson, data?.group?.id, data?.group?.label]);
 
   // Manage form state
   const {
@@ -194,148 +184,14 @@ export default function EditSlidePage() {
 
           {loadState.status === "ready" && data && (
             <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: uiTokens.space.lg }}>
-              {/* Debug info (remove in production) */}
-              {process.env.NODE_ENV === "development" && (
-                <div style={{ 
-                  padding: uiTokens.space.sm, 
-                  backgroundColor: "#f0f0f0", 
-                  fontSize: uiTokens.font.meta.size,
-                  marginBottom: uiTokens.space.sm,
-                  borderRadius: uiTokens.radius.sm
-                }}>
-                  <strong>Debug:</strong> slideType="{data.slide.type}", state.slideType="{state.slideType}", shouldUseDynamicForm={shouldUseDynamicForm(data.slide.type) ? "true" : "false"}
-                </div>
-              )}
-              {/* Dynamic Form (if feature flag enabled) */}
-              {shouldUseDynamicForm(data.slide.type) ? (
-                <DynamicSlideForm
-                  slideType={data.slide.type}
-                  values={state}
-                  onChange={createFormChangeHandler(setters)}
-                  defaultLang={state.defaultLang}
-                />
-        ) : (
-          <>
-            {/* Legacy Form (hardcoded) */}
-            {/* Identity & Structure Section */}
-            <IdentitySection
-              slideId={state.slideId}
-              slideType={state.slideType}
-              groupId={state.groupId}
-              groupName={state.groupName}
-              orderIndex={state.orderIndex}
-              label={state.label}
-              onLabelChange={setters.setLabel}
-            />
-
-            {/* Core Content Section */}
-            <CoreContentSection
-              slideType={state.slideType}
-              title={state.title}
-              subtitle={state.subtitle}
-              body={state.body}
-              lessonEndMessage={state.lessonEndMessage}
-              lessonEndActions={state.lessonEndActions}
-              buttons={state.buttons}
-              instructions={state.instructions}
-              promptLabel={state.promptLabel}
-              note={state.note}
-              onTitleChange={setters.setTitle}
-              onSubtitleChange={setters.setSubtitle}
-              onBodyChange={setters.setBody}
-              onLessonEndMessageChange={setters.setLessonEndMessage}
-              onLessonEndActionsChange={setters.setLessonEndActions}
-              onButtonsChange={setters.setButtons}
-              onInstructionsChange={setters.setInstructions}
-              onPromptLabelChange={setters.setPromptLabel}
-              onNoteChange={setters.setNote}
-            />
-
-            {/* Slide Type Specific Content Section */}
-            <SlideTypeSpecificContentSection
-              slideType={state.slideType}
-              instructions={state.instructions}
-              promptLabel={state.promptLabel}
-              title={state.title}
-              subtitle={state.subtitle}
-              note={state.note}
-              phrases={state.phrases}
-              elements={state.elements}
-              choiceElements={state.choiceElements}
-              defaultLang={state.defaultLang}
-              onInstructionsChange={setters.setInstructions}
-              onPromptLabelChange={setters.setPromptLabel}
-              onTitleChange={setters.setTitle}
-              onSubtitleChange={setters.setSubtitle}
-              onNoteChange={setters.setNote}
-              onPhrasesChange={setters.setPhrases}
-              onElementsChange={setters.setElements}
-              onChoiceElementsChange={setters.setChoiceElements}
-            />
-
-            {/* Language and Localization Section */}
-            <LanguageSection defaultLang={state.defaultLang} onChange={setters.setDefaultLang} />
-
-            {/* Media Reference Section */}
-            {state.slideType !== SLIDE_TYPES.TITLE && state.slideType !== SLIDE_TYPES.TEXT && (
-              <MediaSection audioId={state.audioId} onChange={setters.setAudioId} />
-            )}
-
-            {/* Speech & Audio Interaction Section */}
-            <SpeechAudioInteractionSection
-              slideType={state.slideType}
-              phrases={state.phrases}
-              elements={state.elements}
-              choiceElements={state.choiceElements}
-              defaultLang={state.defaultLang}
-              onPhrasesChange={setters.setPhrases}
-              onElementsChange={setters.setElements}
-              onChoiceElementsChange={setters.setChoiceElements}
-            />
-
-            {/* Interaction Flags Section */}
-            <InteractionFlagsSection
-              slideType={state.slideType}
-              isInteractive={state.isInteractive}
-              allowSkip={state.allowSkip}
-              allowRetry={state.allowRetry}
-              isActivity={state.isActivity}
-              maxAttempts={state.maxAttempts}
-              minAttemptsBeforeSkip={state.minAttemptsBeforeSkip}
-              onIsInteractiveChange={setters.setIsInteractive}
-              onAllowSkipChange={setters.setAllowSkip}
-              onAllowRetryChange={setters.setAllowRetry}
-              onIsActivityChange={setters.setIsActivity}
-              onMaxAttemptsChange={setters.setMaxAttempts}
-              onMinAttemptsBeforeSkipChange={setters.setMinAttemptsBeforeSkip}
-            />
-
-            {/* Interaction/Flow Section */}
-            <InteractionFlowSection
-              slideType={state.slideType}
-              maxAttempts={state.maxAttempts}
-              minAttemptsBeforeSkip={state.minAttemptsBeforeSkip}
-              onCompleteAtIndex={state.onCompleteAtIndex}
-              onMaxAttemptsChange={(value) => {
-                setters.setMaxAttempts(value);
-                // Auto-adjust minAttemptsBeforeSkip if it exceeds maxAttempts
-                if (value !== "" && state.minAttemptsBeforeSkip !== "" && Number(state.minAttemptsBeforeSkip) > Number(value)) {
-                  setters.setMinAttemptsBeforeSkip(value);
-                }
-              }}
-              onMinAttemptsBeforeSkipChange={setters.setMinAttemptsBeforeSkip}
-              onOnCompleteAtIndexChange={setters.setOnCompleteAtIndex}
-            />
-
-            {/* Authoring Metadata Section */}
-            <AuthoringMetadataSection
-              slideType={state.slideType}
-              activityName={state.activityName}
-              onChange={setters.setActivityName}
-            />
-          </>
-        )}
-      </form>
+              {/* Dynamic Form - Always used, configs are required */}
+              <DynamicSlideForm
+                slideType={data.slide.type}
+                values={state}
+                onChange={createFormChangeHandler(setters)}
+                defaultLang={state.defaultLang}
+              />
+            </form>
           )}
         </div>
       </div>

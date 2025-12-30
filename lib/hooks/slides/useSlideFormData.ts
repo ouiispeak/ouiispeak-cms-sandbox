@@ -16,10 +16,12 @@ import {
   type CmsLanguage,
   isAISpeakStudentRepeatSlideProps,
   isSpeechMatchSlideProps,
+  isSpeechChoiceVerifySlideProps,
   isLessonEndSlideProps,
   isAISpeakRepeatSlideProps,
-  mapLanguageToPlayerFormat,
+  type SpeechChoiceVerifyElement,
 } from "../../types/slideProps";
+import { mapCmsLanguageToPlayer } from "../../constants/slideConstants";
 import type { Slide } from "../../domain/slide";
 import type { Group } from "../../domain/group";
 
@@ -79,6 +81,12 @@ export function useSlideFormData(slideId: string | undefined) {
         return;
       }
 
+      logger.debug("[Load] Slide loaded:", {
+        slideId: slide.id,
+        slideGroupId: slide.groupId,
+        slideLabel: slide.propsJson?.label
+      });
+
       // Extract props with type safety
       const typedProps = getTypedSlideProps(slide.type as SlideType, slide.propsJson);
       const props = typedProps || ({} as SlideProps);
@@ -95,13 +103,26 @@ export function useSlideFormData(slideId: string | undefined) {
       // Load group to get group name
       let group: Group | null = null;
       if (slide.groupId) {
+        logger.debug("[Load] Loading group for slide:", {
+          slideId: slide.id,
+          groupId: slide.groupId
+        });
         const { data: groupData, error: groupError } = await loadGroupById(slide.groupId);
         if (groupData) {
+          logger.debug("[Load] Group loaded:", {
+            groupId: groupData.id,
+            groupLabel: groupData.label,
+            groupTitle: groupData.title
+          });
           group = groupData;
         } else if (groupError) {
           logger.error("Error loading group:", groupError);
           // Don't fail the whole load if group fails, just log it
+        } else {
+          logger.warn("[Load] No group data returned for groupId:", slide.groupId);
         }
+      } else {
+        logger.debug("[Load] Slide has no groupId:", slide.id);
       }
 
       setData({
@@ -135,7 +156,8 @@ export function useSlideFormData(slideId: string | undefined) {
 export function extractInitialFormValues(
   slide: Slide,
   props: SlideProps,
-  meta: { activityName?: string }
+  meta: { activityName?: string },
+  group: Group | null = null
 ) {
   // Handle phrases - if it's lines array, flatten it; otherwise use as string
   let initialPhrases = "";
@@ -145,28 +167,41 @@ export function extractInitialFormValues(
     initialPhrases = typeof props.phrases === "string" ? props.phrases : JSON.stringify(props.phrases);
   }
 
-  // Build initial choiceElements for speech-match
+  // Build initial choiceElements for speech-match and speech-choice-verify
   let initialChoiceElements: Array<{
     label: string;
+    referenceText?: string;
     speech: { mode: "tts" | "file"; lang?: "en" | "fr"; text?: string; fileUrl?: string };
   }> = [];
   if (
-    slide.type === SLIDE_TYPES.SPEECH_MATCH &&
-    isSpeechMatchSlideProps(props) &&
+    (slide.type === SLIDE_TYPES.SPEECH_MATCH || slide.type === SLIDE_TYPES.SPEECH_CHOICE_VERIFY) &&
+    (isSpeechMatchSlideProps(props) || isSpeechChoiceVerifySlideProps(props)) &&
     props.elements &&
     Array.isArray(props.elements)
   ) {
     const defaultLangValue = (props.defaultLang || "") as CmsLanguage;
-    const mappedLang = mapLanguageToPlayerFormat(defaultLangValue) as "en" | "fr";
-    initialChoiceElements = props.elements.map((el) => ({
-      label: el.label || "",
-      speech: {
-        mode: (el.speech.mode || "tts") as "tts" | "file",
-        lang: (el.speech.lang || mappedLang) as "en" | "fr" | undefined,
-        text: el.speech.text || el.label || "",
-        fileUrl: el.speech.fileUrl || "",
-      },
-    }));
+    const mappedLang = mapCmsLanguageToPlayer(defaultLangValue) as "en" | "fr";
+    initialChoiceElements = props.elements.map((el) => {
+      const choiceElement: {
+        label: string;
+        referenceText?: string;
+        speech: { mode: "tts" | "file"; lang?: "en" | "fr"; text?: string; fileUrl?: string };
+      } = {
+        label: el.label || "",
+        speech: {
+          mode: (el.speech.mode || "tts") as "tts" | "file",
+          lang: (el.speech.lang || mappedLang) as "en" | "fr" | undefined,
+          text: el.speech.text || el.label || "",
+          fileUrl: el.speech.fileUrl || "",
+        },
+      };
+      // Add referenceText for speech-choice-verify
+      if (slide.type === SLIDE_TYPES.SPEECH_CHOICE_VERIFY && isSpeechChoiceVerifySlideProps(props)) {
+        const verifyElement = el as SpeechChoiceVerifyElement;
+        choiceElement.referenceText = verifyElement.referenceText || verifyElement.label || "";
+      }
+      return choiceElement;
+    });
   }
 
   // Extract initial elements for ai-speak-student-repeat
@@ -192,6 +227,7 @@ export function extractInitialFormValues(
     slideId: slide.id,
     slideType: slide.type || "",
     groupId: slide.groupId || "",
+    groupName: group?.title || group?.label || "", // Use group title (student-facing) if available, fallback to label (CMS name)
     lessonId: slide.lessonId,
     orderIndex: slide.orderIndex ?? 0,
     label: props.label || "",

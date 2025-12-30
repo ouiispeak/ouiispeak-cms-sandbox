@@ -7,7 +7,7 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { FieldSelector } from "./FieldSelector";
 import { ConfigPreview } from "./ConfigPreview";
 import { SectionEditor } from "./SectionEditor";
@@ -35,6 +35,13 @@ export function SlideTypeConfigEditor({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"fields" | "sections" | "preview">("fields");
+
+  // Update editedConfig when config prop changes (e.g., when dropdown selection changes)
+  useEffect(() => {
+    console.log(`[SlideTypeConfigEditor] Config prop changed for ${config.typeKey}, updating editedConfig`);
+    setEditedConfig(config);
+    setMessage(null); // Clear any previous messages
+  }, [config]);
 
   // Get all available fields from registry
   const availableFields = useMemo(() => {
@@ -205,6 +212,40 @@ export function SlideTypeConfigEditor({
         </div>
       )}
 
+      {/* Save/Cancel Buttons - Above Fields tab only */}
+      {activeTab === "fields" && (
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "flex-end", 
+          gap: uiTokens.space.md,
+          marginBottom: uiTokens.space.lg,
+          paddingBottom: uiTokens.space.md,
+          borderBottom: `1px solid ${uiTokens.color.border}`
+        }}>
+          <button
+            type="button"
+            onClick={onCancel}
+            style={{
+              padding: `${uiTokens.space.sm} ${uiTokens.space.md}`,
+              border: `1px solid ${uiTokens.color.border}`,
+              borderRadius: uiTokens.radius.sm,
+              backgroundColor: uiTokens.color.bg,
+              color: uiTokens.color.text,
+              cursor: "pointer",
+              fontSize: uiTokens.font.label.size
+            }}
+          >
+            Cancel
+          </button>
+          <SaveChangesButton
+            onClick={handleSave}
+            hasUnsavedChanges={hasChanges}
+            saving={saving}
+            label="Save Configuration"
+          />
+        </div>
+      )}
+
       {/* Tab Content */}
       {activeTab === "fields" && (
         <FieldSelector
@@ -225,38 +266,6 @@ export function SlideTypeConfigEditor({
       {activeTab === "preview" && (
         <ConfigPreview config={editedConfig} />
       )}
-
-      {/* Save/Cancel Buttons */}
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "flex-end", 
-        gap: uiTokens.space.md,
-        marginTop: uiTokens.space.lg,
-        paddingTop: uiTokens.space.lg,
-        borderTop: `1px solid ${uiTokens.color.border}`
-      }}>
-        <button
-          type="button"
-          onClick={onCancel}
-          style={{
-            padding: `${uiTokens.space.sm} ${uiTokens.space.md}`,
-            border: `1px solid ${uiTokens.color.border}`,
-            borderRadius: uiTokens.radius.sm,
-            backgroundColor: uiTokens.color.bg,
-            color: uiTokens.color.text,
-            cursor: "pointer",
-            fontSize: uiTokens.font.label.size
-          }}
-        >
-          Cancel
-        </button>
-        <SaveChangesButton
-          onClick={handleSave}
-          hasUnsavedChanges={hasChanges}
-          saving={saving}
-          label="Save Configuration"
-        />
-      </div>
     </div>
   );
 }

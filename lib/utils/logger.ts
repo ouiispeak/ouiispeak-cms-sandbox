@@ -75,12 +75,4 @@ export const logger: Logger = {
   },
 };
 
-/**
- * Legacy console.log replacement
- * Use logger.debug() instead
- * @deprecated Use logger.debug() instead
- */
-export function log(...args: unknown[]): void {
-  logger.debug(...args);
-}
 

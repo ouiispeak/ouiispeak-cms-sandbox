@@ -42,8 +42,12 @@ export function InteractionFlagsSection({
   onMaxAttemptsChange,
   onMinAttemptsBeforeSkipChange,
 }: InteractionFlagsSectionProps) {
-  // Don't render for title or text slides
-  if (slideType === SLIDE_TYPES.TITLE || slideType === SLIDE_TYPES.TEXT) {
+  // Don't render for title, text, or lesson-end slides
+  if (
+    slideType === SLIDE_TYPES.TITLE ||
+    slideType === SLIDE_TYPES.TEXT ||
+    slideType === SLIDE_TYPES.LESSON_END
+  ) {
     return null;
   }
 

@@ -15,13 +15,14 @@ import {
   type CmsLanguage,
   type AISpeakStudentRepeatSlideProps,
   type SpeechMatchSlideProps,
+  type SpeechChoiceVerifySlideProps,
   type LessonEndSlideProps,
   type AISpeakRepeatSlideProps,
   type TextSlideProps,
   type TitleSlideProps,
   type ChoiceElement,
-  mapLanguageToPlayerFormat,
 } from "../../types/slideProps";
+import { mapCmsLanguageToPlayer } from "../../constants/slideConstants";
 import type { SlideFormState } from "./useSlideFormState";
 
 export interface SaveResult {
@@ -206,7 +207,7 @@ export function useSlideFormSave() {
               } else if (referenceText || samplePrompt) {
                 // Use TTS if no audio file but we have text
                 // Map CMS language format to player format
-                const mappedLang = mapLanguageToPlayerFormat((state.defaultLang || "en") as CmsLanguage) as "en" | "fr";
+                const mappedLang = mapCmsLanguageToPlayer((state.defaultLang || "en") as CmsLanguage) as "en" | "fr";
                 element.speech = {
                   mode: "tts" as const,
                   lang: mappedLang,
@@ -265,7 +266,7 @@ export function useSlideFormSave() {
                 }
               } else {
                 // TTS mode
-                const mappedLang = mapLanguageToPlayerFormat((state.defaultLang || "en") as CmsLanguage) as "en" | "fr";
+                const mappedLang = mapCmsLanguageToPlayer((state.defaultLang || "en") as CmsLanguage) as "en" | "fr";
                 element.speech.lang = (el.speech.lang || mappedLang) as "en" | "fr" | undefined;
                 element.speech.text = el.speech.text?.trim() || el.label.trim();
               }
@@ -286,6 +287,56 @@ export function useSlideFormSave() {
         if (state.note.trim()) {
           speechMatchProps.note = state.note.trim();
         }
+      } else if (slideType === SLIDE_TYPES.SPEECH_CHOICE_VERIFY) {
+        const speechChoiceVerifyProps = updatedProps as Partial<SpeechChoiceVerifySlideProps>;
+        // For speech-choice-verify: save choiceElements as elements array with referenceText
+        if (state.choiceElements.length > 0) {
+          speechChoiceVerifyProps.elements = state.choiceElements
+            .filter((el) => {
+              // Only include elements with label and referenceText
+              if (!el.label.trim()) return false;
+              if (!el.referenceText?.trim()) return false;
+              // If file mode, must have fileUrl
+              if (el.speech.mode === "file" && !el.speech.fileUrl?.trim()) return false;
+              // If TTS mode, must have text or label
+              if (el.speech.mode === "tts" && !el.speech.text?.trim() && !el.label.trim())
+                return false;
+              return true;
+            })
+            .map((el) => {
+              const element: SpeechChoiceVerifySlideProps["elements"][0] = {
+                label: el.label.trim(),
+                referenceText: el.referenceText!.trim(),
+                speech: {
+                  mode: el.speech.mode,
+                },
+              };
+
+              if (el.speech.mode === "file") {
+                // Convert storage path to public URL if it's not already a URL
+                const filePath = el.speech.fileUrl!.trim();
+                if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+                  // Already a full URL, use as-is
+                  element.speech.fileUrl = filePath;
+                } else {
+                  // Storage path, convert to public URL
+                  element.speech.fileUrl = getAudioFileUrl("lesson-audio", filePath);
+                }
+              } else {
+                // TTS mode
+                const mappedLang = mapCmsLanguageToPlayer((state.defaultLang || "en") as CmsLanguage) as "en" | "fr";
+                element.speech.lang = (el.speech.lang || mappedLang) as "en" | "fr" | undefined;
+                element.speech.text = el.speech.text?.trim() || el.label.trim();
+              }
+
+              return element;
+            });
+        }
+
+        // Add speech-choice-verify specific fields
+        if (state.note.trim()) {
+          speechChoiceVerifyProps.note = state.note.trim();
+        }
       } else {
         // For ai-speak-repeat: convert textarea text to lines array
         // Use TTS mode for all phrases
@@ -299,7 +350,7 @@ export function useSlideFormSave() {
           if (phraseList.length > 0) {
             // Convert to lines[][] structure for ai-speak-repeat slides
             // Map CMS language format to player format
-            const mappedLang = mapLanguageToPlayerFormat((state.defaultLang || "en") as CmsLanguage) as "en" | "fr";
+            const mappedLang = mapCmsLanguageToPlayer((state.defaultLang || "en") as CmsLanguage) as "en" | "fr";
             aiSpeakRepeatProps.lines = [
               phraseList.map((label) => ({
                 label,

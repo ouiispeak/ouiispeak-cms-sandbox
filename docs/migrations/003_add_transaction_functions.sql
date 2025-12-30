@@ -96,18 +96,23 @@ RETURNS VOID
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
+DECLARE
+  target_group_id UUID;
 BEGIN
+  -- Store parameter in local variable to avoid ambiguity
+  target_group_id := delete_group_transaction.group_id;
+  
   -- Delete slides for this group
   DELETE FROM slides
-  WHERE group_id = delete_group_transaction.group_id;
+  WHERE slides.group_id = target_group_id;
 
   -- Finally, delete the group
   DELETE FROM lesson_groups
-  WHERE id = delete_group_transaction.group_id;
+  WHERE lesson_groups.id = target_group_id;
 
   -- If group doesn't exist, raise an error
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'Group with id % not found', group_id;
+    RAISE EXCEPTION 'Group with id % not found', target_group_id;
   END IF;
 END;
 $$;

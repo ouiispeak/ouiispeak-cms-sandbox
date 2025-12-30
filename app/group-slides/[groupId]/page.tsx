@@ -431,6 +431,7 @@ export default function GroupSlidesPage() {
     { value: "ai-speak-repeat", label: "AI Speak Repeat" },
     { value: "ai-speak-student-repeat", label: "AI Speak Student Repeat" },
     { value: "speech-match", label: "Speech Match" },
+    { value: "speech-choice-verify", label: "Speech Choice Verify" },
   ];
 
   return (

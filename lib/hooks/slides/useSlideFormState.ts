@@ -39,6 +39,7 @@ export interface SlideFormState {
   elements: Array<{ samplePrompt: string; referenceText: string; audioPath: string }>;
   choiceElements: Array<{
     label: string;
+    referenceText?: string; // Required for speech-choice-verify, optional for speech-match
     speech: { mode: "tts" | "file"; lang?: "en" | "fr"; text?: string; fileUrl?: string };
   }>;
 

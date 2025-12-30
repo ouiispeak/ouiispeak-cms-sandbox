@@ -153,20 +153,22 @@ export function CoreContentSection({
         </FormField>
       )}
 
-      <FormField
-        label="Buttons"
-        infoTooltip="Interactive buttons displayed on the slide. Used for navigation, actions, or choices. Enter as JSON."
-      >
-        <Textarea
-          value={buttons}
-          onChange={(e) => onButtonsChange(e.target.value)}
-          placeholder='Enter button configuration as JSON, e.g., [{"label": "Next", "action": "next"}]'
-          rows={4}
-        />
-        <div className="metaText" style={{ marginTop: uiTokens.space.sm, fontSize: uiTokens.font.meta.size, color: "#999" }}>
-          [title, text, ai-speak]
-        </div>
-      </FormField>
+      {slideType !== SLIDE_TYPES.LESSON_END && (
+        <FormField
+          label="Buttons"
+          infoTooltip="Interactive buttons displayed on the slide. Used for navigation, actions, or choices. Enter as JSON."
+        >
+          <Textarea
+            value={buttons}
+            onChange={(e) => onButtonsChange(e.target.value)}
+            placeholder='Enter button configuration as JSON, e.g., [{"label": "Next", "action": "next"}]'
+            rows={4}
+          />
+          <div className="metaText" style={{ marginTop: uiTokens.space.sm, fontSize: uiTokens.font.meta.size, color: "#999" }}>
+            [title, text, ai-speak]
+          </div>
+        </FormField>
+      )}
     </CmsSection>
   );
 }

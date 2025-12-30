@@ -17,6 +17,7 @@ interface SectionRendererProps {
   onChange: (fieldId: string, value: any) => void;
   defaultLang?: string;
   bucketName?: string;
+  slideType?: string;
 }
 
 /**
@@ -28,7 +29,8 @@ export function SectionRenderer({
   values,
   onChange,
   defaultLang,
-  bucketName
+  bucketName,
+  slideType
 }: SectionRendererProps) {
   // Sort fields by order
   const sortedFields = [...fields].sort((a, b) => a.order - b.order);
@@ -48,6 +50,7 @@ export function SectionRenderer({
           onChange={(value) => onChange(fieldConfig.fieldId, value)}
           defaultLang={defaultLang}
           bucketName={bucketName}
+          slideType={slideType}
         />
       ))}
     </CmsSection>

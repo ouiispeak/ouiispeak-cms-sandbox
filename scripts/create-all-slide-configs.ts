@@ -315,6 +315,75 @@ function createSpeechMatchConfig(): SlideTypeConfig {
   };
 }
 
+/**
+ * Create speech-choice-verify configuration
+ * 
+ * speech-choice-verify shows:
+ * - Identity section: slideId, slideType, groupId, groupName, orderIndex, label
+ * - Content section: title, subtitle, note, buttons
+ * - Language section: defaultLang
+ * - Media section: audioId
+ * - Speech section: choiceElements (with referenceText)
+ * - Interaction flags: isInteractive, allowSkip, allowRetry, isActivity
+ * - Flow section: maxAttempts, minAttemptsBeforeSkip
+ * - Metadata section: activityName
+ */
+function createSpeechChoiceVerifyConfig(): SlideTypeConfig {
+  return {
+    typeKey: "speech-choice-verify",
+    displayName: "Speech Choice Verify",
+    isActive: true,
+    version: 1,
+    formConfig: {
+      sections: [
+        DEFAULT_SECTIONS.find(s => s.id === "identity")!,
+        DEFAULT_SECTIONS.find(s => s.id === "content")!,
+        DEFAULT_SECTIONS.find(s => s.id === "language")!,
+        DEFAULT_SECTIONS.find(s => s.id === "media")!,
+        DEFAULT_SECTIONS.find(s => s.id === "speech")!,
+        DEFAULT_SECTIONS.find(s => s.id === "interaction")!,
+        DEFAULT_SECTIONS.find(s => s.id === "flow")!,
+        DEFAULT_SECTIONS.find(s => s.id === "metadata")!
+      ],
+      fields: [
+        // Identity & Structure Section
+        { fieldId: "slideId", sectionId: "identity", order: 1, required: false, visible: true },
+        { fieldId: "slideType", sectionId: "identity", order: 2, required: false, visible: true },
+        { fieldId: "groupId", sectionId: "identity", order: 3, required: false, visible: true },
+        { fieldId: "groupName", sectionId: "identity", order: 4, required: false, visible: true },
+        { fieldId: "orderIndex", sectionId: "identity", order: 5, required: false, visible: true },
+        { fieldId: "label", sectionId: "identity", order: 6, required: true, visible: true },
+        // Core Content Section
+        { fieldId: "title", sectionId: "content", order: 1, required: false, visible: true },
+        { fieldId: "subtitle", sectionId: "content", order: 2, required: false, visible: true },
+        { fieldId: "note", sectionId: "content", order: 3, required: false, visible: true },
+        { fieldId: "buttons", sectionId: "content", order: 4, required: false, visible: true },
+        // Language & Localization Section
+        { fieldId: "defaultLang", sectionId: "language", order: 1, required: false, visible: true },
+        // Media Reference Section
+        { fieldId: "audioId", sectionId: "media", order: 1, required: false, visible: true },
+        // Speech & Audio Interaction Section
+        { fieldId: "choiceElements", sectionId: "speech", order: 1, required: true, visible: true },
+        // Interaction Flags Section
+        { fieldId: "isInteractive", sectionId: "interaction", order: 1, required: false, visible: true },
+        { fieldId: "allowSkip", sectionId: "interaction", order: 2, required: false, visible: true },
+        { fieldId: "allowRetry", sectionId: "interaction", order: 3, required: false, visible: true },
+        { fieldId: "isActivity", sectionId: "interaction", order: 4, required: false, visible: true },
+        // Interaction/Flow Section
+        { fieldId: "maxAttempts", sectionId: "flow", order: 1, required: false, visible: true },
+        { fieldId: "minAttemptsBeforeSkip", sectionId: "flow", order: 2, required: false, visible: true },
+        // Authoring Metadata Section
+        { fieldId: "activityName", sectionId: "metadata", order: 1, required: false, visible: true }
+      ],
+      validationRules: [
+        { fieldId: "label", rule: "non-empty", message: "Label is required" },
+        { fieldId: "choiceElements", rule: "at-least-one-choice", message: "Speech Choice Verify: add at least 1 choice with label, referenceText, and speech." },
+        { fieldId: "buttons", rule: "valid-json", message: "Buttons must be valid JSON" }
+      ]
+    }
+  };
+}
+
 async function createConfig(config: SlideTypeConfig) {
   // Validate configuration
   const validation = validateSlideTypeConfig(config);
@@ -376,7 +445,8 @@ async function createAllConfigs() {
     createLessonEndConfig(),
     createAiSpeakRepeatConfig(),
     createAiSpeakStudentRepeatConfig(),
-    createSpeechMatchConfig()
+    createSpeechMatchConfig(),
+    createSpeechChoiceVerifyConfig()
   ];
 
   let created = 0;

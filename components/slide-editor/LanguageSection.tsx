@@ -9,13 +9,24 @@ import CmsSection from "../ui/CmsSection";
 import FormField from "../ui/FormField";
 import Select from "../ui/Select";
 import { uiTokens } from "../../lib/uiTokens";
+import { SLIDE_TYPES } from "../../lib/types/slideProps";
 
 interface LanguageSectionProps {
+  slideType?: string;
   defaultLang: string;
   onChange: (value: string) => void;
 }
 
-export function LanguageSection({ defaultLang, onChange }: LanguageSectionProps) {
+export function LanguageSection({ slideType, defaultLang, onChange }: LanguageSectionProps) {
+  // Don't render for title, text, or lesson-end slides
+  if (
+    slideType === SLIDE_TYPES.TITLE ||
+    slideType === SLIDE_TYPES.TEXT ||
+    slideType === SLIDE_TYPES.LESSON_END
+  ) {
+    return null;
+  }
+
   return (
     <CmsSection
       title="Language and Localization"

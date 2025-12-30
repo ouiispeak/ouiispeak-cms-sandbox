@@ -77,6 +77,16 @@ export interface ChoiceElement {
 }
 
 /**
+ * Speech choice verify element (for speech-choice-verify)
+ * Similar to ChoiceElement but requires referenceText for matching
+ */
+export interface SpeechChoiceVerifyElement {
+  label: string;           // Display text: "A", "B", "J", "G"
+  referenceText: string;  // What to match against: "A", "B", "J", "G" (or phonetic variations)
+  speech: SpeechConfig;   // Audio to play when student selects this choice (required for correction)
+}
+
+/**
  * Line cell for ai-speak-repeat (lines structure)
  */
 export interface LineCell {
@@ -217,6 +227,23 @@ export interface SpeechMatchSlideProps extends BaseSlideProps {
   elements: ChoiceElement[];
 }
 
+/**
+ * Speech Choice Verify Slide Props
+ * Slide where students speak freely, Whisper matches to a choice (orange highlight),
+ * student verifies by clicking the highlighted choice (if correct) or clicking
+ * the correct choice (if wrong), then audio plays and student retries until correct.
+ */
+export interface SpeechChoiceVerifySlideProps extends BaseSlideProps {
+  /** Secondary heading / instructions */
+  subtitle?: string;
+  
+  /** Optional note displayed below subtitle */
+  note?: string;
+  
+  /** Choice elements with referenceText for matching */
+  elements: SpeechChoiceVerifyElement[];
+}
+
 // ============================================================================
 // Union Type
 // ============================================================================
@@ -320,7 +347,20 @@ export function isSpeechMatchSlideProps(props: unknown): props is SpeechMatchSli
   if (!Array.isArray(p.elements)) return false;
   if (p.elements.length === 0) return false;
   const firstElement = p.elements[0] as Record<string, unknown>;
-  return "label" in firstElement && "speech" in firstElement && !("samplePrompt" in firstElement);
+  return "label" in firstElement && "speech" in firstElement && !("samplePrompt" in firstElement) && !("referenceText" in firstElement);
+}
+
+/**
+ * Type guard: Check if props are for a speech-choice-verify slide
+ */
+export function isSpeechChoiceVerifySlideProps(props: unknown): props is SpeechChoiceVerifySlideProps {
+  if (!props || typeof props !== "object") return false;
+  const p = props as Record<string, unknown>;
+  // Speech-choice-verify slides have elements array with label, referenceText, and speech
+  if (!Array.isArray(p.elements)) return false;
+  if (p.elements.length === 0) return false;
+  const firstElement = p.elements[0] as Record<string, unknown>;
+  return "label" in firstElement && "referenceText" in firstElement && "speech" in firstElement && !("samplePrompt" in firstElement);
 }
 
 // ============================================================================
@@ -353,6 +393,8 @@ export function getTypedSlideProps(
       return isAISpeakStudentRepeatSlideProps(propsJson) ? propsJson : (propsJson as AISpeakStudentRepeatSlideProps);
     case SLIDE_TYPES.SPEECH_MATCH:
       return isSpeechMatchSlideProps(propsJson) ? propsJson : (propsJson as SpeechMatchSlideProps);
+    case SLIDE_TYPES.SPEECH_CHOICE_VERIFY:
+      return isSpeechChoiceVerifySlideProps(propsJson) ? propsJson : (propsJson as SpeechChoiceVerifySlideProps);
     default:
       // Log unknown slide type (development only to avoid noise)
       if (process.env.NODE_ENV === "development") {
@@ -362,13 +404,6 @@ export function getTypedSlideProps(
   }
 }
 
-/**
- * Map CMS language format to player format
- * @deprecated Use mapCmsLanguageToPlayer from ../constants/slideConstants instead
- */
-export function mapLanguageToPlayerFormat(cmsLang: CmsLanguage): PlayerLanguage {
-  return mapCmsLanguageToPlayer(cmsLang);
-}
 
 /**
  * Validate slide props structure (basic validation)
@@ -424,6 +459,39 @@ export function validateSlideProps(
             const elem = el as Record<string, unknown>;
             if (!elem.label || typeof elem.label !== "string") {
               errors.push(`elements[${idx}].label is required and must be a string`);
+            }
+            if (!elem.speech || typeof elem.speech !== "object") {
+              errors.push(`elements[${idx}].speech is required and must be an object`);
+            } else {
+              const speech = elem.speech as Record<string, unknown>;
+              if (speech.mode === "file" && !speech.fileUrl) {
+                errors.push(`elements[${idx}].speech.fileUrl is required when mode is "file"`);
+              }
+              if (speech.mode === "tts" && !speech.text) {
+                errors.push(`elements[${idx}].speech.text is required when mode is "tts"`);
+              }
+            }
+          }
+        });
+      }
+      break;
+
+    case SLIDE_TYPES.SPEECH_CHOICE_VERIFY:
+      if (!Array.isArray(p.elements)) {
+        errors.push("elements must be an array");
+      } else if (p.elements.length === 0) {
+        errors.push("elements array must contain at least one element");
+      } else {
+        p.elements.forEach((el, idx) => {
+          if (!el || typeof el !== "object") {
+            errors.push(`elements[${idx}] must be an object`);
+          } else {
+            const elem = el as Record<string, unknown>;
+            if (!elem.label || typeof elem.label !== "string") {
+              errors.push(`elements[${idx}].label is required and must be a string`);
+            }
+            if (!elem.referenceText || typeof elem.referenceText !== "string") {
+              errors.push(`elements[${idx}].referenceText is required and must be a string`);
             }
             if (!elem.speech || typeof elem.speech !== "object") {
               errors.push(`elements[${idx}].speech is required and must be an object`);

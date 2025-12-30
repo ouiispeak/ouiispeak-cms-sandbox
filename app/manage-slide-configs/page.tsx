@@ -107,6 +107,7 @@ export default function ManageSlideConfigsPage() {
             {/* Editor */}
             {selectedTypeKey && selectedConfig ? (
               <SlideTypeConfigEditor
+                key={selectedTypeKey} // Force re-render when typeKey changes
                 config={selectedConfig}
                 onSave={async (updatedConfig) => {
                   // Reload configs after save

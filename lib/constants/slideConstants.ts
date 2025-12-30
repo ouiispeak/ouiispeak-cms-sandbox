@@ -24,6 +24,7 @@ export const SLIDE_TYPES = {
   AI_SPEAK_REPEAT: "ai-speak-repeat",
   AI_SPEAK_STUDENT_REPEAT: "ai-speak-student-repeat",
   SPEECH_MATCH: "speech-match",
+  SPEECH_CHOICE_VERIFY: "speech-choice-verify",
 } as const;
 
 /**
