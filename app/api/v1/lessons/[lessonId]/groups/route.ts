@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { defaultDataAccess } from "../../../../../lib/data/supabaseDataAccess";
+import { defaultDataAccess } from "@/lib/data/supabaseDataAccess";
 
 // Tier 3.1 Step 4: Enable caching with revalidation
 export const revalidate = 60; // Revalidate every 60 seconds
