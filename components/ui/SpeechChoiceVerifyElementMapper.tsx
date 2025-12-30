@@ -9,7 +9,7 @@ import AudioFileSelector from "./AudioFileSelector";
 import { Button } from "../Button";
 import { useElementMapper } from "../../lib/hooks/utils/useElementMapper";
 import { normalizeLanguageToPlayer } from "../../lib/utils/elementMapperUtils";
-import type { SpeechChoiceVerifyElement } from "../../lib/types/slideProps";
+import type { SpeechChoiceVerifyElement, SpeechConfig } from "../../lib/types/slideProps";
 import { SPEECH_MODES, PLAYER_LANGUAGES } from "../../lib/constants/slideConstants";
 
 type SpeechChoiceVerifyElementMapperProps = {
@@ -58,7 +58,7 @@ export default function SpeechChoiceVerifyElementMapper({
     const element = elements[index];
     const normalizedLang = normalizeLanguageToPlayer(element.speech.lang, defaultLang);
     
-    const updatedSpeech = {
+    const updatedSpeech: SpeechConfig = {
       mode,
       lang: normalizedLang,
     };
