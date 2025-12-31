@@ -231,9 +231,25 @@ export const FIELD_REGISTRY: FieldDefinition[] = [
     id: "phrases",
     displayName: "Phrases",
     type: "textarea",
-    infoTooltip: "Phrases for speech recognition and audio interaction. Enter one phrase per line.",
+    infoTooltip: "Phrases for speech recognition and audio interaction. Enter one phrase per line. (Legacy field - use 'lines' for ai-speak-repeat slides)",
     placeholder: "Enter phrases, one per line",
     rows: 6,
+    defaultSection: "speech"
+  },
+  
+  {
+    id: "lines",
+    displayName: "Lines",
+    type: "complex",
+    componentName: "AiSpeakRepeatLinesMapper",
+    infoTooltip: "Elements organized in rows. Each element has a label (display text) and audio configuration (TTS or uploaded file). Students can click any element to hear it, or use the play button to hear all elements in sequence.",
+    componentProps: {
+      bucketName: "lesson-audio"
+    },
+    validation: {
+      custom: "at-least-one-row",
+      customMessage: "AI Speak Repeat: add at least 1 row with at least 1 element before saving."
+    },
     defaultSection: "speech"
   },
   
@@ -244,7 +260,7 @@ export const FIELD_REGISTRY: FieldDefinition[] = [
     infoTooltip: "Optional instructions shown to learners before they practice.",
     placeholder: "Enter instructions for learners",
     rows: 3,
-    defaultSection: "speech"
+    defaultSection: "content"
   },
   
   {
@@ -253,7 +269,7 @@ export const FIELD_REGISTRY: FieldDefinition[] = [
     type: "text",
     infoTooltip: "Label displayed above the practice prompt. Defaults to 'Phrase à prononcer' if not set.",
     placeholder: "Phrase à prononcer",
-    defaultSection: "speech"
+    defaultSection: "content"
   },
   
   {

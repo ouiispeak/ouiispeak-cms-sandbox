@@ -87,8 +87,8 @@ function getExpectedFieldsForType(slideType: string): {
   if (slideType !== "title-slide" && slideType !== "text-slide") {
     if (slideType === "ai-speak-student-repeat") {
       fields.push(
-        { fieldId: "instructions", section: "speech", visible: true },
-        { fieldId: "promptLabel", section: "speech", visible: true },
+        { fieldId: "instructions", section: "content", visible: true },
+        { fieldId: "promptLabel", section: "content", visible: true },
         { fieldId: "elements", section: "speech", visible: true }
       );
     } else if (slideType === "speech-match") {

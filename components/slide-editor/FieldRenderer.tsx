@@ -34,6 +34,11 @@ const SpeechChoiceVerifyElementMapper = dynamic(
   { ssr: false }
 );
 
+const AiSpeakRepeatLinesMapper = dynamic(
+  () => import("../ui/AiSpeakRepeatLinesMapper"),
+  { ssr: false }
+);
+
 const AudioFileSelector = dynamic(
   () => import("../ui/AudioFileSelector"),
   { ssr: false }
@@ -152,6 +157,16 @@ function renderComplexComponent(
         <SpeechChoiceVerifyElementMapper
           elements={value || []}
           onElementsChange={onChange}
+          {...componentProps}
+        />
+      );
+      break;
+
+    case "AiSpeakRepeatLinesMapper":
+      component = (
+        <AiSpeakRepeatLinesMapper
+          lines={value || []}
+          onLinesChange={onChange}
           {...componentProps}
         />
       );

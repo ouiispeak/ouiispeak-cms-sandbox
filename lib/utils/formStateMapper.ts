@@ -25,6 +25,14 @@ type ChoiceFormElement = {
 };
 
 /**
+ * Type for ai-speak-repeat lines in form state
+ */
+type AiSpeakRepeatFormLines = Array<Array<{
+  label: string;
+  speech: { mode: "tts" | "file"; lang?: "en" | "fr"; text?: string; fileUrl?: string };
+}>>;
+
+/**
  * Creates a handler function that maps dynamic form field IDs to appropriate state setters.
  * 
  * This utility bridges the gap between the dynamic form system (which uses fieldId strings)
@@ -71,6 +79,7 @@ export function createFormChangeHandler(setters: {
   setDefaultLang?: (v: string) => void;
   setAudioId?: (v: string) => void;
   setPhrases?: (v: string) => void;
+  setLines?: (v: AiSpeakRepeatFormLines) => void;
   setInstructions?: (v: string) => void;
   setPromptLabel?: (v: string) => void;
   setNote?: (v: string) => void;
@@ -120,6 +129,11 @@ export function createFormChangeHandler(setters: {
         break;
       case "phrases":
         setters.setPhrases?.(typeof value === "string" ? value : "");
+        break;
+      case "lines":
+        setters.setLines?.(
+          Array.isArray(value) ? (value as AiSpeakRepeatFormLines) : []
+        );
         break;
       case "instructions":
         setters.setInstructions?.(typeof value === "string" ? value : "");

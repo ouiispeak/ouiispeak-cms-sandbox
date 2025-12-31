@@ -150,13 +150,16 @@ function createAiSpeakRepeatConfig(): SlideTypeConfig {
         { fieldId: "orderIndex", sectionId: "identity", order: 5, required: false, visible: true },
         { fieldId: "label", sectionId: "identity", order: 6, required: true, visible: true },
         // Core Content Section
-        { fieldId: "buttons", sectionId: "content", order: 1, required: false, visible: true },
+        { fieldId: "title", sectionId: "content", order: 1, required: false, visible: true },
+        { fieldId: "subtitle", sectionId: "content", order: 2, required: false, visible: true },
+        { fieldId: "instructions", sectionId: "content", order: 3, required: false, visible: true },
+        { fieldId: "buttons", sectionId: "content", order: 4, required: false, visible: true },
         // Language & Localization Section
         { fieldId: "defaultLang", sectionId: "language", order: 1, required: false, visible: true },
         // Media Reference Section
         { fieldId: "audioId", sectionId: "media", order: 1, required: false, visible: true },
         // Speech & Audio Interaction Section
-        { fieldId: "phrases", sectionId: "speech", order: 1, required: true, visible: true },
+        { fieldId: "lines", sectionId: "speech", order: 1, required: true, visible: true },
         // Interaction Flags Section
         { fieldId: "isInteractive", sectionId: "interaction", order: 1, required: false, visible: true },
         { fieldId: "allowSkip", sectionId: "interaction", order: 2, required: false, visible: true },
@@ -170,7 +173,7 @@ function createAiSpeakRepeatConfig(): SlideTypeConfig {
       ],
       validationRules: [
         { fieldId: "label", rule: "non-empty", message: "Label is required" },
-        { fieldId: "phrases", rule: "non-empty", message: "Phrases are required" },
+        { fieldId: "lines", rule: "non-empty", message: "Lines are required" },
         { fieldId: "buttons", rule: "valid-json", message: "Buttons must be valid JSON" }
       ]
     }
@@ -217,14 +220,14 @@ function createAiSpeakStudentRepeatConfig(): SlideTypeConfig {
         { fieldId: "label", sectionId: "identity", order: 6, required: true, visible: true },
         // Core Content Section
         { fieldId: "buttons", sectionId: "content", order: 1, required: false, visible: true },
+        { fieldId: "instructions", sectionId: "content", order: 2, required: false, visible: true },
+        { fieldId: "promptLabel", sectionId: "content", order: 3, required: false, visible: true },
         // Language & Localization Section
         { fieldId: "defaultLang", sectionId: "language", order: 1, required: false, visible: true },
         // Media Reference Section
         { fieldId: "audioId", sectionId: "media", order: 1, required: false, visible: true },
         // Speech & Audio Interaction Section
-        { fieldId: "instructions", sectionId: "speech", order: 1, required: false, visible: true },
-        { fieldId: "promptLabel", sectionId: "speech", order: 2, required: false, visible: true },
-        { fieldId: "elements", sectionId: "speech", order: 3, required: true, visible: true },
+        { fieldId: "elements", sectionId: "speech", order: 1, required: true, visible: true },
         // Interaction Flags Section
         { fieldId: "isInteractive", sectionId: "interaction", order: 1, required: false, visible: true },
         { fieldId: "allowSkip", sectionId: "interaction", order: 2, required: false, visible: true },

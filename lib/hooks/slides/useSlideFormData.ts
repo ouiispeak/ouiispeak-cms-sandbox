@@ -159,12 +159,29 @@ export function extractInitialFormValues(
   meta: { activityName?: string },
   group: Group | null = null
 ) {
-  // Handle phrases - if it's lines array, flatten it; otherwise use as string
+  // Handle phrases - legacy support (for backwards compatibility)
   let initialPhrases = "";
-  if (isAISpeakRepeatSlideProps(props) && props.lines && Array.isArray(props.lines)) {
-    initialPhrases = props.lines.flat().map((cell) => cell.label || "").join("\n");
-  } else if (isAISpeakRepeatSlideProps(props) && props.phrases) {
+  if (isAISpeakRepeatSlideProps(props) && props.phrases) {
     initialPhrases = typeof props.phrases === "string" ? props.phrases : JSON.stringify(props.phrases);
+  }
+
+  // Handle lines - extract from props for ai-speak-repeat slides
+  let initialLines: Array<Array<{
+    label: string;
+    speech: { mode: "tts" | "file"; lang?: "en" | "fr"; text?: string; fileUrl?: string };
+  }>> = [];
+  if (isAISpeakRepeatSlideProps(props) && props.lines && Array.isArray(props.lines)) {
+    initialLines = props.lines.map((row) =>
+      row.map((cell) => ({
+        label: cell.label || "",
+        speech: {
+          mode: (cell.speech.mode || "tts") as "tts" | "file",
+          lang: cell.speech.lang as "en" | "fr" | undefined,
+          text: cell.speech.text || "",
+          fileUrl: cell.speech.fileUrl || "",
+        },
+      }))
+    );
   }
 
   // Build initial choiceElements for speech-match and speech-choice-verify
@@ -254,7 +271,8 @@ export function extractInitialFormValues(
     audioId: props.audioId || "",
     activityName: meta.activityName || "",
     phrases: initialPhrases,
-    instructions: isAISpeakStudentRepeatSlideProps(props) ? props.instructions || "" : "",
+    lines: initialLines,
+    instructions: (isAISpeakStudentRepeatSlideProps(props) || isAISpeakRepeatSlideProps(props)) ? props.instructions || "" : "",
     promptLabel: isAISpeakStudentRepeatSlideProps(props) ? props.promptLabel || "" : "",
     onCompleteAtIndex:
       isAISpeakStudentRepeatSlideProps(props) &&

@@ -87,7 +87,10 @@ export default function EditSlidePage() {
       data.slide.id === slideId
     ) {
       // Update initial values after reload completes to reset unsaved changes flag
-      updateInitialValues();
+      // Use setTimeout to ensure state has been updated from initialValues first
+      setTimeout(() => {
+        updateInitialValues();
+      }, 0);
       prevDataRef.current = data;
     }
   }, [data, loadState.status, slideId, updateInitialValues]);
@@ -110,6 +113,7 @@ export default function EditSlidePage() {
       data.slide.type,
       {
         phrases: state.phrases,
+        lines: state.lines,
         elements: state.elements,
         choiceElements: state.choiceElements,
       },

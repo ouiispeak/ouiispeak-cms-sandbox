@@ -32,6 +32,10 @@ export interface SlideFormState {
 
   // Speech fields
   phrases: string;
+  lines: Array<Array<{
+    label: string;
+    speech: { mode: "tts" | "file"; lang?: "en" | "fr"; text?: string; fileUrl?: string };
+  }>>;
   instructions: string;
   promptLabel: string;
   note: string;
@@ -70,6 +74,10 @@ export interface SlideFormStateSetters {
   setAudioId: (value: string) => void;
   setActivityName: (value: string) => void;
   setPhrases: (value: string) => void;
+  setLines: (value: Array<Array<{
+    label: string;
+    speech: { mode: "tts" | "file"; lang?: "en" | "fr"; text?: string; fileUrl?: string };
+  }>>) => void;
   setInstructions: (value: string) => void;
   setPromptLabel: (value: string) => void;
   setNote: (value: string) => void;
@@ -161,6 +169,9 @@ export function useSlideFormState(initialValues: Partial<SlideFormState> | null)
 
   // Speech state
   const [phrases, setPhrases] = useState(initialValues?.phrases || "");
+  const [lines, setLines] = useState(
+    initialValues?.lines || []
+  );
   const [instructions, setInstructions] = useState(initialValues?.instructions || "");
   const [promptLabel, setPromptLabel] = useState(initialValues?.promptLabel || "");
   const [note, setNote] = useState(initialValues?.note || "");
@@ -238,6 +249,7 @@ export function useSlideFormState(initialValues: Partial<SlideFormState> | null)
       setAudioId(initialValues.audioId || "");
       setActivityName(initialValues.activityName || "");
       setPhrases(initialValues.phrases || "");
+      setLines(initialValues.lines || []);
       setInstructions(initialValues.instructions || "");
       setPromptLabel(initialValues.promptLabel || "");
       setNote(initialValues.note || "");
@@ -270,6 +282,7 @@ export function useSlideFormState(initialValues: Partial<SlideFormState> | null)
         audioId: initialValues.audioId || "",
         activityName: initialValues.activityName || "",
         phrases: initialValues.phrases || "",
+        lines: initialValues.lines ? initialValues.lines.map(row => row.map(cell => ({ ...cell, speech: { ...cell.speech } }))) : [],
         instructions: initialValues.instructions || "",
         promptLabel: initialValues.promptLabel || "",
         note: initialValues.note || "",
@@ -318,6 +331,7 @@ export function useSlideFormState(initialValues: Partial<SlideFormState> | null)
       audioId !== initialValuesRef.current.audioId ||
       activityName !== initialValuesRef.current.activityName ||
       phrases !== initialValuesRef.current.phrases ||
+      JSON.stringify(lines) !== JSON.stringify(initialValuesRef.current.lines) ||
       instructions !== initialValuesRef.current.instructions ||
       promptLabel !== initialValuesRef.current.promptLabel ||
       onCompleteAtIndex !== initialValuesRef.current.onCompleteAtIndex ||
@@ -343,6 +357,7 @@ export function useSlideFormState(initialValues: Partial<SlideFormState> | null)
     audioId,
     activityName,
     phrases,
+    lines,
     instructions,
     promptLabel,
     onCompleteAtIndex,
@@ -393,6 +408,7 @@ export function useSlideFormState(initialValues: Partial<SlideFormState> | null)
       audioId,
       activityName,
       phrases,
+      lines: lines.map(row => row.map(cell => ({ ...cell, speech: { ...cell.speech } }))),
       instructions,
       promptLabel,
       note,
@@ -448,6 +464,7 @@ export function useSlideFormState(initialValues: Partial<SlideFormState> | null)
       audioId,
       activityName,
       phrases,
+      lines,
       instructions,
       promptLabel,
       note,
@@ -481,6 +498,7 @@ export function useSlideFormState(initialValues: Partial<SlideFormState> | null)
       setAudioId,
       setActivityName,
       setPhrases,
+      setLines,
       setInstructions,
       setPromptLabel,
       setNote,

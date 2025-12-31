@@ -284,6 +284,12 @@ export function useSlideFormSave() {
         }
 
         // Add speech-match specific fields
+        if (state.instructions.trim()) {
+          speechMatchProps.instructions = state.instructions.trim();
+        }
+        if (state.promptLabel.trim()) {
+          speechMatchProps.promptLabel = state.promptLabel.trim();
+        }
         if (state.note.trim()) {
           speechMatchProps.note = state.note.trim();
         }
@@ -338,18 +344,67 @@ export function useSlideFormSave() {
           speechChoiceVerifyProps.note = state.note.trim();
         }
       } else {
-        // For ai-speak-repeat: convert textarea text to lines array
-        // Use TTS mode for all phrases
+        // For ai-speak-repeat: use lines array directly
         const aiSpeakRepeatProps = updatedProps as Partial<AISpeakRepeatSlideProps>;
-        if (state.phrases.trim()) {
+        if (state.lines && Array.isArray(state.lines) && state.lines.length > 0) {
+          // Map CMS language format to player format for each cell
+          const mappedDefaultLang = mapCmsLanguageToPlayer((state.defaultLang || "en") as CmsLanguage) as "en" | "fr";
+          aiSpeakRepeatProps.lines = state.lines.map((row) =>
+            row
+              .map((cell) => {
+                const cellLabel = cell.label?.trim() || "";
+                if (!cellLabel) {
+                  // Skip cells without labels
+                  return null;
+                }
+
+                const cellData: AISpeakRepeatSlideProps["lines"][0][0] = {
+                  label: cellLabel,
+                  speech: {
+                    mode: cell.speech.mode || "tts",
+                  },
+                };
+
+                if (cell.speech.mode === "file") {
+                  // Convert storage path to public URL if it's not already a URL
+                  const filePath = cell.speech.fileUrl?.trim();
+                  if (filePath) {
+                    if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+                      // Already a full URL, use as-is
+                      cellData.speech.fileUrl = filePath;
+                    } else {
+                      // Storage path, convert to public URL
+                      cellData.speech.fileUrl = getAudioFileUrl("lesson-audio", filePath);
+                    }
+                  } else {
+                    // File mode but no fileUrl - fallback to TTS mode
+                    cellData.speech.mode = "tts";
+                    cellData.speech.lang = (cell.speech.lang || mappedDefaultLang) as "en" | "fr" | undefined;
+                    cellData.speech.text = cell.speech.text?.trim() || cellLabel;
+                  }
+                } else {
+                  // TTS mode
+                  cellData.speech.lang = (cell.speech.lang || mappedDefaultLang) as "en" | "fr" | undefined;
+                  const ttsText = cell.speech.text?.trim() || cellLabel;
+                  if (!ttsText) {
+                    // No text available - skip this cell
+                    return null;
+                  }
+                  cellData.speech.text = ttsText;
+                }
+
+                return cellData;
+              })
+              .filter((cell): cell is NonNullable<typeof cell> => cell !== null)
+          ).filter((row) => row.length > 0); // Remove empty rows
+        } else if (state.phrases.trim()) {
+          // Fallback: convert phrases textarea to lines array (backwards compatibility)
           const phraseList = state.phrases
             .split("\n")
             .map((p) => p.trim())
             .filter((p) => p.length > 0);
 
           if (phraseList.length > 0) {
-            // Convert to lines[][] structure for ai-speak-repeat slides
-            // Map CMS language format to player format
             const mappedLang = mapCmsLanguageToPlayer((state.defaultLang || "en") as CmsLanguage) as "en" | "fr";
             aiSpeakRepeatProps.lines = [
               phraseList.map((label) => ({
@@ -362,6 +417,11 @@ export function useSlideFormSave() {
               })),
             ];
           }
+        }
+
+        // Add ai-speak-repeat specific fields
+        if (state.instructions.trim()) {
+          aiSpeakRepeatProps.instructions = state.instructions.trim();
         }
       }
 

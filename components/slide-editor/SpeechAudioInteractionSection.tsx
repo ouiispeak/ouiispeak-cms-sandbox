@@ -10,19 +10,23 @@ import FormField from "../ui/FormField";
 import Textarea from "../ui/Textarea";
 import StudentRepeatElementMapper from "../ui/StudentRepeatElementMapper";
 import ChoiceElementMapper from "../ui/ChoiceElementMapper";
+import AiSpeakRepeatLinesMapper from "../ui/AiSpeakRepeatLinesMapper";
 import { uiTokens } from "../../lib/uiTokens";
 import { SLIDE_TYPES, type ChoiceElement } from "../../lib/types/slideProps";
 import type { StudentRepeatFormElement } from "../../components/ui/StudentRepeatElementMapper";
+import type { AiSpeakRepeatFormLines } from "../../components/ui/AiSpeakRepeatLinesMapper";
 
 interface SpeechAudioInteractionSectionProps {
   slideType: string;
   phrases: string;
   elements: StudentRepeatFormElement[];
   choiceElements: ChoiceElement[];
+  lines: AiSpeakRepeatFormLines;
   defaultLang: string;
   onPhrasesChange: (value: string) => void;
   onElementsChange: (elements: StudentRepeatFormElement[]) => void;
   onChoiceElementsChange: (elements: ChoiceElement[]) => void;
+  onLinesChange: (lines: AiSpeakRepeatFormLines) => void;
 }
 
 export function SpeechAudioInteractionSection({
@@ -30,10 +34,12 @@ export function SpeechAudioInteractionSection({
   phrases,
   elements,
   choiceElements,
+  lines,
   defaultLang,
   onPhrasesChange,
   onElementsChange,
   onChoiceElementsChange,
+  onLinesChange,
 }: SpeechAudioInteractionSectionProps) {
   // Don't render for title, text, or lesson-end slides
   if (
@@ -98,7 +104,34 @@ export function SpeechAudioInteractionSection({
     );
   }
 
-  // AI_SPEAK_REPEAT - Phrases
+  // AI_SPEAK_REPEAT - Lines Editor
+  if (slideType === SLIDE_TYPES.AI_SPEAK_REPEAT) {
+    return (
+      <CmsSection
+        title="Elements & Audio Configuration"
+        backgroundColor="#e6f1f1"
+        borderColor="#b4d5d5"
+        description="Configure elements organized in rows. Each element has a label and audio configuration (TTS or uploaded file)."
+      >
+        <FormField
+          label="Lines"
+          infoTooltip="Elements organized in rows. Each element has a label (display text) and audio configuration. Students can click any element to hear it, or use the play button to hear all elements in sequence."
+        >
+          <AiSpeakRepeatLinesMapper
+            lines={lines || []}
+            onLinesChange={onLinesChange}
+            bucketName="lesson-audio"
+            defaultLang={defaultLang || "en"}
+          />
+          <div className="metaText" style={{ marginTop: uiTokens.space.sm, fontSize: uiTokens.font.meta.size, color: "#999" }}>
+            [ai-speak-repeat] Configure elements in rows. Each element can use TTS or an uploaded audio file.
+          </div>
+        </FormField>
+      </CmsSection>
+    );
+  }
+
+  // Fallback for other slide types - Phrases (legacy)
   return (
     <CmsSection
       title="Speech & Audio Interaction"

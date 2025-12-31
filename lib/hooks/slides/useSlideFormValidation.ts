@@ -19,6 +19,10 @@ export function useSlideFormValidation() {
     slideType: string,
     state: {
       phrases: string;
+      lines: Array<Array<{
+        label: string;
+        speech: { mode: "tts" | "file"; lang?: "en" | "fr"; text?: string; fileUrl?: string };
+      }>>;
       elements: Array<{ samplePrompt: string; referenceText: string; audioPath: string }>;
       choiceElements: Array<{
         label: string;
@@ -30,21 +34,25 @@ export function useSlideFormValidation() {
   ): ValidationResult => {
     // Pre-save validation for interactive slide types
     if (slideType === SLIDE_TYPES.AI_SPEAK_REPEAT) {
-      // Require non-empty phrases/lines array
-      if (!state.phrases.trim()) {
+      // Require at least one row with at least one cell in lines array
+      if (!state.lines || !Array.isArray(state.lines) || state.lines.length === 0) {
         return {
           valid: false,
-          error: "AI Speak Repeat: add at least 1 phrase before saving.",
+          error: "AI Speak Repeat: add at least 1 row with at least 1 element before saving.",
         };
       }
-      const phraseList = state.phrases
-        .split("\n")
-        .map((p) => p.trim())
-        .filter((p) => p.length > 0);
-      if (phraseList.length === 0) {
+      // Check that at least one row has at least one cell with a label
+      const hasValidRow = state.lines.some((row) => {
+        if (!Array.isArray(row) || row.length === 0) {
+          return false;
+        }
+        // Check that at least one cell has a non-empty label
+        return row.some((cell) => cell.label && cell.label.trim() !== "");
+      });
+      if (!hasValidRow) {
         return {
           valid: false,
-          error: "AI Speak Repeat: add at least 1 phrase before saving.",
+          error: "AI Speak Repeat: add at least 1 row with at least 1 element before saving.",
         };
       }
     } else if (slideType === SLIDE_TYPES.AI_SPEAK_STUDENT_REPEAT) {
