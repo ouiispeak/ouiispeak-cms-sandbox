@@ -28,8 +28,8 @@
 | Field | Value |
 |-------|-------|
 | **Last updated** | 2025-02-19 |
-| **Current phase** | Phase 1 — Ingest complete, awaiting approve & verify |
-| **Blocking on** | Manual: approve lesson, verify in player |
+| **Current phase** | Phase 1 complete ✓ — Ready for Phase 2 |
+| **Blocking on** | — |
 | **LaDy doc path** | `lesson-compiler-core/docs/P8_IMPLEMENTATION_LOG.md` |
 | **CMS doc path** | `ouiispeak-cms/docs/P8_IMPLEMENTATION_LOG.md` |
 | **LaDy fake lesson path** | `lesson-compiler-core/scripts/output/fake-cms-lesson.json` |
@@ -95,12 +95,12 @@ npx tsx scripts/ingest-lady-lesson.ts scripts/sample-fake-lady-lesson.json
 - [x] Lesson appears on `/queued`
 - [x] Groups and slides visible in sidebar when editing lesson
 
-### Step 1.3 — [CMS] Approve lesson and verify in player
-- [ ] **YOU:** Approve lesson from Queued page (`/queued` → click Approve)
-- [ ] **YOU:** Open lesson in player (Preview button or player URL)
-- [ ] **YOU:** Verify title slide displays correctly
-- [ ] **YOU:** Verify text slides display correctly
-- [ ] **YOU:** Verify navigation works
+### Step 1.3 — [CMS] Approve lesson and verify in player ✅
+- [x] Approve lesson from Queued page
+- [x] Open lesson in player
+- [x] Title slide displays correctly
+- [x] Text slides display correctly
+- [x] Navigation works
 
 **Lesson ID from last ingest:** `2e2e9649-6898-4d8e-9389-5519bf4ec304`
 
@@ -192,4 +192,5 @@ When you add a field (e.g. `animation` on text-slide):
 [2025-02-19] Phase 1.1 complete. fake-cms-lesson.json exists in LaDy repo.
 [2025-02-19] Phase 1.2 complete. Ingest succeeded. Lesson 2e2e9649-6898-4d8e-9389-5519bf4ec304 on Queued. 3 groups, 3 slides.
 [2025-02-19] Created scripts/p8-setup-prereqs.ts for module setup.
+[2025-02-19] Phase 1.3 complete. Approved lesson, verified in player. End-to-end works.
 ```
