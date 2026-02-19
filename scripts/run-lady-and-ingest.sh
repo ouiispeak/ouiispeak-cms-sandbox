@@ -3,21 +3,21 @@
 # P8 Phase 4: Run LaDy generation, then ingest into CMS.
 #
 # Usage:
-#   ./scripts/run-lady-and-ingest.sh [path-to-lesson.json]
+#   ./scripts/run-lady-and-ingest.sh [path-to-lesson.json | path-to-dir]
 #
-# If path-to-lesson.json is omitted:
-#   1. Runs LaDy (if LADY_REPO_PATH is set)
-#   2. Uses LADY_OUTPUT_PATH or first .json in LADY_OUTPUT_DIR
+# If path is omitted:
+#   1. If LADY_REPO_PATH set: runs LaDy, then npm run emit-release-cms, then batch ingests
+#   2. Else uses LADY_OUTPUT_PATH (file or dir)
 #
 # Env (optional):
-#   LADY_REPO_PATH     - Path to lesson-compiler-core (e.g. ../lesson-compiler-core)
-#   LADY_OUTPUT_DIR    - Where LaDy writes output (e.g. releases/ or out/)
-#   LADY_OUTPUT_PATH   - Explicit path to a specific JSON file (skips LaDy run)
+#   LADY_REPO_PATH       - Path to lesson-compiler-core (e.g. ../lesson-compiler-core)
+#   LADY_OUTPUT_PATH     - Explicit file or dir (skips LaDy run)
+#   LADY_CMS_OUTPUT_DIR  - Dir with .cms.json files (default: $LADY_REPO_PATH/scripts/output/cms/<latest-release>)
 #
 # Examples:
-#   LADY_OUTPUT_PATH=./sample.json ./scripts/run-lady-and-ingest.sh
 #   ./scripts/run-lady-and-ingest.sh ./scripts/sample-lady-lesson.json
-#   LADY_REPO_PATH=../lesson-compiler-core LADY_OUTPUT_DIR=releases ./scripts/run-lady-and-ingest.sh
+#   ./scripts/run-lady-and-ingest.sh ../lesson-compiler-core/scripts/output/cms/test-run-1
+#   LADY_REPO_PATH=../lesson-compiler-core ./scripts/run-lady-and-ingest.sh
 #
 
 set -e
@@ -25,21 +25,21 @@ set -e
 CMS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$CMS_ROOT"
 
-# If explicit path given, use it and skip LaDy
+# If explicit path given (file or dir), use it and skip LaDy
 if [[ -n "$1" ]]; then
-  JSON_PATH="$1"
-  if [[ ! -f "$JSON_PATH" ]]; then
-    echo "Error: File not found: $JSON_PATH"
+  INGEST_PATH="$1"
+  if [[ ! -f "$INGEST_PATH" && ! -d "$INGEST_PATH" ]]; then
+    echo "Error: Path not found: $INGEST_PATH"
     exit 1
   fi
-  echo "Ingesting: $JSON_PATH"
-  npx tsx scripts/ingest-lady-lesson.ts "$JSON_PATH"
+  echo "Ingesting: $INGEST_PATH"
+  npx tsx scripts/ingest-lady-lesson.ts "$INGEST_PATH"
   exit 0
 fi
 
-# If explicit output path set, use it
+# If explicit output path set (file or dir), use it
 if [[ -n "$LADY_OUTPUT_PATH" ]]; then
-  if [[ ! -f "$LADY_OUTPUT_PATH" ]]; then
+  if [[ ! -f "$LADY_OUTPUT_PATH" && ! -d "$LADY_OUTPUT_PATH" ]]; then
     echo "Error: LADY_OUTPUT_PATH not found: $LADY_OUTPUT_PATH"
     exit 1
   fi
@@ -48,7 +48,7 @@ if [[ -n "$LADY_OUTPUT_PATH" ]]; then
   exit 0
 fi
 
-# Try to run LaDy if LADY_REPO_PATH is set
+# Run LaDy + emit-release-cms + batch ingest if LADY_REPO_PATH is set
 if [[ -n "$LADY_REPO_PATH" ]]; then
   if [[ ! -d "$LADY_REPO_PATH" ]]; then
     echo "Error: LADY_REPO_PATH not found: $LADY_REPO_PATH"
@@ -56,20 +56,23 @@ if [[ -n "$LADY_REPO_PATH" ]]; then
   fi
   echo "Running LaDy in $LADY_REPO_PATH..."
   (cd "$LADY_REPO_PATH" && node scripts/run-generation.mjs --mode commit 2>/dev/null || true)
-  OUTPUT_DIR="${LADY_OUTPUT_DIR:-$LADY_REPO_PATH/releases}"
-  if [[ -d "$OUTPUT_DIR" ]]; then
-    # Use most recently modified .json file (ls -t = sort by mtime, newest first)
-    JSON_PATH=$(ls -t "$OUTPUT_DIR"/*.json 2>/dev/null | head -1)
-    if [[ -n "$JSON_PATH" && -f "$JSON_PATH" ]]; then
-      echo "Ingesting latest output: $JSON_PATH"
-      npx tsx scripts/ingest-lady-lesson.ts "$JSON_PATH"
-      exit 0
-    fi
+  echo "Emitting CMS format..."
+  (cd "$LADY_REPO_PATH" && npm run emit-release-cms 2>/dev/null || true)
+  CMS_DIR="${LADY_CMS_OUTPUT_DIR}"
+  if [[ -z "$CMS_DIR" ]]; then
+    # Default: scripts/output/cms/<latest-release>
+    LATEST=$(ls -t "$LADY_REPO_PATH/scripts/output/cms" 2>/dev/null | head -1)
+    CMS_DIR="$LADY_REPO_PATH/scripts/output/cms/$LATEST"
   fi
-  echo "Warning: LaDy ran but no JSON found in $OUTPUT_DIR. Run ingest manually with path."
+  if [[ -d "$CMS_DIR" ]] && ls "$CMS_DIR"/*.json 1>/dev/null 2>&1; then
+    echo "Ingesting from $CMS_DIR"
+    npx tsx scripts/ingest-lady-lesson.ts "$CMS_DIR"
+    exit 0
+  fi
+  echo "Warning: LaDy ran but no CMS JSON in $CMS_DIR. Run ingest manually with path."
 else
-  echo "Usage: ./scripts/run-lady-and-ingest.sh <path-to-lesson.json>"
+  echo "Usage: ./scripts/run-lady-and-ingest.sh [path-to-lesson.json | path-to-dir]"
   echo "   or: LADY_REPO_PATH=../lesson-compiler-core ./scripts/run-lady-and-ingest.sh"
-  echo "   or: LADY_OUTPUT_PATH=./path/to/output.json ./scripts/run-lady-and-ingest.sh"
+  echo "   or: LADY_OUTPUT_PATH=./path/to/output ./scripts/run-lady-and-ingest.sh"
   exit 1
 fi

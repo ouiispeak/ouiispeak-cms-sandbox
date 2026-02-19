@@ -28,7 +28,7 @@
 | Field | Value |
 |-------|-------|
 | **Last updated** | 2025-02-19 |
-| **Current phase** | Phase 1 complete ✓ — Ready for Phase 2 |
+| **Current phase** | Phase 2 complete ✓ |
 | **Blocking on** | — |
 | **LaDy doc path** | `lesson-compiler-core/docs/P8_IMPLEMENTATION_LOG.md` |
 | **CMS doc path** | `ouiispeak-cms/docs/P8_IMPLEMENTATION_LOG.md` |
@@ -108,37 +108,33 @@ npx tsx scripts/ingest-lady-lesson.ts scripts/sample-fake-lady-lesson.json
 
 ## Phase 2: Wire LaDy Output to CMS Ingest Path
 
-### Step 2.1 — [LaDy] Determine output location for CMS-compatible JSON
+**LaDy CMS output path:** `scripts/output/cms/<releaseId>/*.cms.json`
+
+### Step 2.1 — [LaDy] Determine output location for CMS-compatible JSON ✅
 **Repo:** lesson-compiler-core  
-**Action:** Decide where LaDy will write CMS-format JSON:
-- Option A: `releases/<runId>/cms_import/` with per-lesson JSON
-- Option B: `out/cms/` with flat JSON files
-- Option C: Add `--format cms` to run-generation that emits CMS schema
+**Action:** Decide where LaDy will write CMS-format JSON.
 
-- [ ] Output path documented in LaDy README or `docs/P8_IMPLEMENTATION_LOG.md`
-- [ ] **Update CMS doc:** Add "LaDy CMS output path: `______`" below
+- [x] Path: `scripts/output/cms/<releaseId>/` (via `npm run emit-release-cms`)
+- [x] Documented in both implementation logs
 
-### Step 2.2 — [LaDy] Add CMS-format output (or transform)
+### Step 2.2 — [LaDy] Add CMS-format output (or transform) ✅
 **Repo:** lesson-compiler-core  
 **Action:** Either:
 - A) Add a post-step that converts current `activities` format → CMS `slides` format
 - B) Add a new output mode that writes CMS format directly
 - C) Create a standalone script that reads one lesson JSON and writes CMS format
 
-- [ ] Implemented
-- [ ] Output path wired (see Step 2.1)
+- [x] `scripts/to-cms-format.mjs` — single lesson transform
+- [x] `scripts/emit-release-cms.mjs` — all lessons in a release
+- [x] `npm run to-cms-format`, `npm run emit-release-cms` in package.json
 
-### Step 2.3 — [CMS] Add ingest-from-LaDy script (optional)
+### Step 2.3 — [CMS] Add ingest-from-LaDy script ✅
 **Repo:** ouiispeak-cms  
-**Action:** If desired, add env or config for LaDy output path:
+**Action:** Support batch ingest and wire `run-lady-and-ingest.sh`:
 
-```bash
-LADY_OUTPUT_PATH=/path/to/lady/output.json npx tsx scripts/ingest-lady-lesson.ts
-```
-
-Or use `scripts/run-lady-and-ingest.sh` with `LADY_REPO_PATH` and `LADY_OUTPUT_DIR`.
-
-- [ ] Tested end-to-end: LaDy run → ingest → Queued
+- [x] `ingest-lady-lesson.ts` accepts file or directory (batch ingest)
+- [x] `run-lady-and-ingest.sh` supports dir, runs emit-release-cms when LADY_REPO_PATH set
+- [x] End-to-end tested: LaDy emit-release-cms → batch ingest → Queued
 
 ---
 
@@ -193,4 +189,5 @@ When you add a field (e.g. `animation` on text-slide):
 [2025-02-19] Phase 1.2 complete. Ingest succeeded. Lesson 2e2e9649-6898-4d8e-9389-5519bf4ec304 on Queued. 3 groups, 3 slides.
 [2025-02-19] Created scripts/p8-setup-prereqs.ts for module setup.
 [2025-02-19] Phase 1.3 complete. Approved lesson, verified in player. End-to-end works.
+[2025-02-19] Phase 2 complete. LaDy: to-cms-format.mjs, emit-release-cms.mjs, npm scripts. CMS: batch ingest (file or dir), run-lady-and-ingest.sh runs emit-release-cms + ingest.
 ```

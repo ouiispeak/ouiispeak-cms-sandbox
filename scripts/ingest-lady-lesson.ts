@@ -12,8 +12,8 @@
  *   NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY - from .env.local
  */
 
-import { readFileSync } from "fs";
-import { resolve } from "path";
+import { readFileSync, readdirSync, statSync } from "fs";
+import { resolve, join } from "path";
 import dotenv from "dotenv";
 
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
@@ -27,38 +27,79 @@ import { loadModuleBySlug } from "../lib/data/modules";
 
 const MODULE_SLUG = process.env.LADY_INGEST_MODULE_SLUG || "incoming";
 
+function gatherLessonFiles(pathArg: string): string[] {
+  const resolved = resolve(pathArg);
+  const stat = statSync(resolved);
+  if (stat.isFile()) {
+    return resolved.endsWith(".json") ? [resolved] : [];
+  }
+  if (stat.isDirectory()) {
+    return readdirSync(resolved)
+      .filter((f) => f.endsWith(".json"))
+      .map((f) => join(resolved, f));
+  }
+  return [];
+}
+
 async function main() {
   const args = process.argv.slice(2);
   if (args.length === 0) {
-    console.error("Usage: npx tsx scripts/ingest-lady-lesson.ts <path-to-lesson.json>");
+    console.error("Usage: npx tsx scripts/ingest-lady-lesson.ts <path-to-lesson.json> [path2 ...]");
+    console.error("       npx tsx scripts/ingest-lady-lesson.ts <path-to-dir-with-cms-lessons>");
     process.exit(1);
   }
 
-  const filePath = resolve(process.cwd(), args[0]);
+  const files: string[] = [];
+  for (const arg of args) {
+    files.push(...gatherLessonFiles(arg));
+  }
 
-  let raw: string;
-  try {
-    raw = readFileSync(filePath, "utf-8");
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error(`Failed to read file "${filePath}": ${msg}`);
+  if (files.length === 0) {
+    console.error("No JSON files found.");
     process.exit(1);
   }
 
-  let data: unknown;
-  try {
-    data = JSON.parse(raw);
-  } catch {
-    console.error(`Invalid JSON in "${filePath}"`);
-    process.exit(1);
+  let ok = 0;
+  let fail = 0;
+  for (const filePath of files) {
+    let raw: string;
+    try {
+      raw = readFileSync(filePath, "utf-8");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`Failed to read "${filePath}": ${msg}`);
+      fail++;
+      continue;
+    }
+
+    let data: unknown;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      console.error(`Invalid JSON in "${filePath}"`);
+      fail++;
+      continue;
+    }
+
+    if (!isValidLadyLesson(data)) {
+      console.error(`Invalid LaDy shape in "${filePath}". Required: lessonId, targetNodeIds, slides (type title|text).`);
+      fail++;
+      continue;
+    }
+
+    try {
+      await runIngest(data as import("../lib/types/ladyLesson").LadyLessonOutput);
+      ok++;
+    } catch (e) {
+      console.error(`Ingest failed for "${filePath}":`, e);
+      fail++;
+    }
   }
 
-  if (!isValidLadyLesson(data)) {
-    console.error("Invalid LaDy lesson shape. Required: lessonId (string), targetNodeIds, slides (array). Each slide must have type 'title' or 'text' only.");
-    process.exit(1);
+  if (files.length > 1) {
+    console.log(`Batch: ${ok} succeeded, ${fail} failed`);
   }
-
-  await runIngest(data as import("../lib/types/ladyLesson").LadyLessonOutput);
+  if (fail > 0) process.exit(1);
 }
 
 async function runIngest(ladyLesson: import("../lib/types/ladyLesson").LadyLessonOutput) {
