@@ -1,0 +1,1236 @@
+{
+  "lesson": {
+    "id": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+    "moduleId": "db16b7f1-a7df-4e86-ad56-d26d3a62a9ac",
+    "label": "The Alphabet",
+    "title": "Sounds & the Alphabet",
+    "slug": "getting-started/lesson-1",
+    "orderIndex": 1,
+    "estimatedMinutes": null,
+    "requiredScore": null,
+    "content": null,
+    "shortSummaryAdmin": "This first lesson introduces students to one of the foundations of English—the alphabet. It targets a skill that learners often struggle with for years: recognizing and producing the basic sounds of the language. The lesson builds familiarity with English phonetics, sets the stage for future pronunciation work, and helps the learner get used to Raichel’s voice and teaching style.",
+    "shortSummaryStudent": "Your very first step in English: learning the alphabet the right way. Get to know the sounds, warm up your ears, and meet Raichel’s voice.",
+    "courseOrganizationGroup": "6 Groups",
+    "slideContents": "Intro; 3 Text; Activity; Text; 6 Activity; 3 Text; Activity; Text; Lesson Exam; Finale",
+    "groupingStrategySummary": "To guide the learner through small, focused steps: introduction, application, pronunciation, L1→L2 challenges, and listening practice.",
+    "activityTypes": [
+      "AISpeak; 7 AISpeakStudentRepeat; AISpeakStudentChoose"
+    ],
+    "activityDescription": "The learner starts by just listening, then practices listening and repeating with a pronunciation score, and ends with one more listening round.",
+    "signatureMetaphors": "A sounds like “é”; E is said with a smile; I as in “I” (je); AI ≠ IA; G and J are reversed; R like “Are you?”; double-v in French, double-U in English.",
+    "mainGrammarTopics": "N/A",
+    "pronunciationFocus": "A-Z",
+    "vocabularyTheme": "The alphabet",
+    "l1L2Issues": "Most people learn the alphabet once and then forget it, which makes spelling difficult later.\nA and I are often confused.\nE and I are often confused.\nG and J are often confused.\nR sounds closer to the French “r”.\nU is tricky — learners need to flatten their tongue.\nTo remember W: “double U”.\nZ is often said as “zed” (British), but in American English it’s “zee”.",
+    "prerequisites": "Knowing the Latin letters; the alphabet.",
+    "learningObjectives": "To become aware of English sounds and the alphabet, and the specific difficulties for French learners; to be able to hear and pronounce the alphabet correctly with support; to develop initial awareness of English pronunciation.",
+    "notesForTeacherOrAI": "There is no need for perfection here."
+  },
+  "groups": [
+    {
+      "id": "49e00578-90a1-420e-ab4e-2b5e737c2347",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "orderIndex": 1,
+      "label": "Lesson Title",
+      "title": "Apprenons l’alphabet"
+    },
+    {
+      "id": "acff67df-c58c-42cc-b669-1e7fd10a4a6f",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "orderIndex": 2,
+      "label": "Lesson Introduction",
+      "title": "Why the Alphabet Matters"
+    },
+    {
+      "id": "e7d0163b-2752-4337-ad69-d9cd3e00b34c",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "orderIndex": 3,
+      "label": "Alphabet Listening",
+      "title": "Listen to the Alphabet"
+    },
+    {
+      "id": "dc317487-9551-4d2a-9ade-d105a7d48089",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "orderIndex": 4,
+      "label": "French vs English Alphabet",
+      "title": "The Tricky Letters for French Speakers"
+    },
+    {
+      "id": "fac1e6ce-49e8-413e-b4af-acfc0a8238d8",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "orderIndex": 5,
+      "label": "Alphabet Listening Check",
+      "title": "Can You Hear the Difference?"
+    },
+    {
+      "id": "9d906cb8-9daf-42ed-8d18-aedc474e7be1",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "orderIndex": 6,
+      "label": "Lesson Outro",
+      "title": "Well Done!"
+    }
+  ],
+  "slides": [
+    {
+      "id": "4c9a665a-84e0-4fdc-a99f-2f81d582e957",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "dc317487-9551-4d2a-9ade-d105a7d48089",
+      "orderIndex": 1,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "T’as remarqué que certaines lettres étaient carrément différentes, voire à l’opposé en français ?",
+        "label": "A, E, or I?",
+        "buttons": [
+          "next"
+        ],
+        "allowSkip": false,
+        "allowRetry": false,
+        "defaultLang": "french",
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "1f01e314-31ff-498d-aa72-6acefd0b6982",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "9d906cb8-9daf-42ed-8d18-aedc474e7be1",
+      "orderIndex": 1,
+      "type": "lesson-end",
+      "propsJson": {
+        "label": "Outtro",
+        "title": "Lesson Complete!",
+        "message": "Bravo ! Tu viens de terminer la leçon 1.",
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "b112ee1e-af17-4ed6-a651-97096f162f58",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "49e00578-90a1-420e-ab4e-2b5e737c2347",
+      "orderIndex": 1,
+      "type": "title-slide",
+      "propsJson": {
+        "label": "Title",
+        "title": "Apprenons l’alphabet",
+        "buttons": [
+          {
+            "label": "Start",
+            "action": "next"
+          }
+        ],
+        "subtitle": "A0 · Module 1 · Lesson 1",
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "4aa027b5-7119-482a-a3f3-a3b847be2988",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "fac1e6ce-49e8-413e-b4af-acfc0a8238d8",
+      "orderIndex": 1,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "D’accord, maintenant place au jeu ! Voilà l’activité : je vais dire une lettre, et toi tu dois cliquer sur la lettre que j’ai dite. Si c’est la bonne, elle devient verte. Si c’est la mauvaise… elle devient rouge !",
+        "label": "The Finale!",
+        "allowSkip": false,
+        "allowRetry": false,
+        "defaultLang": "english",
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "53b11734-3ac6-4302-aee5-d812a6f74a72",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "e7d0163b-2752-4337-ad69-d9cd3e00b34c",
+      "orderIndex": 1,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Génial ! Maintenant, on va y aller par petits bouts. Cette fois, je veux que toi tu dises la lettre, moi je répète, et ensuite tu répètes après moi.",
+        "label": "Les petits bouts",
+        "buttons": [
+          "next"
+        ],
+        "allowSkip": false,
+        "allowRetry": false,
+        "defaultLang": "french",
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "84f92c7b-f48a-48fa-9d45-e547555a2643",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "acff67df-c58c-42cc-b669-1e7fd10a4a6f",
+      "orderIndex": 1,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Des fois, je revois la prononciation des lettres avec mes élèves C1 et C2. L’alphabet, c’est vraiment une étape qu’on oublie trop souvent.",
+        "label": "More important than A, B, C",
+        "buttons": [
+          "next"
+        ],
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "de0cf25d-a0b4-47a1-94b5-880e486edecc",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "acff67df-c58c-42cc-b669-1e7fd10a4a6f",
+      "orderIndex": 2,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Pour commencer, écoute et répète après moi. Pas besoin de te prendre la tête avec la prononciation, laisse juste ton cerveau faire le boulot.",
+        "label": "How to",
+        "buttons": [
+          "next"
+        ]
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "5214a4d6-d201-4aa9-a3d4-748561ec6a48",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "dc317487-9551-4d2a-9ade-d105a7d48089",
+      "orderIndex": 2,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Il y a des lettres en particulier qui sont super pénibles pour les francophones.",
+        "label": "You're not alone",
+        "buttons": [
+          "next"
+        ],
+        "allowSkip": false,
+        "allowRetry": false,
+        "defaultLang": "french",
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "741232b2-d797-4de5-9f58-51984833ffcd",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "e7d0163b-2752-4337-ad69-d9cd3e00b34c",
+      "orderIndex": 2,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Écoute-moi prononcer la lettre, l’enregistrement commencera automatiquement, dis la lettre que tu entends ; si tu la prononces correctement, elle deviendra verte et la lettre suivante commencera ; si elle est rouge, cela signifie qu’elle n’a pas été bien prononcée ou qu’il y a eu une interférence avec le micro ; après trois tentatives échouées, tu pourras passer cette lettre et je l’ajouterai à ton journal en tant que lettre sautée.",
+        "label": "Instructions",
+        "buttons": [
+          "next"
+        ],
+        "allowSkip": false,
+        "allowRetry": false,
+        "defaultLang": "french",
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "f4ff729c-793d-42f4-a71b-02099df04cd8",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "acff67df-c58c-42cc-b669-1e7fd10a4a6f",
+      "orderIndex": 3,
+      "type": "ai-speak-repeat",
+      "propsJson": {
+        "label": "Listen to the alphabet",
+        "lines": [
+          [
+            {
+              "label": "A",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/A.wav"
+              }
+            },
+            {
+              "label": "B",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/B.wav"
+              }
+            },
+            {
+              "label": "C",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/C.wav"
+              }
+            },
+            {
+              "label": "D",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/D.wav"
+              }
+            },
+            {
+              "label": "E",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/E.wav"
+              }
+            },
+            {
+              "label": "F",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/F.wav"
+              }
+            }
+          ],
+          [
+            {
+              "label": "G",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/G.wav"
+              }
+            },
+            {
+              "label": "H",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/H.wav"
+              }
+            },
+            {
+              "label": "I",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/I.wav"
+              }
+            },
+            {
+              "label": "J",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/J.wav"
+              }
+            },
+            {
+              "label": "K",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/L.wav"
+              }
+            },
+            {
+              "label": "M",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/M.wav"
+              }
+            },
+            {
+              "label": "N",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/N.wav"
+              }
+            }
+          ],
+          [
+            {
+              "label": "O",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/O.wav"
+              }
+            },
+            {
+              "label": "P",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/P.wav"
+              }
+            },
+            {
+              "label": "Q",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/Q.wav"
+              }
+            },
+            {
+              "label": "R",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/R.wav"
+              }
+            },
+            {
+              "label": "S",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/S.wav"
+              }
+            },
+            {
+              "label": "T",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/T.wav"
+              }
+            },
+            {
+              "label": "U",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/U.wav"
+              }
+            }
+          ],
+          [
+            {
+              "label": "V",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/V.wav"
+              }
+            },
+            {
+              "label": "W",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/W.wav"
+              }
+            },
+            {
+              "label": "X",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/X.wav"
+              }
+            },
+            {
+              "label": "Y",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/Y.wav"
+              }
+            },
+            {
+              "label": "Z",
+              "speech": {
+                "mode": "file",
+                "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/Z.wav"
+              }
+            }
+          ]
+        ],
+        "title": "Listen to the alphabet",
+        "allowSkip": false,
+        "allowRetry": false,
+        "defaultLang": "english",
+        "instructions": "Écoute simplement le mot et essaie de produire le même son.\nIl n’y a pas de note ni d’enregistrement, c’est juste toi et moi !",
+        "isInteractive": true
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {
+        "activityName": "Listen to the alphabet"
+      },
+      "isActivity": true,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "5a2ebc9f-32b4-425c-905b-f7b677fb39ff",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "dc317487-9551-4d2a-9ade-d105a7d48089",
+      "orderIndex": 3,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Allez, on va s’entraîner sur celles-là.",
+        "label": "Motivation and transition",
+        "buttons": [
+          "next"
+        ],
+        "allowSkip": false,
+        "allowRetry": false,
+        "defaultLang": "french",
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "65dfb59e-16bd-4c17-a559-8d5b4b211e40",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "e7d0163b-2752-4337-ad69-d9cd3e00b34c",
+      "orderIndex": 3,
+      "type": "ai-speak-student-repeat",
+      "propsJson": {
+        "label": "Repeat after me A - E",
+        "elements": [
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/A.wav"
+            },
+            "samplePrompt": "A",
+            "referenceText": "A"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/B.wav"
+            },
+            "samplePrompt": "B",
+            "referenceText": "B"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/C.wav"
+            },
+            "samplePrompt": "C",
+            "referenceText": "C"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/D.wav"
+            },
+            "samplePrompt": "D",
+            "referenceText": "D"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/E.wav"
+            },
+            "samplePrompt": "E",
+            "referenceText": "E"
+          }
+        ],
+        "allowSkip": true,
+        "allowRetry": true,
+        "defaultLang": "english",
+        "promptLabel": "écoute et répète",
+        "instructions": "Appuie sur le bouton Play pour commencer l’activité. Tu vas m’entendre dire la première lettre, puis ce sera à ton tour de la prononcer quand le bouton d’enregistrement démarre.\n\nSi tu la prononces correctement, la lettre deviendra verte. Si ce n’est pas tout à fait juste, elle deviendra rouge.\n\nPas d’inquiétude : tu as trois essais pour chaque lettre, et tu peux aussi la passer. Si tu passes une lettre, je la noterai dans ton carnet pour que tu puisses t’entraîner plus tard.",
+        "isInteractive": true
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": true,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "e66d2f42-8e87-49cb-a1a7-7f9ec41882fe",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "fac1e6ce-49e8-413e-b4af-acfc0a8238d8",
+      "orderIndex": 3,
+      "type": "speech-match",
+      "propsJson": {
+        "label": "What do you hear?",
+        "elements": [
+          {
+            "label": "A",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/A.wav"
+            }
+          },
+          {
+            "label": "B",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/B.wav"
+            }
+          },
+          {
+            "label": "C",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/C.wav"
+            }
+          },
+          {
+            "label": "D",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/D.wav"
+            }
+          },
+          {
+            "label": "E",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/E.wav"
+            }
+          },
+          {
+            "label": "F",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/F.wav"
+            }
+          },
+          {
+            "label": "G",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/G.wav"
+            }
+          },
+          {
+            "label": "H",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/H.wav"
+            }
+          },
+          {
+            "label": "I",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/I.wav"
+            }
+          },
+          {
+            "label": "J",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/J.wav"
+            }
+          },
+          {
+            "label": "K",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/K.wav"
+            }
+          },
+          {
+            "label": "L",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/L.wav"
+            }
+          },
+          {
+            "label": "M",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/M.wav"
+            }
+          },
+          {
+            "label": "N",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/N.wav"
+            }
+          },
+          {
+            "label": "O",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/O.wav"
+            }
+          },
+          {
+            "label": "P",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/P.wav"
+            }
+          },
+          {
+            "label": "Q",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/Q.wav"
+            }
+          },
+          {
+            "label": "R",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/R.wav"
+            }
+          },
+          {
+            "label": "S",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/S.wav"
+            }
+          },
+          {
+            "label": "T",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/T.wav"
+            }
+          },
+          {
+            "label": "U",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/U.wav"
+            }
+          },
+          {
+            "label": "V",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/V.wav"
+            }
+          },
+          {
+            "label": "W",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/W.wav"
+            }
+          },
+          {
+            "label": "X",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/X.wav"
+            }
+          },
+          {
+            "label": "Y",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/Y.wav"
+            }
+          },
+          {
+            "label": "Z",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/Z.wav"
+            }
+          }
+        ],
+        "allowSkip": true,
+        "allowRetry": true,
+        "defaultLang": "english",
+        "promptLabel": "Écoute et choisis",
+        "instructions": "Je vais dire une lettre au hasard. Clique sur la lettre que tu entends.\n\nSi tu choisis la bonne lettre, elle s’allumera en vert. Si ce n’est pas la bonne, elle s’allumera en rouge et je répéterai la lettre pour que tu puisses réessayer.\n\nTu as trois essais pour chaque lettre avant de pouvoir la passer. À chaque fois qu’une lettre est utilisée, elle disparaît des options possibles.",
+        "isInteractive": true
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": true,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "0fd35504-98fc-41e9-bfb3-6cec058f4911",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "dc317487-9551-4d2a-9ade-d105a7d48089",
+      "orderIndex": 4,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Écoute-moi prononcer la lettre, l’enregistrement commencera automatiquement, dis la lettre que tu entends ; si tu la prononces correctement, elle deviendra verte et la lettre suivante commencera ; si elle est rouge, cela signifie qu’elle n’a pas été bien prononcée ou qu’il y a eu une interférence avec le micro ; après trois tentatives échouées, tu pourras passer cette lettre et je l’ajouterai à ton journal en tant que lettre sautée.",
+        "label": "Listen and repeat",
+        "buttons": [
+          "next"
+        ],
+        "allowSkip": false,
+        "allowRetry": false,
+        "defaultLang": "french",
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "70dfa80d-5e08-4042-80dc-0da35d89172f",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "e7d0163b-2752-4337-ad69-d9cd3e00b34c",
+      "orderIndex": 4,
+      "type": "ai-speak-student-repeat",
+      "propsJson": {
+        "label": "Repeat after me F - I",
+        "elements": [
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/F.wav"
+            },
+            "samplePrompt": "F",
+            "referenceText": "F"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/G.wav"
+            },
+            "samplePrompt": "G",
+            "referenceText": "G"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/H.wav"
+            },
+            "samplePrompt": "H",
+            "referenceText": "H"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/I.wav"
+            },
+            "samplePrompt": "I",
+            "referenceText": "I"
+          }
+        ],
+        "allowSkip": true,
+        "allowRetry": true,
+        "defaultLang": "english",
+        "promptLabel": "écoute et répète",
+        "instructions": "Appuie sur le bouton Play pour commencer l’activité. Tu vas m’entendre dire la première lettre, puis ce sera à ton tour de la prononcer quand le bouton d’enregistrement démarre.\n\nSi tu la prononces correctement, la lettre deviendra verte. Si ce n’est pas tout à fait juste, elle deviendra rouge.\n\nPas d’inquiétude : tu as trois essais pour chaque lettre, et tu peux aussi la passer. Si tu passes une lettre, je la noterai dans ton carnet pour que tu puisses t’entraîner plus tard.",
+        "isInteractive": true
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": true,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "b38e0d59-e2f0-4597-9d2f-0125dbd6dff3",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "dc317487-9551-4d2a-9ade-d105a7d48089",
+      "orderIndex": 5,
+      "type": "ai-speak-student-repeat",
+      "propsJson": {
+        "label": "A, E, G, I, J, R, U, W, Z",
+        "elements": [
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/A.wav"
+            },
+            "samplePrompt": "A",
+            "referenceText": "A"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/E.wav"
+            },
+            "samplePrompt": "E",
+            "referenceText": "E"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/G.wav"
+            },
+            "samplePrompt": "G",
+            "referenceText": "G"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/I.wav"
+            },
+            "samplePrompt": "I",
+            "referenceText": "I"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/J.wav"
+            },
+            "samplePrompt": "J",
+            "referenceText": "J"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/R.wav"
+            },
+            "samplePrompt": "R",
+            "referenceText": "R"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/U.wav"
+            },
+            "samplePrompt": "U",
+            "referenceText": "U"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/W.wav"
+            },
+            "samplePrompt": "W",
+            "referenceText": "W"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/Z.wav"
+            },
+            "samplePrompt": "Z",
+            "referenceText": "Z"
+          }
+        ],
+        "allowSkip": true,
+        "allowRetry": true,
+        "defaultLang": "english",
+        "promptLabel": "écoute et répète",
+        "instructions": "Appuie sur le bouton Play pour commencer l’activité. Tu vas m’entendre dire la première lettre, puis ce sera à ton tour de la prononcer quand le bouton d’enregistrement démarre.\n\nSi tu la prononces correctement, la lettre deviendra verte. Si ce n’est pas tout à fait juste, elle deviendra rouge.\n\nPas d’inquiétude : tu as trois essais pour chaque lettre, et tu peux aussi la passer. Si tu passes une lettre, je la noterai dans ton carnet pour que tu puisses t’entraîner plus tard.",
+        "isInteractive": true
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": true,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "f4af6a0e-ad24-4162-ad32-9b79b5dcdd04",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "e7d0163b-2752-4337-ad69-d9cd3e00b34c",
+      "orderIndex": 5,
+      "type": "ai-speak-student-repeat",
+      "propsJson": {
+        "label": "Repeat after me J - N",
+        "elements": [
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/J.wav"
+            },
+            "samplePrompt": "J",
+            "referenceText": "J"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/K.wav"
+            },
+            "samplePrompt": "K",
+            "referenceText": "K"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/L.wav"
+            },
+            "samplePrompt": "L",
+            "referenceText": "L"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/M.wav"
+            },
+            "samplePrompt": "M",
+            "referenceText": "M"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/N.wav"
+            },
+            "samplePrompt": "N",
+            "referenceText": "N"
+          }
+        ],
+        "allowSkip": true,
+        "allowRetry": true,
+        "defaultLang": "english",
+        "promptLabel": "écoute et répète",
+        "instructions": "Appuie sur le bouton Play pour commencer l’activité. Tu vas m’entendre dire la première lettre, puis ce sera à ton tour de la prononcer quand le bouton d’enregistrement démarre.\n\nSi tu la prononces correctement, la lettre deviendra verte. Si ce n’est pas tout à fait juste, elle deviendra rouge.\n\nPas d’inquiétude : tu as trois essais pour chaque lettre, et tu peux aussi la passer. Si tu passes une lettre, je la noterai dans ton carnet pour que tu puisses t’entraîner plus tard.",
+        "isInteractive": true
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": true,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "9f865326-88b0-4815-b69f-b8f327461535",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "e7d0163b-2752-4337-ad69-d9cd3e00b34c",
+      "orderIndex": 6,
+      "type": "ai-speak-student-repeat",
+      "propsJson": {
+        "label": "Repeat after me O - S",
+        "elements": [
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/O.wav"
+            },
+            "samplePrompt": "O",
+            "referenceText": "O"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/P.wav"
+            },
+            "samplePrompt": "P",
+            "referenceText": "P"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/Q.wav"
+            },
+            "samplePrompt": "Q",
+            "referenceText": "Q"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/R.wav"
+            },
+            "samplePrompt": "R",
+            "referenceText": "R"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/S.wav"
+            },
+            "samplePrompt": "S",
+            "referenceText": "S"
+          }
+        ],
+        "allowSkip": true,
+        "allowRetry": true,
+        "defaultLang": "english",
+        "promptLabel": "écoute et répète",
+        "instructions": "Appuie sur le bouton Play pour commencer l’activité. Tu vas m’entendre dire la première lettre, puis ce sera à ton tour de la prononcer quand le bouton d’enregistrement démarre.\n\nSi tu la prononces correctement, la lettre deviendra verte. Si ce n’est pas tout à fait juste, elle deviendra rouge.\n\nPas d’inquiétude : tu as trois essais pour chaque lettre, et tu peux aussi la passer. Si tu passes une lettre, je la noterai dans ton carnet pour que tu puisses t’entraîner plus tard.",
+        "isInteractive": true
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": true,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "159c95a1-a305-491c-bba6-f91ca60393f9",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "e7d0163b-2752-4337-ad69-d9cd3e00b34c",
+      "orderIndex": 7,
+      "type": "ai-speak-student-repeat",
+      "propsJson": {
+        "label": "Repeat after me T - W",
+        "elements": [
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/T.wav"
+            },
+            "samplePrompt": "T",
+            "referenceText": "T"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/U.wav"
+            },
+            "samplePrompt": "U",
+            "referenceText": "U"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/V.wav"
+            },
+            "samplePrompt": "V",
+            "referenceText": "V"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/W.wav"
+            },
+            "samplePrompt": "W",
+            "referenceText": "W"
+          }
+        ],
+        "allowSkip": true,
+        "allowRetry": true,
+        "defaultLang": "english",
+        "promptLabel": "écoute et répète",
+        "instructions": "Appuie sur le bouton Play pour commencer l’activité. Tu vas m’entendre dire la première lettre, puis ce sera à ton tour de la prononcer quand le bouton d’enregistrement démarre.\n\nSi tu la prononces correctement, la lettre deviendra verte. Si ce n’est pas tout à fait juste, elle deviendra rouge.\n\nPas d’inquiétude : tu as trois essais pour chaque lettre, et tu peux aussi la passer. Si tu passes une lettre, je la noterai dans ton carnet pour que tu puisses t’entraîner plus tard.",
+        "isInteractive": true
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": true,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "f33c8682-70da-4c4d-a439-8d540cd7bd88",
+      "lessonId": "057d6c22-ebcc-41e9-b2af-c14de4ef9151",
+      "groupId": "e7d0163b-2752-4337-ad69-d9cd3e00b34c",
+      "orderIndex": 8,
+      "type": "ai-speak-student-repeat",
+      "propsJson": {
+        "label": "Repeat after me X - Z",
+        "elements": [
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/X.wav"
+            },
+            "samplePrompt": "X",
+            "referenceText": "X"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/Y.wav"
+            },
+            "samplePrompt": "Y",
+            "referenceText": "Y"
+          },
+          {
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/Z.wav"
+            },
+            "samplePrompt": "Z",
+            "referenceText": "Z"
+          }
+        ],
+        "allowSkip": true,
+        "allowRetry": true,
+        "defaultLang": "english",
+        "promptLabel": "écoute et répète",
+        "instructions": "Appuie sur le bouton Play pour commencer l’activité. Tu vas m’entendre dire la première lettre, puis ce sera à ton tour de la prononcer quand le bouton d’enregistrement démarre.\n\nSi tu la prononces correctement, la lettre deviendra verte. Si ce n’est pas tout à fait juste, elle deviendra rouge.\n\nPas d’inquiétude : tu as trois essais pour chaque lettre, et tu peux aussi la passer. Si tu passes une lettre, je la noterai dans ton carnet pour que tu puisses t’entraîner plus tard.",
+        "isInteractive": true
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": true,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    }
+  ],
+  "exportedAt": "2026-02-19T09:57:18.660Z"
+}

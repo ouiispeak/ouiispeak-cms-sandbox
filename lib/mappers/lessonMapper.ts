@@ -13,6 +13,8 @@ const lessonMapper = createMapper<Lesson, LessonData>({
     title: "title",
     slug: "slug",
     orderIndex: "order_index",
+    status: "status",
+    metadata: "metadata",
     estimatedMinutes: "estimated_minutes",
     requiredScore: "required_score",
     content: "content",

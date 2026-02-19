@@ -13,6 +13,7 @@ import { uiTokens } from "../../../lib/uiTokens";
 import BreadcrumbTrail from "../../../components/cms/BreadcrumbTrail";
 import SaveChangesButton from "../../../components/ui/SaveChangesButton";
 import PreviewInPlayerButton from "../../../components/ui/PreviewInPlayerButton";
+import LinkButton from "../../../components/ui/LinkButton";
 import { slugify, nullIfEmpty } from "../../../lib/utils/string";
 import StatusMessage from "../../../components/ui/StatusMessage";
 import { updateLessonSchema } from "../../../lib/schemas/lessonSchema";
@@ -434,13 +435,22 @@ export default function EditLessonPage() {
         
         {/* Right column - form */}
           <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: uiTokens.space.md, gap: uiTokens.space.sm }}>
-              <PreviewInPlayerButton href={playerHref} />
-              <SaveChangesButton
-                onClick={handleSaveButtonClick}
-                hasUnsavedChanges={hasUnsavedChanges}
-                saving={saving}
-              />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", marginBottom: uiTokens.space.md, gap: uiTokens.space.sm }}>
+              <div style={{ display: "flex", gap: uiTokens.space.sm, alignItems: "center" }}>
+                {lessonId && (
+                  <LinkButton href={`/lesson-slides/${lessonId}`} size="sm">
+                    Edit groups
+                  </LinkButton>
+                )}
+              </div>
+              <div style={{ display: "flex", gap: uiTokens.space.sm, alignItems: "center" }}>
+                <PreviewInPlayerButton href={playerHref} />
+                  <SaveChangesButton
+                  onClick={handleSaveButtonClick}
+                  hasUnsavedChanges={hasUnsavedChanges}
+                  saving={saving}
+                />
+              </div>
             </div>
             <BreadcrumbTrail lessonId={lessonId} />
           <form ref={formRef} onSubmit={handleSave}>

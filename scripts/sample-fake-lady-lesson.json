@@ -1,0 +1,22 @@
+{
+  "lessonId": "fake-lesson-mvp-001",
+  "targetNodeIds": ["node-fake-1"],
+  "compilerMeta": { "runId": "fake-run-123" },
+  "slides": [
+    {
+      "type": "title",
+      "label": "intro",
+      "title": "Bienvenue"
+    },
+    {
+      "type": "text",
+      "label": "content-1",
+      "body": "Ceci est un slide de test pour vérifier que l'ingestion LaDy → CMS fonctionne correctement."
+    },
+    {
+      "type": "text",
+      "label": "content-2",
+      "body": "Un deuxième slide de texte pour confirmer que plusieurs groupes et slides sont créés."
+    }
+  ]
+}

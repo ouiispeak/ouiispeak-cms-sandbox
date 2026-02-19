@@ -1,0 +1,117 @@
+# P8 — CMS Ingestion Communication Layer
+
+
+## Objective
+
+
+Achieve "Waiting for Review" status by building a **Stage Door** in the CMS that consumes LaDy's JSON output. LaDy remains a stateless factory; the CMS remains the state manager. No direct database coupling in LaDy.
+
+
+## Architecture Principle
+
+
+- **LaDy:** Generate lesson JSON, place in releases/ or out/. No Supabase dependency.
+- **CMS:** Run ingestion script that reads JSON, shreds into Lesson → Groups → Slides, marks Lesson as `waiting_review`.
+- **Transfer:** File path (MVP: copy or shared path; no HTTP required).
+
+
+---
+
+
+## Step-by-Step Action Plan
+
+
+### Phase 1: CMS Schema & Status
+
+
+#### 1.1 Verify lessons table has status column
+- [ ] Locate `lessons` table schema (e.g. `docs/schema.lessons.sql` or `docs/migrations/`)
+- [ ] Ensure `status` column exists with enum: `draft`, `waiting_review`, `published`
+- [ ] If missing: add migration in `docs/migrations/`
+
+
+#### 1.2 Ensure metadata column for canonical keys
+- [ ] Verify `lessons` (or equivalent) can store `metadata` JSONB with `canonical_node_key` and `run_id`
+- [ ] Required for P7 telemetry loop: CMS → LaDy feedback
+
+
+---
+
+
+### Phase 2: CMS Ingestion Script
+
+
+#### 2.1 Create ingestion script
+- [ ] File: `ouiispeak-cms/scripts/ingest-lady-lesson.ts`
+- [ ] Accept file path as CLI arg: `npx tsx scripts/ingest-lady-lesson.ts <path-to-lesson.json>`
+- [ ] Use existing CMS infrastructure: `lib/data/lessons`, `lib/data/groups`, `lib/data/slides`
+
+
+#### 2.2 Read & validate LaDy output
+- [ ] Read JSON from path
+- [ ] Validate against LaDy lesson shape (or minimal schema): `lessonId`, `targetNodeIds`, `activities[]`
+- [ ] Exit with clear error if invalid
+
+
+#### 2.3 Map and create Lesson
+- [ ] Create lesson via `createLesson()` with:
+ - `title`: derived from `lessonId` or first target (e.g. truncated)
+ - `module_id`: map from config or use "Incoming" / placeholder module
+ - `status`: `waiting_review`
+ - `metadata`: `{ canonical_node_key: targetNodeIds, run_id: compilerMeta?.runId, lessonSku: lessonId }`
+
+
+---
+
+
+### Phase 3: Mapping Layer
+
+
+#### 3.1 Create Lady-to-CMS mapper
+- [ ] File: `ouiispeak-cms/lib/mappers/ladyToCmsMapper.ts`
+- [ ] Map LaDy types → CMS types:
+ - LaDy `EXPLAIN` → CMS Group + Slide (type `standard_text` or equivalent)
+ - LaDy `PRACTICE` → CMS Group + Slide(s) (prompt + optional expectedAnswer)
+- [ ] Resolve slide_type mapping: LaDy pedagogical types → CMS slide constants (`constants/slideConstants.ts`)
+
+
+#### 3.2 Activity → Group mapping (no nested items)
+- **Note:** LaDy Activities do NOT have `activity.items`. Each Activity = 1 Group.
+- [ ] For each `activity` in `ladyLesson.activities`:
+ - Create Group: `title` = activity.type, `order` = index
+ - Create 1+ Slides from `content` (EXPLAIN) or `prompt` + `expectedAnswer` (PRACTICE)
+
+
+#### 3.3 Slide props validation
+- [ ] Use existing CMS slide props validation (Zod or similar)
+- [ ] Ensure mapped props satisfy CMS schema
+
+
+---
+
+
+### Phase 4: Execution Workflow
+
+
+#### 4.1 Generate (LaDy)
+```bash
+cd lesson-compiler-core
+node scripts/run-generation.mjs --mode commit
+# Or: npm run golden-run → npm run build-release → npm run build-cms-import
+```
+
+#### 4.2 Ingest into CMS
+```bash
+cd ouiispeak-cms
+npx tsx scripts/ingest-lady-lesson.ts path/to/output.json
+```
+
+#### 4.3 Full Reference
+See **docs/P8_Phase4_Execution_Workflow.md** for:
+- Schema reference libraries (Lesson, Group, Slide — required/optional, types)
+- Slide types library (title, text for LaDy; full list for CMS)
+- Auto-sync strategy when CMS changes
+- MVP execution plan: fake lesson → ingest → player verify → adapt LaDy
+
+
+

@@ -8,6 +8,7 @@ export default function TopNav() {
   const pathname = usePathname();
   
   const isDashboardActive = pathname === "/";
+  const isQueuedActive = pathname === "/queued";
   const isCefrActive = pathname.startsWith("/manage-modules/") || 
                        pathname.startsWith("/edit-level/") || 
                        pathname.startsWith("/level-aspects/") ||
@@ -105,6 +106,25 @@ export default function TopNav() {
         }}
       >
         CMS Dashboard
+      </Link>
+      <Link
+        href="/queued"
+        style={{
+          ...navLinkStyle(isQueuedActive),
+        }}
+        onMouseEnter={(e) => {
+          if (!isQueuedActive) {
+            Object.assign(e.currentTarget.style, hoverStyle);
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isQueuedActive) {
+            e.currentTarget.style.backgroundColor = "transparent";
+            e.currentTarget.style.color = uiTokens.color.textMuted;
+          }
+        }}
+      >
+        Queued
       </Link>
       <span style={navLinkStyle(isCefrActive, false, "cefr")}>
         CEFR

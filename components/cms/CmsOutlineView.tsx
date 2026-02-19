@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Button } from "../Button";
 import { uiTokens } from "../../lib/uiTokens";
 import { useCmsDashboard } from "../../lib/hooks/cms/useCmsDashboard";
-import { getModuleDisplayName, getSlideDisplayName } from "../../lib/utils/displayName";
+import { getModuleDisplayName, getLessonDisplayName, getGroupDisplayName, getSlideDisplayName } from "../../lib/utils/displayName";
 
 const LEVELS = ["A0", "A1", "A2", "B1", "B2", "C1", "C2"] as const;
 
@@ -34,14 +34,54 @@ export default function CmsOutlineView({
   const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
   const [openLessons, setOpenLessons] = useState<Record<string, boolean>>({});
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const [openQueued, setOpenQueued] = useState(false);
 
   // Auto-expand to show current item
   useEffect(() => {
     if (loadState.status === "ready" && (currentModuleId || currentLessonId || currentGroupId || currentSlideId || currentLevel)) {
       const maps = loadState.maps;
-      
-      // Expand current level
-      if (currentLevel) {
+
+      // Check if current item is in queued section
+      let queuedLessonId: string | null = null;
+      if (currentLessonId && maps.queuedLessons?.some((l) => l.id === currentLessonId)) {
+        queuedLessonId = currentLessonId;
+      } else if (currentGroupId) {
+        for (const [lid, grps] of maps.groupsByLesson.entries()) {
+          if (grps.some((g) => g.id === currentGroupId) && maps.queuedLessons?.some((l) => l.id === lid)) {
+            queuedLessonId = lid;
+            break;
+          }
+        }
+      } else if (currentSlideId) {
+        for (const [gid, sls] of maps.slidesByGroup.entries()) {
+          if (sls.some((s) => s.id === currentSlideId)) {
+            for (const [lid, grps] of maps.groupsByLesson.entries()) {
+              if (grps.some((g) => g.id === gid) && maps.queuedLessons?.some((l) => l.id === lid)) {
+                queuedLessonId = lid;
+                break;
+              }
+            }
+            break;
+          }
+        }
+        if (!queuedLessonId) {
+          for (const [lid, sls] of maps.ungroupedSlidesByLesson.entries()) {
+            if (sls.some((s) => s.id === currentSlideId) && maps.queuedLessons?.some((l) => l.id === lid)) {
+              queuedLessonId = lid;
+              break;
+            }
+          }
+        }
+      }
+
+      if (queuedLessonId) {
+        setOpenQueued(true);
+        setOpenLessons((prev) => ({ ...prev, [queuedLessonId!]: true }));
+        if (currentGroupId) setOpenGroups((prev) => ({ ...prev, [currentGroupId]: true }));
+      }
+
+      // Expand current level (skip for queued items)
+      if (currentLevel && !queuedLessonId) {
         setOpenLevels((prev) => ({ ...prev, [currentLevel.toUpperCase()]: true }));
       } else if (currentModuleId) {
         // Find module and expand its level
@@ -53,7 +93,7 @@ export default function CmsOutlineView({
             break;
           }
         }
-      } else if (currentLessonId) {
+      } else if (currentLessonId && !queuedLessonId) {
         // Find lesson's module and expand
         for (const [moduleId, lessons] of maps.lessonsByModule.entries()) {
           const lesson = lessons.find(l => l.id === currentLessonId);
@@ -71,7 +111,7 @@ export default function CmsOutlineView({
             break;
           }
         }
-      } else if (currentGroupId) {
+      } else if (currentGroupId && !queuedLessonId) {
         // Find group's lesson and module
         for (const [lessonId, groups] of maps.groupsByLesson.entries()) {
           const group = groups.find(g => g.id === currentGroupId);
@@ -97,7 +137,7 @@ export default function CmsOutlineView({
             break;
           }
         }
-      } else if (currentSlideId) {
+      } else if (currentSlideId && !queuedLessonId) {
         // Find slide's group or lesson
         for (const [groupId, slides] of maps.slidesByGroup.entries()) {
           const slide = slides.find(s => s.id === currentSlideId);
@@ -180,6 +220,10 @@ export default function CmsOutlineView({
 
   function toggleGroup(groupId: string) {
     setOpenGroups((prev) => ({ ...prev, [groupId]: !prev[groupId] }));
+  }
+
+  function toggleQueued() {
+    setOpenQueued((prev) => !prev);
   }
 
   function isCurrent(path: string): boolean {
@@ -548,6 +592,272 @@ export default function CmsOutlineView({
           </div>
         );
       })}
+
+      {/* Queued section - lessons with status waiting_review */}
+      {(maps.queuedLessons?.length ?? 0) > 0 && (
+        <div style={{ marginBottom: uiTokens.space.xs, marginTop: uiTokens.space.md }}>
+          <div style={{ display: "flex", alignItems: "center", gap: uiTokens.space.xs }}>
+            <Button
+              variant="ghost"
+              onClick={() => toggleQueued()}
+              style={{
+                padding: "2px 4px",
+                minWidth: "auto",
+                border: "none",
+                background: "transparent",
+                cursor: "pointer",
+              }}
+            >
+              <span style={{ fontSize: 12 }}>{openQueued ? "▾" : "▸"}</span>
+            </Button>
+            <Link
+              href="/queued"
+              style={{
+                textDecoration: "none",
+                color: uiTokens.color.textMuted,
+                fontWeight: 400,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "#398f8f";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = uiTokens.color.textMuted;
+              }}
+            >
+              Queued
+            </Link>
+          </div>
+
+          {openQueued && (
+            <div style={{ marginLeft: uiTokens.space.md, marginTop: uiTokens.space.xs }}>
+              {maps.queuedLessons.map((lesson) => {
+                const lessonGroups = maps.groupsByLesson.get(lesson.id) ?? [];
+                const ungroupedSlides = maps.ungroupedSlidesByLesson.get(lesson.id) ?? [];
+                const lessonOpen = !!openLessons[lesson.id];
+                const isCurrentLesson = currentLessonId === lesson.id;
+
+                return (
+                  <div key={lesson.id} style={{ marginBottom: uiTokens.space.xs }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: uiTokens.space.xs }}>
+                      <Button
+                        variant="ghost"
+                        onClick={() => toggleLesson(lesson.id)}
+                        style={{
+                          padding: "2px 4px",
+                          minWidth: "auto",
+                          border: "none",
+                          background: "transparent",
+                          cursor: "pointer",
+                          color: uiTokens.color.textMuted,
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.color = "#398f8f";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.color = uiTokens.color.textMuted;
+                        }}
+                      >
+                        <span style={{ fontSize: 12 }}>{lessonOpen ? "▾" : "▸"}</span>
+                      </Button>
+                      <Link
+                        href={`/edit-lesson/${lesson.id}`}
+                        style={{
+                          textDecoration: "none",
+                          color: isCurrentLesson ? "#398f8f" : uiTokens.color.textMuted,
+                          fontWeight: isCurrentLesson ? 600 : 400,
+                        }}
+                        onClick={(e) => {
+                          if (hasUnsavedChanges && !isCurrentLesson) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const confirmed = window.confirm(
+                              "You have unsaved changes. Are you sure you want to leave?"
+                            );
+                            if (confirmed) {
+                              router.push(`/edit-lesson/${lesson.id}`);
+                            }
+                          }
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isCurrentLesson) {
+                            e.currentTarget.style.color = "#398f8f";
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isCurrentLesson) {
+                            e.currentTarget.style.color = uiTokens.color.textMuted;
+                          }
+                        }}
+                      >
+                        {getLessonDisplayName(lesson)}
+                      </Link>
+                    </div>
+
+                    {lessonOpen && (lessonGroups.length > 0 || ungroupedSlides.length > 0) && (
+                      <div style={{ marginLeft: uiTokens.space.md, marginTop: uiTokens.space.xs }}>
+                        {lessonGroups.map((group) => {
+                          const groupSlides = maps.slidesByGroup.get(group.id) ?? [];
+                          const groupOpen = !!openGroups[group.id];
+                          const isCurrentGroup = currentGroupId === group.id;
+
+                          return (
+                            <div key={group.id} style={{ marginBottom: uiTokens.space.xs }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: uiTokens.space.xs }}>
+                                <Button
+                                  variant="ghost"
+                                  onClick={() => toggleGroup(group.id)}
+                                  style={{
+                                    padding: "2px 4px",
+                                    minWidth: "auto",
+                                    border: "none",
+                                    background: "transparent",
+                                    cursor: "pointer",
+                                    color: uiTokens.color.textMuted,
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.color = "#398f8f";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.color = uiTokens.color.textMuted;
+                                  }}
+                                >
+                                  <span style={{ fontSize: 12 }}>{groupOpen ? "▾" : "▸"}</span>
+                                </Button>
+                                <Link
+                                  href={`/edit-group/${group.id}`}
+                                  style={{
+                                    textDecoration: "none",
+                                    color: isCurrentGroup ? "#398f8f" : uiTokens.color.textMuted,
+                                    fontWeight: isCurrentGroup ? 600 : 400,
+                                  }}
+                                  onClick={(e) => {
+                                    if (hasUnsavedChanges && !isCurrentGroup) {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      const confirmed = window.confirm(
+                                        "You have unsaved changes. Are you sure you want to leave?"
+                                      );
+                                      if (confirmed) {
+                                        router.push(`/edit-group/${group.id}`);
+                                      }
+                                    }
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (!isCurrentGroup) {
+                                      e.currentTarget.style.color = "#398f8f";
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    if (!isCurrentGroup) {
+                                      e.currentTarget.style.color = uiTokens.color.textMuted;
+                                    }
+                                  }}
+                                >
+                                  {getGroupDisplayName(group)}
+                                </Link>
+                              </div>
+
+                              {groupOpen && groupSlides.length > 0 && (
+                                <ul style={{ marginLeft: uiTokens.space.md, marginTop: uiTokens.space.xs, paddingLeft: uiTokens.space.md, listStyle: "disc", marginBottom: 0 }}>
+                                  {groupSlides.map((slide) => {
+                                    const isCurrentSlide = currentSlideId === slide.id;
+
+                                    return (
+                                      <li key={slide.id} style={{ marginBottom: uiTokens.space.xs }}>
+                                        <Link
+                                          href={`/edit-slide/${slide.id}`}
+                                          onClick={(e) => {
+                                            if (hasUnsavedChanges && !isCurrentSlide) {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                              const confirmed = window.confirm(
+                                                "You have unsaved changes. Are you sure you want to leave?"
+                                              );
+                                              if (confirmed) {
+                                                router.push(`/edit-slide/${slide.id}`);
+                                              }
+                                            }
+                                          }}
+                                          style={{
+                                            textDecoration: "none",
+                                            color: isCurrentSlide ? "#398f8f" : uiTokens.color.textMuted,
+                                            fontWeight: isCurrentSlide ? 600 : 400,
+                                          }}
+                                          onMouseEnter={(e) => {
+                                            if (!isCurrentSlide) {
+                                              e.currentTarget.style.color = "#398f8f";
+                                            }
+                                          }}
+                                          onMouseLeave={(e) => {
+                                            if (!isCurrentSlide) {
+                                              e.currentTarget.style.color = uiTokens.color.textMuted;
+                                            }
+                                          }}
+                                        >
+                                          {getSlideDisplayName(slide)}
+                                        </Link>
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              )}
+                            </div>
+                          );
+                        })}
+
+                        {ungroupedSlides.length > 0 && (
+                          <ul style={{ marginTop: uiTokens.space.xs, marginLeft: uiTokens.space.md, paddingLeft: uiTokens.space.md, listStyle: "disc", marginBottom: 0 }}>
+                            {ungroupedSlides.map((slide) => {
+                              const isCurrentSlide = currentSlideId === slide.id;
+
+                              return (
+                                <li key={slide.id} style={{ marginBottom: uiTokens.space.xs }}>
+                                  <Link
+                                    href={`/edit-slide/${slide.id}`}
+                                    onClick={(e) => {
+                                      if (hasUnsavedChanges && !isCurrentSlide) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const confirmed = window.confirm(
+                                          "You have unsaved changes. Are you sure you want to leave?"
+                                        );
+                                        if (confirmed) {
+                                          router.push(`/edit-slide/${slide.id}`);
+                                        }
+                                      }
+                                    }}
+                                    style={{
+                                      textDecoration: "none",
+                                      color: isCurrentSlide ? "#398f8f" : uiTokens.color.textMuted,
+                                      fontWeight: isCurrentSlide ? 600 : 400,
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      if (!isCurrentSlide) {
+                                        e.currentTarget.style.color = "#398f8f";
+                                      }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      if (!isCurrentSlide) {
+                                        e.currentTarget.style.color = uiTokens.color.textMuted;
+                                      }
+                                    }}
+                                  >
+                                    {getSlideDisplayName(slide)}
+                                  </Link>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

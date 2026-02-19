@@ -1,0 +1,421 @@
+{
+  "lesson": {
+    "id": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+    "moduleId": "db16b7f1-a7df-4e86-ad56-d26d3a62a9ac",
+    "label": "Pronunciation",
+    "title": "Pronunciation",
+    "slug": "getting-started/db-test-lesson-2",
+    "orderIndex": 2,
+    "estimatedMinutes": null,
+    "requiredScore": 80,
+    "content": null,
+    "shortSummaryAdmin": null,
+    "shortSummaryStudent": null,
+    "courseOrganizationGroup": null,
+    "slideContents": null,
+    "groupingStrategySummary": null,
+    "activityTypes": null,
+    "activityDescription": null,
+    "signatureMetaphors": null,
+    "mainGrammarTopics": null,
+    "pronunciationFocus": null,
+    "vocabularyTheme": null,
+    "l1L2Issues": null,
+    "prerequisites": null,
+    "learningObjectives": null,
+    "notesForTeacherOrAI": null
+  },
+  "groups": [
+    {
+      "id": "1799f075-4236-4fa0-9fc1-8531bc6d9d5e",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "orderIndex": 1,
+      "label": "Intro",
+      "title": "Intro"
+    },
+    {
+      "id": "129606fd-55b0-4d29-a506-ec52f46f7819",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "orderIndex": 2,
+      "label": "Production sonore",
+      "title": "Comment les sons sont-ils produits ?"
+    },
+    {
+      "id": "56b09f6c-f4f0-4603-89f8-ed98a02422a0",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "orderIndex": 3,
+      "label": "Astuce #1",
+      "title": "Astuce #1"
+    },
+    {
+      "id": "bd5bda49-30ef-40cb-ad60-41a9ed558783",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "orderIndex": 4,
+      "label": "Astuce #2",
+      "title": "Astuce #2"
+    },
+    {
+      "id": "204abf85-4058-4135-b630-7210c623bc1b",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "orderIndex": 5,
+      "label": "Let's practice!",
+      "title": "Let's practice!"
+    }
+  ],
+  "slides": [
+    {
+      "id": "1815d257-b879-4499-9ca4-67f397a29e94",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "groupId": "129606fd-55b0-4d29-a506-ec52f46f7819",
+      "orderIndex": 1,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Leçon deux, c’est l’heure de travailler la prononciation !",
+        "label": "Objectif",
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "e85c84b4-482a-446d-b4bc-188a6d0721a5",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "groupId": "56b09f6c-f4f0-4603-89f8-ed98a02422a0",
+      "orderIndex": 1,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "En français, beaucoup de sons se font avec les lèvres bien serrées et la langue un peu reculée. En anglais américain, c’est l’inverse : tout est relax.",
+        "label": "Francophones vs anglophones",
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "1b53ccd6-64a2-4d17-9883-bdf5c70d7f54",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "groupId": "1799f075-4236-4fa0-9fc1-8531bc6d9d5e",
+      "orderIndex": 1,
+      "type": "title-slide",
+      "propsJson": {
+        "label": "Intro",
+        "title": "Pronunciation",
+        "buttons": [
+          {
+            "label": "Start",
+            "action": "next"
+          }
+        ],
+        "subtitle": "A0 · Module 1  · Lesson 2",
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "36e20a11-548c-4982-9c30-9a242987cf4e",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "groupId": "bd5bda49-30ef-40cb-ad60-41a9ed558783",
+      "orderIndex": 1,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Imagine que tu as un petit avion qui décolle de tes poumons. Il doit monter par ta gorge, passer tranquillement par ta bouche et sortir.",
+        "label": "Le petit avion",
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "a7929505-7734-4964-adb2-9e532f09dead",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "groupId": "204abf85-4058-4135-b630-7210c623bc1b",
+      "orderIndex": 1,
+      "type": "speech-choice-verify",
+      "propsJson": {
+        "label": "A or B",
+        "elements": [
+          {
+            "label": "A",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/A.wav"
+            },
+            "referenceText": "A"
+          },
+          {
+            "label": "B",
+            "speech": {
+              "mode": "file",
+              "fileUrl": "https://kruyntsonpjvtlxffeuz.supabase.co/storage/v1/object/public/lesson-audio/global/letters/B.wav"
+            },
+            "referenceText": "B"
+          },
+          {
+            "label": "Itch",
+            "speech": {
+              "lang": "en",
+              "mode": "tts",
+              "text": "Itch"
+            },
+            "referenceText": "Itch"
+          },
+          {
+            "label": "Each",
+            "speech": {
+              "lang": "en",
+              "mode": "tts",
+              "text": "Each"
+            },
+            "referenceText": "Each"
+          }
+        ],
+        "allowSkip": false,
+        "allowRetry": false,
+        "defaultLang": "english",
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": true,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "4ed5e7ea-3a2b-49eb-ae7b-c710719d177b",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "groupId": "bd5bda49-30ef-40cb-ad60-41a9ed558783",
+      "orderIndex": 2,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Si tu gardes la prononciation à la française, le petit avion va se cogner directement contre la langue dès qu’il arrive à la gorge.",
+        "label": "L'avion avec français",
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "5fbe02ec-46bd-40c2-b036-f2ba370069fb",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "groupId": "129606fd-55b0-4d29-a506-ec52f46f7819",
+      "orderIndex": 2,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Voilà le truc avec la prononciation dans n’importe quelle langue : tout dépend de la bouche. Les lèvres, la langue et la mâchoire donnent la forme au son. L’air vient de la poitrine, la vibration de la gorge — mais c’est bien la bouche qui fabrique le son.",
+        "label": "La bouche",
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "52d4492e-b5c9-43cc-9083-7e9e36003148",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "groupId": "204abf85-4058-4135-b630-7210c623bc1b",
+      "orderIndex": 2,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "WOWWWW",
+        "label": "WOOOAH",
+        "title": "OH MY GOD I DID IT",
+        "subtitle": "WOOOHOOO",
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "a71e257b-3c98-4155-8293-ba197de57761",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "groupId": "56b09f6c-f4f0-4603-89f8-ed98a02422a0",
+      "orderIndex": 2,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Une des raisons pour lesquelles les francophones ont du mal à se débarrasser de leur accent français en anglais, c’est qu’ils ne se détendent pas assez.",
+        "label": "Français tendu",
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "51ab06a8-d4b3-4659-8126-9d2369926240",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "groupId": "56b09f6c-f4f0-4603-89f8-ed98a02422a0",
+      "orderIndex": 3,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Essaie ça : lis ces instructions à voix haute et fais bien attention à la façon dont ta bouche bouge. Ta langue est où ? Tes lèvres ? Et ta mâchoire, est-ce qu’elle est tendue ?",
+        "label": "Parler et écouter",
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "ff6ac374-b645-40b4-ae62-4193c077b964",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "groupId": "bd5bda49-30ef-40cb-ad60-41a9ed558783",
+      "orderIndex": 3,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Essaie donc de garder la langue plutôt plate et de la pousser un peu vers l’avant pour laisser une sortie nette entre tes dents. Essaie de lire ce texte à voix haute et concentre-toi sur le fait de faire atterrir l’avion en toute sécurité.",
+        "label": "Essaie ceci",
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "69a054e2-333e-4759-900b-9e7b4d69bca5",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "groupId": "129606fd-55b0-4d29-a506-ec52f46f7819",
+      "orderIndex": 3,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Pense au ski : si tu veux apprendre, tu dois d’abord prendre la bonne position. C’est pareil avec la prononciation : on entraîne la bouche petit à petit, pour qu’elle s’habitue aux sons anglais. Pas besoin d’être parfait — l’idée, c’est juste de créer une mémoire musculaire spéciale pour l’anglais.",
+        "label": "Ski",
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "ad6e1e23-cef3-40ba-a06b-d54fc34c6f60",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "groupId": "56b09f6c-f4f0-4603-89f8-ed98a02422a0",
+      "orderIndex": 4,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Allez, lis ces instructions en faisant comme si tu sortais de chez le dentiste ! Ta bouche est fatiguée et paresseuse, ta mâchoire super détendue. Essaie de ne pas trop bouger tes lèvres ni ta mâchoire.",
+        "label": "Essaie ceci",
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    },
+    {
+      "id": "7b0eb662-13de-4206-8d5a-f00e0e7ac427",
+      "lessonId": "22475d69-5bea-403b-9fa5-901bcb654eb2",
+      "groupId": "56b09f6c-f4f0-4603-89f8-ed98a02422a0",
+      "orderIndex": 5,
+      "type": "text-slide",
+      "propsJson": {
+        "body": "Alors, premier petit conseil : relââââââche !",
+        "label": "Conclusion",
+        "allowSkip": false,
+        "allowRetry": false,
+        "isInteractive": false
+      },
+      "aidHook": null,
+      "code": null,
+      "metaJson": {},
+      "isActivity": false,
+      "scoreType": "none",
+      "passingScoreValue": null,
+      "maxScoreValue": null,
+      "passRequiredForNext": false
+    }
+  ],
+  "exportedAt": "2026-02-19T13:29:35.893Z"
+}

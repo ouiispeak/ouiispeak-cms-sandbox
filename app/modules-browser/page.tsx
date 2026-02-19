@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabase";
 import CmsPageShell from "../../components/cms/CmsPageShell";
 import CmsSection from "../../components/ui/CmsSection";
 import { uiTokens } from "../../lib/uiTokens";
-import type { LessonRow } from "../../lib/types/db";
 import { loadModules } from "../../lib/data/modules";
+import { loadApprovedLessonsForBrowse } from "../../lib/data/lessons";
 import type { Module } from "../../lib/domain/module";
+
+type LessonRow = { id: string; module_id: string | null; slug: string | null; title: string | null; order_index: number | null };
 
 export default function ModulesBrowserPage() {
   const [modules, setModules] = useState<Module[]>([]);
@@ -23,13 +24,10 @@ export default function ModulesBrowserPage() {
         return;
       }
 
-      const { data: lessonsData, error: lessonsError } = await supabase
-        .from("lessons")
-        .select("id, module_id, slug, title, order_index")
-        .order("order_index", { ascending: true });
+      const { data: lessonsData, error: lessonsError } = await loadApprovedLessonsForBrowse();
 
       if (lessonsError) {
-        setError(lessonsError.message);
+        setError(lessonsError);
         return;
       }
 

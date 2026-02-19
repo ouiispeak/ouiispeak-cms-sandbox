@@ -2,6 +2,11 @@
  * Domain model for Lesson
  * Uses camelCase field names for UI consumption
  */
+export type LessonStatus = "draft" | "waiting_review" | "published";
+
+/** P7 telemetry metadata (canonical_node_key, run_id, lessonSku, etc.) */
+export type LessonMetadata = Record<string, unknown>;
+
 export type Lesson = {
   id: string;
   moduleId: string | null;
@@ -9,6 +14,8 @@ export type Lesson = {
   title: string | null;
   slug: string | null;
   orderIndex: number | null;
+  status: LessonStatus | null;
+  metadata: LessonMetadata | null;
   estimatedMinutes: number | null;
   requiredScore: number | null;
   content: string | null;

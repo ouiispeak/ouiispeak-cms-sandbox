@@ -9,7 +9,10 @@ import { executeTransaction, transactionResultToStandard } from "../utils/transa
  * Standard fields to select from lessons table
  * Centralized to avoid repetition across pages
  */
-const LESSON_FIELDS_FULL = "id, module_id, label, title, slug, order_index, estimated_minutes, required_score, content, short_summary_admin, short_summary_student, course_organization_group, slide_contents, grouping_strategy_summary, activity_types, activity_description, signature_metaphors, main_grammar_topics, pronunciation_focus, vocabulary_theme, l1_l2_issues, prerequisites, learning_objectives, notes_for_teacher_or_ai";
+const LESSON_FIELDS_FULL = "id, module_id, label, title, slug, order_index, status, metadata, estimated_minutes, required_score, content, short_summary_admin, short_summary_student, course_organization_group, slide_contents, grouping_strategy_summary, activity_types, activity_description, signature_metaphors, main_grammar_topics, pronunciation_focus, vocabulary_theme, l1_l2_issues, prerequisites, learning_objectives, notes_for_teacher_or_ai";
+
+/** Status values: approved lessons (visible in dashboard, hierarchy, etc.) */
+const APPROVED_STATUSES = ["draft", "published"];
 
 /**
  * Minimal fields for dropdowns/lists
@@ -19,6 +22,14 @@ const LESSON_FIELDS_MINIMAL = "id, slug, label, title";
 /**
  * Type for lesson data returned from the database
  */
+/** P7 telemetry metadata shape (canonical_node_key, run_id, lessonSku, etc.) */
+export type LessonMetadata = {
+  canonical_node_key?: string | string[] | null;
+  run_id?: string | null;
+  lessonSku?: string | null;
+  [key: string]: unknown;
+};
+
 export type LessonData = {
   id: string;
   module_id: string | null;
@@ -26,6 +37,8 @@ export type LessonData = {
   title: string | null;
   slug: string | null;
   order_index: number | null;
+  status: string | null;
+  metadata: LessonMetadata | null;
   estimated_minutes: number | null;
   required_score: number | null;
   content: string | null;
@@ -63,6 +76,8 @@ export type CreateLessonInput = {
   module_id: string;
   slug: string;
   label: string;
+  status?: "draft" | "waiting_review" | "published";
+  metadata?: LessonMetadata | null;
   title?: string | null;
   order_index?: number | null;
   estimated_minutes?: number | null;
@@ -119,7 +134,8 @@ export type PaginatedResult<T> = {
 };
 
 /**
- * Load all lessons (minimal fields, for dropdowns)
+ * Load all approved lessons (minimal fields, for dropdowns)
+ * Excludes queued (waiting_review) lessons - only draft and published.
  * Ordered by created_at DESC, limited to 50
  * Returns domain models (camelCase)
  */
@@ -127,6 +143,7 @@ export async function loadLessons(): Promise<LessonResult<LessonMinimal[]>> {
   const { data, error } = await supabase
     .from("lessons")
     .select(LESSON_FIELDS_MINIMAL)
+    .in("status", APPROVED_STATUSES)
     .order("created_at", { ascending: false })
     .limit(50);
 
@@ -139,13 +156,37 @@ export async function loadLessons(): Promise<LessonResult<LessonMinimal[]>> {
 }
 
 /**
- * Load lessons by module ID
+ * Load all lesson order_index values for a module (including queued).
+ * Used by ingestion to compute next order_index.
+ */
+export async function loadLessonOrderIndexesByModule(
+  moduleId: string
+): Promise<LessonResult<number[]>> {
+  const { data, error } = await supabase
+    .from("lessons")
+    .select("order_index")
+    .eq("module_id", moduleId);
+
+  if (error) {
+    return { data: null, error: error.message };
+  }
+
+  const indexes = (data ?? [])
+    .map((r: { order_index: number | null }) => r.order_index ?? 0)
+    .filter((n: number) => typeof n === "number");
+  return { data: indexes, error: null };
+}
+
+/**
+ * Load approved lessons by module ID
+ * Excludes queued (waiting_review) lessons.
  */
 export async function loadLessonsByModule(moduleId: string): Promise<LessonResult<LessonData[]>> {
   const { data, error } = await supabase
     .from("lessons")
     .select(LESSON_FIELDS_FULL)
     .eq("module_id", moduleId)
+    .in("status", APPROVED_STATUSES)
     .order("order_index", { ascending: true });
 
   if (error) {
@@ -169,10 +210,11 @@ export async function loadLessonsPaginated(
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  // Get total count
+  // Get total count (approved only)
   const { count, error: countError } = await supabase
     .from("lessons")
-    .select("*", { count: "exact", head: true });
+    .select("*", { count: "exact", head: true })
+    .in("status", APPROVED_STATUSES);
 
   if (countError) {
     return { data: null, error: countError.message, meta: null };
@@ -180,10 +222,11 @@ export async function loadLessonsPaginated(
 
   const total = count ?? 0;
 
-  // Get paginated data (ordered by module_id, then order_index for dashboard consistency)
+  // Get paginated data (approved only, ordered by module_id, then order_index)
   const { data, error } = await supabase
     .from("lessons")
     .select(LESSON_FIELDS_FULL)
+    .in("status", APPROVED_STATUSES)
     .order("module_id", { ascending: true })
     .order("order_index", { ascending: true })
     .range(from, to);
@@ -206,6 +249,69 @@ export async function loadLessonsPaginated(
       hasMore: page < totalPages,
     },
   };
+}
+
+/**
+ * Load all approved lessons (minimal fields) for browse/listing
+ * Excludes queued lessons. No pagination - for modules browser etc.
+ */
+export async function loadApprovedLessonsForBrowse(): Promise<
+  LessonResult<Array<{ id: string; module_id: string | null; slug: string | null; title: string | null; order_index: number | null }>>
+> {
+  const { data, error } = await supabase
+    .from("lessons")
+    .select("id, module_id, slug, title, order_index")
+    .in("status", APPROVED_STATUSES)
+    .order("order_index", { ascending: true });
+
+  if (error) {
+    return { data: null, error: error.message };
+  }
+
+  return { data: (data ?? []) as Array<{ id: string; module_id: string | null; slug: string | null; title: string | null; order_index: number | null }>, error: null };
+}
+
+/**
+ * Load lessons with status = waiting_review (queued for inspection)
+ * Used by the Queued page. These lessons are NOT shown in dashboard, hierarchy, etc.
+ */
+export async function loadQueuedLessons(): Promise<LessonResult<LessonData[]>> {
+  const { data, error } = await supabase
+    .from("lessons")
+    .select(LESSON_FIELDS_FULL)
+    .eq("status", "waiting_review")
+    .order("order_index", { ascending: true });
+
+  if (error) {
+    return { data: null, error: error.message };
+  }
+
+  return { data: (data ?? []) as LessonData[], error: null };
+}
+
+/**
+ * Update a lesson's status (e.g. approve: waiting_review → draft)
+ */
+export async function updateLessonStatus(
+  id: string,
+  status: "draft" | "waiting_review" | "published"
+): Promise<LessonResult<Lesson>> {
+  const { data, error } = await supabase
+    .from("lessons")
+    .update({ status })
+    .eq("id", id)
+    .select(LESSON_FIELDS_FULL)
+    .maybeSingle();
+
+  if (error) {
+    return { data: null, error: error.message };
+  }
+
+  if (!data) {
+    return { data: null, error: `No lesson found with id "${id}"` };
+  }
+
+  return { data: toLesson(data as LessonData), error: null };
 }
 
 /**
@@ -244,11 +350,13 @@ export async function createLesson(input: CreateLessonInput): Promise<LessonResu
     }
   }
 
-  // Validate input using schema
+  // Validate input using schema (status defaults to 'draft' for manual creation)
   const validationResult = lessonInputSchema.safeParse({
     module_id: input.module_id,
     slug: input.slug,
     label: input.label.trim(),
+    status: input.status ?? "draft",
+    metadata: input.metadata ?? null,
     title: input.title?.trim() || null,
     order_index: input.order_index ?? null,
     estimated_minutes: input.estimated_minutes ?? null,
@@ -305,6 +413,8 @@ export async function updateLesson(
 
   if (input.module_id !== undefined) updateData.module_id = input.module_id;
   if (input.slug !== undefined) updateData.slug = input.slug;
+  if (input.status !== undefined) updateData.status = input.status;
+  if (input.metadata !== undefined) updateData.metadata = input.metadata;
   if (input.label !== undefined) {
     // Handle null, empty string, or non-empty string
     updateData.label = input.label ? (input.label.trim() || null) : null;

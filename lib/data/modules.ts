@@ -171,15 +171,40 @@ export async function loadModuleById(id: string): Promise<ModuleResult<Module>> 
 }
 
 /**
+ * Load a single module by slug
+ * Used by LaDy ingestion to resolve target module (e.g. "incoming")
+ */
+export async function loadModuleBySlug(slug: string): Promise<ModuleResult<Module>> {
+  const { data, error } = await supabase
+    .from("modules")
+    .select(MODULE_FIELDS)
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error) {
+    return { data: null, error: error.message };
+  }
+
+  if (!data) {
+    return { data: null, error: `No module found with slug "${slug}"` };
+  }
+
+  return { data: toModule(data as ModuleData), error: null };
+}
+
+/**
  * Create a new module
  * Returns domain model (camelCase)
  */
 export async function createModule(input: CreateModuleInput): Promise<ModuleResult<Module>> {
   // Validate input using schema
   // Apply defaults for required NOT NULL fields: status and visibility
+  // DB requires title NOT NULL; use label as fallback when title is empty
+  const titleValue = input.title?.trim() || input.label.trim() || null;
+
   const validationResult = moduleInputSchema.safeParse({
     label: input.label.trim(),
-    title: input.title?.trim() || null,
+    title: titleValue,
     slug: input.slug.trim(),
     level: input.level?.trim() || null,
     order_index: input.order_index ?? null,
@@ -196,9 +221,14 @@ export async function createModule(input: CreateModuleInput): Promise<ModuleResu
     return { data: null, error: `Validation error: ${firstError.message}` };
   }
 
+  const insertData = { ...validationResult.data };
+  if (!insertData.title) {
+    insertData.title = insertData.label;
+  }
+
   const { data, error } = await supabase
     .from("modules")
-    .insert(validationResult.data)
+    .insert(insertData)
     .select(MODULE_FIELDS)
     .maybeSingle();
 

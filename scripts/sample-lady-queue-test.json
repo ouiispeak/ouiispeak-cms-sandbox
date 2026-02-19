@@ -1,0 +1,19 @@
+{
+  "lessonId": "queue-test-001",
+  "targetNodeIds": ["intro-to-pronunciation"],
+  "compilerMeta": {
+    "runId": "test-run-001"
+  },
+  "slides": [
+    {
+      "type": "title",
+      "label": "Intro",
+      "title": "Introduction to Pronunciation"
+    },
+    {
+      "type": "text",
+      "label": "Overview",
+      "body": "This lesson covers the basics of pronunciation. In French, many sounds are made with tightened lips. In American English, the mouth is more relaxed."
+    }
+  ]
+}

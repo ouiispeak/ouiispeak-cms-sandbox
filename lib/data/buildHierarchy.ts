@@ -28,6 +28,8 @@ export interface CmsHierarchyMaps {
   groupsByLesson: Map<string, GroupMinimal[]>;
   slidesByGroup: Map<string, SlideForHierarchy[]>;
   ungroupedSlidesByLesson: Map<string, SlideForHierarchy[]>;
+  /** Lessons with status waiting_review, for the Queued sidebar section */
+  queuedLessons: LessonForHierarchy[];
 }
 
 /**
@@ -175,5 +177,6 @@ export function buildCmsHierarchy(
     groupsByLesson,
     slidesByGroup,
     ungroupedSlidesByLesson,
+    queuedLessons: [],
   };
 }

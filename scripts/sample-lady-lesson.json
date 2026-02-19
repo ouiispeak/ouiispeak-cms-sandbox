@@ -1,0 +1,19 @@
+{
+  "lessonId": "sample-node-001",
+  "targetNodeIds": ["pronunciation-basics"],
+  "compilerMeta": {
+    "runId": "run-2025-02-19-001"
+  },
+  "slides": [
+    {
+      "type": "title",
+      "label": "Intro",
+      "title": "Pronunciation Basics"
+    },
+    {
+      "type": "text",
+      "label": "Overview",
+      "body": "In French, many sounds are made with tightened lips and a slightly retracted tongue. In American English, it's the opposite: everything is relaxed."
+    }
+  ]
+}

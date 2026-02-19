@@ -13,6 +13,7 @@ import { uiTokens } from "../../../lib/uiTokens";
 import BreadcrumbTrail from "../../../components/cms/BreadcrumbTrail";
 import SaveChangesButton from "../../../components/ui/SaveChangesButton";
 import PreviewInPlayerButton from "../../../components/ui/PreviewInPlayerButton";
+import LinkButton from "../../../components/ui/LinkButton";
 import StatusMessage from "../../../components/ui/StatusMessage";
 import { loadModuleById, updateModule } from "../../../lib/data/modules";
 import type { Module } from "../../../lib/domain/module";
@@ -264,13 +265,20 @@ export default function EditModulePage() {
           
           {/* Right column - form */}
           <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: uiTokens.space.md, gap: uiTokens.space.sm }}>
-              <PreviewInPlayerButton href={moduleId ? `/module-lessons/${moduleId}` : undefined} />
-              <SaveChangesButton
-                onClick={handleSaveButtonClick}
-                hasUnsavedChanges={hasUnsavedChanges}
-                saving={saving}
-              />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", marginBottom: uiTokens.space.md, gap: uiTokens.space.sm }}>
+              {moduleId && (
+                <LinkButton href={`/module-lessons/${moduleId}`} size="sm">
+                  Manage lessons & groups
+                </LinkButton>
+              )}
+              <div style={{ display: "flex", gap: uiTokens.space.sm, alignItems: "center" }}>
+                <PreviewInPlayerButton href={moduleId ? `/module-lessons/${moduleId}` : undefined} />
+                <SaveChangesButton
+                  onClick={handleSaveButtonClick}
+                  hasUnsavedChanges={hasUnsavedChanges}
+                  saving={saving}
+                />
+              </div>
             </div>
             <BreadcrumbTrail moduleId={moduleId} />
             <CmsSection title="Module Details" backgroundColor="#9cc7c7" borderColor="#6aabab">
