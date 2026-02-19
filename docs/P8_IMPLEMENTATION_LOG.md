@@ -12,15 +12,24 @@
 - **If working manually:** Open the repo indicated by each step. When the step says `[LaDy]`, switch to lesson-compiler-core; when it says `[CMS]`, switch to ouiispeak-cms.
 - **After each step:** Update the "Last updated" and checkboxes in **both** log files so they stay in sync.
 
+## Branch Setup (rollback reference)
+
+| Repo | Safe branch (rollback) | Test branch (implementation) |
+|------|------------------------|-----------------------------|
+| **CMS** | `dev` | `p8-cms-ingestion-test` |
+| **LaDy** | `v0.2-neo4j-integration-prep` | `p8-cms-ingestion-test` |
+
+**To roll back:** `git checkout <safe-branch>` in each repo. Both repos are currently on `p8-cms-ingestion-test`.
+
 ---
 
 ## Sync Status
 
 | Field | Value |
 |-------|-------|
-| **Last updated** | *(update as you go)* |
-| **Current phase** | Phase 0 — Setup |
-| **Blocking on** | — |
+| **Last updated** | 2025-02-19 |
+| **Current phase** | Phase 1 — Ingest complete, awaiting approve & verify |
+| **Blocking on** | Manual: approve lesson, verify in player |
 | **LaDy doc path** | `lesson-compiler-core/docs/P8_IMPLEMENTATION_LOG.md` |
 | **CMS doc path** | `ouiispeak-cms/docs/P8_IMPLEMENTATION_LOG.md` |
 | **LaDy fake lesson path** | `lesson-compiler-core/scripts/output/fake-cms-lesson.json` |
@@ -29,18 +38,18 @@
 
 ## Phase 0: Setup & Prerequisites
 
-### Step 0.1 — [CMS] Ensure migrations applied
-- [ ] Run migration `004_add_lesson_status_column.sql` in Supabase
-- [ ] Run migration `005_add_lesson_metadata_column.sql` in Supabase
-- [ ] Verify: `lessons` has `status` and `metadata` columns
+### Step 0.1 — [CMS] Ensure migrations applied ✅
+- [x] Run migration `004_add_lesson_status_column.sql` in Supabase
+- [x] Run migration `005_add_lesson_metadata_column.sql` in Supabase
+- [x] Verify: ingest succeeded (lessons has status and metadata)
 
-### Step 0.2 — [CMS] Ensure incoming module exists
-- [ ] Create module with slug `incoming` (or set `LADY_INGEST_MODULE_SLUG`)
-- [ ] Verify: `loadModuleBySlug("incoming")` returns a module
+### Step 0.2 — [CMS] Ensure incoming module exists ✅
+- [x] Create module with slug `incoming` (or set `LADY_INGEST_MODULE_SLUG`)
+- [x] Verify: module exists
 
-### Step 0.3 — [BOTH] Verify paths
-- [ ] CMS repo: `/Users/raycheljohnson/ouiispeak-cms`
-- [ ] LaDy repo: `/Users/raycheljohnson/Desktop/Lady/lesson-compiler-core`
+### Step 0.3 — [BOTH] Verify paths ✅
+- [x] CMS repo: `/Users/raycheljohnson/ouiispeak-cms`
+- [x] LaDy repo: `/Users/raycheljohnson/Desktop/Lady/lesson-compiler-core`
 
 ---
 
@@ -65,9 +74,9 @@
 ```
 
 - [x] File created at LaDy repo
-- [ ] Validated: ingest works (run Step 1.2)
+- [x] Validated: ingest works
 
-### Step 1.2 — [CMS] Ingest fake lesson
+### Step 1.2 — [CMS] Ingest fake lesson ✅
 **Repo:** ouiispeak-cms  
 **Action:** Run ingest with path to LaDy output:
 
@@ -82,16 +91,18 @@ npx tsx scripts/ingest-lady-lesson.ts /Users/raycheljohnson/Desktop/Lady/lesson-
 npx tsx scripts/ingest-lady-lesson.ts scripts/sample-fake-lady-lesson.json
 ```
 
-- [ ] Ingest completes without error
-- [ ] Lesson appears on `/queued`
-- [ ] Groups and slides visible in sidebar when editing lesson
+- [x] Ingest completes without error
+- [x] Lesson appears on `/queued`
+- [x] Groups and slides visible in sidebar when editing lesson
 
 ### Step 1.3 — [CMS] Approve lesson and verify in player
-- [ ] Approve lesson from Queued page (status → draft)
-- [ ] Open lesson in player (e.g. via Preview or player URL)
-- [ ] Title slide displays correctly
-- [ ] Text slides display correctly
-- [ ] Navigation works
+- [ ] **YOU:** Approve lesson from Queued page (`/queued` → click Approve)
+- [ ] **YOU:** Open lesson in player (Preview button or player URL)
+- [ ] **YOU:** Verify title slide displays correctly
+- [ ] **YOU:** Verify text slides display correctly
+- [ ] **YOU:** Verify navigation works
+
+**Lesson ID from last ingest:** `2e2e9649-6898-4d8e-9389-5519bf4ec304`
 
 ---
 
@@ -177,8 +188,8 @@ When you add a field (e.g. `animation` on text-slide):
 ## Log Entries (append as you go)
 
 ```
-[YYYY-MM-DD] Phase 0 complete. Migrations applied, module "incoming" exists.
-[YYYY-MM-DD] Phase 1.1 complete. Created fake-cms-lesson.json in LaDy repo.
-[YYYY-MM-DD] Phase 1.2 complete. Ingest succeeded. Lesson on Queued.
-...
+[2025-02-19] Phase 0 complete. Migrations applied (ingest succeeded), module "incoming" exists.
+[2025-02-19] Phase 1.1 complete. fake-cms-lesson.json exists in LaDy repo.
+[2025-02-19] Phase 1.2 complete. Ingest succeeded. Lesson 2e2e9649-6898-4d8e-9389-5519bf4ec304 on Queued. 3 groups, 3 slides.
+[2025-02-19] Created scripts/p8-setup-prereqs.ts for module setup.
 ```
