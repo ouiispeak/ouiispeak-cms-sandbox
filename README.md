@@ -209,13 +209,19 @@ npm run verify-config    # Verify slide type configuration (see scripts/)
 
 ## 📚 Documentation
 
-Comprehensive documentation is available in the `docs/` directory:
+**Start here:** [docs/README.md](./docs/README.md) — Documentation index with links to all guides.
 
-- **[REFACTOR_SLIDE_FORM_SYSTEM.md](./docs/REFACTOR_SLIDE_FORM_SYSTEM.md)**: Complete guide to the configuration-driven form system
-- **[TEST_COVERAGE_PROGRESS.md](./docs/TEST_COVERAGE_PROGRESS.md)**: Test coverage status and progress
-- **[AUDIT_QUICK_REFERENCE.md](./docs/AUDIT_QUICK_REFERENCE.md)**: Quick reference for code quality improvements
-- **[COMPREHENSIVE_AUDIT_REPORT.md](./docs/COMPREHENSIVE_AUDIT_REPORT.md)**: Full audit report with recommendations
-- **[SETUP_ENV_VARIABLES.md](./docs/SETUP_ENV_VARIABLES.md)**: Environment variable setup guide
+### Essential guides (developer onboarding)
+
+- **[ARCHITECTURE_OVERVIEW.md](./docs/ARCHITECTURE_OVERVIEW.md)**: Engineering overview — data model, systems, LaDy ingestion, player integration
+- **[SITEMAP.md](./docs/SITEMAP.md)**: Full route map — all pages and API routes
+- **[SETUP_ENV_VARIABLES.md](./docs/SETUP_ENV_VARIABLES.md)**: Environment variable setup (required and optional)
+
+### Other documentation
+
+- **[REFACTOR_SLIDE_FORM_SYSTEM.md](./docs/REFACTOR_SLIDE_FORM_SYSTEM.md)**: Configuration-driven form system
+- **[TEST_COVERAGE_PROGRESS.md](./docs/TEST_COVERAGE_PROGRESS.md)**: Test coverage status
+- **[P8_IMPLEMENTATION_LOG.md](./docs/P8_IMPLEMENTATION_LOG.md)**: LaDy ingestion implementation log
 
 ## 🎨 Recent Improvements
 

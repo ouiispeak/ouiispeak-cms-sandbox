@@ -22,12 +22,16 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 DECLARE
+  target_module_id UUID;
   lesson_ids UUID[];
 BEGIN
+  -- Store parameter in local variable to avoid ambiguity with lessons.module_id
+  target_module_id := delete_module_transaction.module_id;
+
   -- Get all lesson IDs for this module
   SELECT ARRAY_AGG(id) INTO lesson_ids
   FROM lessons
-  WHERE module_id = delete_module_transaction.module_id;
+  WHERE lessons.module_id = target_module_id;
 
   -- Delete slides for these lessons (if any)
   IF lesson_ids IS NOT NULL AND array_length(lesson_ids, 1) > 0 THEN
@@ -43,15 +47,15 @@ BEGIN
 
   -- Delete lessons for this module
   DELETE FROM lessons
-  WHERE module_id = delete_module_transaction.module_id;
+  WHERE lessons.module_id = target_module_id;
 
   -- Finally, delete the module
   DELETE FROM modules
-  WHERE id = delete_module_transaction.module_id;
+  WHERE modules.id = target_module_id;
 
   -- If module doesn't exist, raise an error
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'Module with id % not found', module_id;
+    RAISE EXCEPTION 'Module with id % not found', target_module_id;
   END IF;
 END;
 $$;

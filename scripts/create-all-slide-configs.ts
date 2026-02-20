@@ -319,6 +319,44 @@ function createSpeechMatchConfig(): SlideTypeConfig {
 }
 
 /**
+ * Create need-to-be-created configuration
+ *
+ * Placeholder for LLM-proposed activity types not yet implemented.
+ * Shows proposedType, proposedContent, rawActivity for manual implementation.
+ */
+function createNeedToBeCreatedConfig(): SlideTypeConfig {
+  return {
+    typeKey: "need-to-be-created",
+    displayName: "Need To Be Created",
+    isActive: true,
+    version: 1,
+    formConfig: {
+      sections: [
+        DEFAULT_SECTIONS.find(s => s.id === "identity")!,
+        DEFAULT_SECTIONS.find(s => s.id === "content")!
+      ],
+      fields: [
+        // Identity & Structure Section
+        { fieldId: "slideId", sectionId: "identity", order: 1, required: false, visible: true },
+        { fieldId: "slideType", sectionId: "identity", order: 2, required: false, visible: true },
+        { fieldId: "groupId", sectionId: "identity", order: 3, required: false, visible: true },
+        { fieldId: "groupName", sectionId: "identity", order: 4, required: false, visible: true },
+        { fieldId: "orderIndex", sectionId: "identity", order: 5, required: false, visible: true },
+        { fieldId: "label", sectionId: "identity", order: 6, required: true, visible: true },
+        // Core Content Section (read-only reference for manual implementation)
+        { fieldId: "proposedType", sectionId: "content", order: 1, required: false, visible: true },
+        { fieldId: "proposedContent", sectionId: "content", order: 2, required: false, visible: true },
+        { fieldId: "rawActivity", sectionId: "content", order: 3, required: false, visible: true }
+      ],
+      validationRules: [
+        { fieldId: "label", rule: "non-empty", message: "Label is required" },
+        { fieldId: "proposedType", rule: "non-empty", message: "Proposed type is required" }
+      ]
+    }
+  };
+}
+
+/**
  * Create speech-choice-verify configuration
  * 
  * speech-choice-verify shows:
@@ -449,7 +487,8 @@ async function createAllConfigs() {
     createAiSpeakRepeatConfig(),
     createAiSpeakStudentRepeatConfig(),
     createSpeechMatchConfig(),
-    createSpeechChoiceVerifyConfig()
+    createSpeechChoiceVerifyConfig(),
+    createNeedToBeCreatedConfig()
   ];
 
   let created = 0;
@@ -478,7 +517,7 @@ async function createAllConfigs() {
   if (failed === 0) {
     console.log("✅ All configurations created successfully!");
     console.log("   You can now enable dynamic forms for these types in .env.local:");
-    console.log("   NEXT_PUBLIC_DYNAMIC_FORM_TYPES=text-slide,title-slide,lesson-end,ai-speak-repeat,ai-speak-student-repeat,speech-match\n");
+    console.log("   NEXT_PUBLIC_DYNAMIC_FORM_TYPES=text-slide,title-slide,lesson-end,ai-speak-repeat,ai-speak-student-repeat,speech-match,need-to-be-created\n");
     process.exit(0);
   } else {
     console.log("❌ Some configurations failed to create. Review errors above.\n");

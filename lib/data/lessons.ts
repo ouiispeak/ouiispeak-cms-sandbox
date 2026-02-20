@@ -22,11 +22,13 @@ const LESSON_FIELDS_MINIMAL = "id, slug, label, title";
 /**
  * Type for lesson data returned from the database
  */
-/** P7 telemetry metadata shape (canonical_node_key, run_id, lessonSku, etc.) */
+/** P7 telemetry metadata shape (canonical_node_key, run_id, lessonSku, targetSliceRef, etc.) */
 export type LessonMetadata = {
   canonical_node_key?: string | string[] | null;
   run_id?: string | null;
   lessonSku?: string | null;
+  /** Slice SKU for L6 telemetry / autonomous expansion (from LaDy ingest) */
+  targetSliceRef?: string | null;
   [key: string]: unknown;
 };
 
@@ -340,13 +342,14 @@ export async function loadLessonById(id: string): Promise<LessonResult<Lesson>> 
  * Create a new lesson
  */
 export async function createLesson(input: CreateLessonInput): Promise<LessonResult<LessonDataMinimal>> {
-  // Normalize activity_types: convert array to string if needed
-  let activityTypesValue: string | null = null;
+  // Normalize activity_types: DB column is TEXT[] so we must pass an array, not a string
+  let activityTypesForDb: string[] | null = null;
   if (input.activity_types) {
     if (Array.isArray(input.activity_types)) {
-      activityTypesValue = input.activity_types.length > 0 ? input.activity_types.join(",") : null;
-    } else {
-      activityTypesValue = input.activity_types.trim() || null;
+      activityTypesForDb = input.activity_types.length > 0 ? input.activity_types : null;
+    } else if (typeof input.activity_types === "string" && input.activity_types.trim()) {
+      const parts = input.activity_types.split(",").map((s) => s.trim()).filter((s) => s.length > 0);
+      activityTypesForDb = parts.length > 0 ? parts : null;
     }
   }
 
@@ -367,7 +370,7 @@ export async function createLesson(input: CreateLessonInput): Promise<LessonResu
     course_organization_group: input.course_organization_group?.trim() || null,
     slide_contents: input.slide_contents?.trim() || null,
     grouping_strategy_summary: input.grouping_strategy_summary?.trim() || null,
-    activity_types: activityTypesValue,
+    activity_types: activityTypesForDb,
     activity_description: input.activity_description?.trim() || null,
     signature_metaphors: input.signature_metaphors?.trim() || null,
     main_grammar_topics: input.main_grammar_topics?.trim() || null,

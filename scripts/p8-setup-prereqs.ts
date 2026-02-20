@@ -41,7 +41,7 @@ async function main() {
     label: "Incoming (LaDy)",
     title: "Incoming",
     slug: MODULE_SLUG,
-    level: "a0",
+    level: "A0",
     order_index: 9999,
   });
 

@@ -19,7 +19,7 @@ import { updateGroupSchema } from "../../../lib/schemas/groupSchema";
 import { loadGroupById, updateGroup } from "../../../lib/data/groups";
 import type { Group } from "../../../lib/domain/group";
 import type { LessonMinimal } from "../../../lib/domain/lesson";
-import { loadLessons } from "../../../lib/data/lessons";
+import { loadLessons, loadLessonById } from "../../../lib/data/lessons";
 import { useUnsavedChangesWarning } from "../../../lib/hooks/cms/useUnsavedChangesWarning";
 
 type LoadState =
@@ -148,6 +148,16 @@ export default function EditGroupPage() {
       }
 
       setLessonId(data.lessonId ?? "");
+      // Ensure the group's lesson appears in the dropdown when it's missing (e.g. queued lessons excluded from loadLessons)
+      if (data.lessonId && !lessons.some((l) => l.id === data.lessonId)) {
+        const { data: lessonData } = await loadLessonById(data.lessonId);
+        if (lessonData) {
+          setLessons((prev) => {
+            if (prev.some((l) => l.id === lessonData.id)) return prev;
+            return [...prev, { id: lessonData.id, slug: lessonData.slug, label: lessonData.label, title: lessonData.title }];
+          });
+        }
+      }
       setOrderIndex(data.orderIndex ?? 1);
       setLabel(data.label ?? "");
       setTitle(data.title ?? "");

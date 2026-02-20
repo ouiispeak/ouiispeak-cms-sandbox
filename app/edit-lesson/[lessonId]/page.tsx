@@ -18,6 +18,7 @@ import { slugify, nullIfEmpty } from "../../../lib/utils/string";
 import StatusMessage from "../../../components/ui/StatusMessage";
 import { updateLessonSchema } from "../../../lib/schemas/lessonSchema";
 import { updateLesson, loadLessonById } from "../../../lib/data/lessons";
+import { pushToRagFromLessonMetadata } from "../../../lib/data/pedagogicalAppendices";
 import { loadModules } from "../../../lib/data/modules";
 import type { Module } from "../../../lib/domain/module";
 import type { Lesson } from "../../../lib/domain/lesson";
@@ -319,7 +320,26 @@ export default function EditLessonPage() {
       }
 
       setMessage("Lesson updated successfully!");
-      
+
+      // Push to RAG when signature_metaphors or notes_for_teacher_or_ai changed and have content
+      const initial = initialDataRef.current;
+      const sigChanged = initial && signatureMetaphors.trim() !== (initial.signatureMetaphors ?? "");
+      const notesChanged = initial && notesForTeacherOrAI.trim() !== (initial.notesForTeacherOrAI ?? "");
+      if ((sigChanged && signatureMetaphors.trim()) || (notesChanged && notesForTeacherOrAI.trim())) {
+        const metadata = loadState.status === "ready" ? loadState.lesson?.metadata : null;
+        const ragResult = await pushToRagFromLessonMetadata({
+          metadata: metadata as { canonical_node_key?: unknown; targetSliceRef?: string } | null,
+          signatureMetaphors: sigChanged ? signatureMetaphors?.trim() || null : null,
+          notesForTeacherOrAI: notesChanged ? notesForTeacherOrAI?.trim() || null : null,
+        });
+        if (ragResult.added > 0) {
+          setMessage(`Lesson updated! ${ragResult.added} note(s) added to reference library for future lessons.`);
+        }
+        if (ragResult.errors.length > 0) {
+          logger.warn("[RAG push]", ragResult.errors);
+        }
+      }
+
       // Reload lesson data from server to ensure we have the latest values
       const { data: reloadedData, error: reloadError } = await loadLessonById(lessonId);
       
@@ -603,7 +623,11 @@ export default function EditLessonPage() {
           </CmsSection>
 
           <CmsSection title="Pedagogy" backgroundColor="#b5d5d5" borderColor="#6aabab">
-            <FormField label="Signature Metaphors" borderColor="#6aabab">
+            <FormField
+              label="Signature Metaphors"
+              borderColor="#6aabab"
+              infoTooltip="Metaphors that work for this topic. When you save, this is added to the reference library for future LaDy generations."
+            >
               <Textarea
                 value={signatureMetaphors}
                 onChange={(e) => setSignatureMetaphors(e.target.value)}
@@ -658,7 +682,11 @@ export default function EditLessonPage() {
               />
             </FormField>
 
-            <FormField label="Notes for Teacher or AI" borderColor="#6aabab">
+            <FormField
+              label="Notes for Teacher or AI"
+              borderColor="#6aabab"
+              infoTooltip="Extra tips for teacher or AI. When you save, this is added to the reference library for future LaDy generations."
+            >
               <Textarea
                 value={notesForTeacherOrAI}
                 onChange={(e) => setNotesForTeacherOrAI(e.target.value)}

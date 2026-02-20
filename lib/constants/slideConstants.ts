@@ -25,6 +25,8 @@ export const SLIDE_TYPES = {
   AI_SPEAK_STUDENT_REPEAT: "ai-speak-student-repeat",
   SPEECH_MATCH: "speech-match",
   SPEECH_CHOICE_VERIFY: "speech-choice-verify",
+  /** LLM-proposed activity type not yet implemented. Manual implementation needed. */
+  NEED_TO_BE_CREATED: "need-to-be-created",
 } as const;
 
 /**

@@ -244,6 +244,22 @@ export interface SpeechChoiceVerifySlideProps extends BaseSlideProps {
   elements: SpeechChoiceVerifyElement[];
 }
 
+/**
+ * Need To Be Created Slide Props
+ * Placeholder for LLM-proposed activity types not yet implemented.
+ * Contains proposed type, content, and raw activity for manual implementation.
+ */
+export interface NeedToBeCreatedSlideProps extends BaseSlideProps {
+  /** Activity type the LLM proposed (e.g. SENTENCE_TEMPLATE_CHOICE) */
+  proposedType: string;
+  
+  /** Human-readable content/instructions from the proposed activity */
+  proposedContent: string;
+  
+  /** Full raw activity object for reference when implementing the new slide type */
+  rawActivity: Record<string, unknown>;
+}
+
 // ============================================================================
 // Union Type
 // ============================================================================
@@ -258,7 +274,9 @@ export type SlideProps =
   | LessonEndSlideProps
   | AISpeakRepeatSlideProps
   | AISpeakStudentRepeatSlideProps
-  | SpeechMatchSlideProps;
+  | SpeechMatchSlideProps
+  | SpeechChoiceVerifySlideProps
+  | NeedToBeCreatedSlideProps;
 
 // ============================================================================
 // Slide Type Constants
@@ -363,6 +381,15 @@ export function isSpeechChoiceVerifySlideProps(props: unknown): props is SpeechC
   return "label" in firstElement && "referenceText" in firstElement && "speech" in firstElement && !("samplePrompt" in firstElement);
 }
 
+/**
+ * Type guard: Check if props are for a need-to-be-created slide
+ */
+export function isNeedToBeCreatedSlideProps(props: unknown): props is NeedToBeCreatedSlideProps {
+  if (!props || typeof props !== "object") return false;
+  const p = props as Record<string, unknown>;
+  return typeof p.proposedType === "string" && typeof p.proposedContent === "string" && typeof p.rawActivity === "object";
+}
+
 // ============================================================================
 // Helper Functions
 // ============================================================================
@@ -395,6 +422,8 @@ export function getTypedSlideProps(
       return isSpeechMatchSlideProps(propsJson) ? propsJson : (propsJson as SpeechMatchSlideProps);
     case SLIDE_TYPES.SPEECH_CHOICE_VERIFY:
       return isSpeechChoiceVerifySlideProps(propsJson) ? propsJson : (propsJson as SpeechChoiceVerifySlideProps);
+    case SLIDE_TYPES.NEED_TO_BE_CREATED:
+      return isNeedToBeCreatedSlideProps(propsJson) ? propsJson : (propsJson as NeedToBeCreatedSlideProps);
     default:
       // Log unknown slide type (development only to avoid noise)
       if (process.env.NODE_ENV === "development") {
@@ -512,6 +541,18 @@ export function validateSlideProps(
     case SLIDE_TYPES.AI_SPEAK_REPEAT:
       if (!p.lines && !p.phrases) {
         errors.push("lines or phrases is required");
+      }
+      break;
+
+    case SLIDE_TYPES.NEED_TO_BE_CREATED:
+      if (typeof p.proposedType !== "string") {
+        errors.push("proposedType must be a string");
+      }
+      if (typeof p.proposedContent !== "string") {
+        errors.push("proposedContent must be a string");
+      }
+      if (typeof p.rawActivity !== "object" || p.rawActivity === null) {
+        errors.push("rawActivity must be an object");
       }
       break;
   }

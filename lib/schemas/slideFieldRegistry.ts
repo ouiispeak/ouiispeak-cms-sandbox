@@ -278,7 +278,7 @@ export const FIELD_REGISTRY: FieldDefinition[] = [
     type: "text",
     infoTooltip: "Optional note displayed below subtitle.",
     placeholder: "Optional note",
-    defaultSection: "speech"
+    defaultSection: "content"
   },
   
   {
@@ -404,6 +404,70 @@ export const FIELD_REGISTRY: FieldDefinition[] = [
     infoTooltip: "Name of the activity for CMS organization and tracking.",
     placeholder: "Enter activity name",
     defaultSection: "metadata"
+  },
+
+  // ============================================================================
+  // RAG-Ready Pedagogical Slots (MVP: optional; future: Reference RAG fills)
+  // ============================================================================
+  {
+    id: "l1_l2_friction_warning",
+    displayName: "L1/L2 Friction Warning",
+    type: "textarea",
+    infoTooltip: "Optional. Known L1→L2 transfer issues for this content. Future: Reference RAG fills from PDF library.",
+    placeholder: "e.g., French speakers often confuse X with Y",
+    rows: 2,
+    defaultSection: "content"
+  },
+  {
+    id: "cultural_context",
+    displayName: "Cultural Context",
+    type: "textarea",
+    infoTooltip: "Optional. Cultural nuances or context for this content. Future: Reference RAG fills.",
+    placeholder: "e.g., usage in specific regions or contexts",
+    rows: 2,
+    defaultSection: "content"
+  },
+  {
+    id: "simplification_hint",
+    displayName: "Simplification Hint",
+    type: "textarea",
+    infoTooltip: "Optional. Hint for simplifying this content (Task Affordance: expansion/simplification layer). Future: Reference RAG fills.",
+    placeholder: "e.g., simpler phrasing for anxious learners",
+    rows: 2,
+    defaultSection: "content"
+  },
+
+  // ============================================================================
+  // Need To Be Created (LLM-proposed activity placeholder)
+  // ============================================================================
+  {
+    id: "proposedType",
+    displayName: "Proposed Type",
+    type: "text",
+    readOnly: true,
+    infoTooltip: "Activity type the LLM proposed (e.g. SENTENCE_TEMPLATE_CHOICE). Implement this type in the CMS, then add it to activityTypeRegistry.mjs in LaDy.",
+    placeholder: "e.g. SENTENCE_TEMPLATE_CHOICE",
+    defaultSection: "content"
+  },
+  {
+    id: "proposedContent",
+    displayName: "Proposed Content",
+    type: "textarea",
+    readOnly: true,
+    infoTooltip: "Human-readable content/instructions from the proposed activity. Use this when implementing the new slide type.",
+    placeholder: "Proposed activity content...",
+    rows: 6,
+    defaultSection: "content"
+  },
+  {
+    id: "rawActivity",
+    displayName: "Raw Activity (JSON)",
+    type: "textarea",
+    readOnly: true,
+    infoTooltip: "Full raw activity object from LaDy. Reference when implementing the new slide type in CMS and LaDy activityTypeRegistry.",
+    placeholder: "Raw activity JSON...",
+    rows: 8,
+    defaultSection: "content"
   }
 ];
 

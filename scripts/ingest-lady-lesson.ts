@@ -20,7 +20,7 @@ dotenv.config({ path: resolve(process.cwd(), ".env.local") });
 
 import { isValidLadyLesson } from "../lib/types/ladyLesson";
 import { mapLadyToCms } from "../lib/mappers/ladyToCmsMapper";
-import { createLesson, loadLessonOrderIndexesByModule } from "../lib/data/lessons";
+import { createLesson, loadLessonOrderIndexesByModule, loadQueuedLessons } from "../lib/data/lessons";
 import { createGroup } from "../lib/data/groups";
 import { createSlide } from "../lib/data/slides";
 import { loadModuleBySlug } from "../lib/data/modules";
@@ -82,7 +82,7 @@ async function main() {
     }
 
     if (!isValidLadyLesson(data)) {
-      console.error(`Invalid LaDy shape in "${filePath}". Required: lessonId, targetNodeIds, slides (type title|text).`);
+      console.error(`Invalid LaDy shape in "${filePath}". Required: lessonId, targetNodeIds, slides (type title|text|ai-speak-repeat|speech-match|need-to-be-created).`);
       fail++;
       continue;
     }
@@ -107,7 +107,7 @@ async function runIngest(ladyLesson: import("../lib/types/ladyLesson").LadyLesso
   const moduleResult = await loadModuleBySlug(MODULE_SLUG);
   if (moduleResult.error || !moduleResult.data) {
     console.error(
-      `Module slug "${MODULE_SLUG}" not found. Create a module with slug "${MODULE_SLUG}" or set LADY_INGEST_MODULE_SLUG.`
+      `Module slug "${MODULE_SLUG}" not found. Create it first:\n  npx tsx scripts/p8-setup-prereqs.ts`
     );
     console.error(moduleResult.error || "No module found");
     process.exit(1);
@@ -130,6 +130,7 @@ async function runIngest(ladyLesson: import("../lib/types/ladyLesson").LadyLesso
   const lessonResult = await createLesson(lesson);
   if (lessonResult.error || !lessonResult.data) {
     console.error("Failed to create lesson:", lessonResult.error);
+    console.error("Ensure migrations 004 (lesson status) and 005 (lesson metadata) are applied.");
     process.exit(1);
   }
 
@@ -169,7 +170,20 @@ async function runIngest(ladyLesson: import("../lib/types/ladyLesson").LadyLesso
   }
 
   console.log(`Done. Lesson ${lessonId}: ${groupCount} groups, ${slideCount} slides.`);
-  console.log("View on Queued page: /queued");
+
+  // Verify lesson appears in queued list (catches RLS or visibility issues)
+  const queuedResult = await loadQueuedLessons();
+  const found = queuedResult.data?.some((l) => l.id === lessonId);
+  if (!found && queuedResult.error) {
+    console.warn(`Warning: Could not verify lesson on Queued page: ${queuedResult.error}`);
+  } else if (!found) {
+    console.warn(
+      "Warning: Lesson was created but does not appear in queued list. Check RLS policies or status column."
+    );
+  }
+
+  console.log("");
+  console.log("SUCCESS — View on Queued page: /queued");
 }
 
 main();

@@ -27,8 +27,8 @@
 
 | Field | Value |
 |-------|-------|
-| **Last updated** | 2025-02-19 |
-| **Current phase** | Phase 2 complete ✓ |
+| **Last updated** | 2025-02-20 |
+| **Current phase** | Phase 2 complete ✓; s00046 import validated |
 | **Blocking on** | — |
 | **LaDy doc path** | `lesson-compiler-core/docs/P8_IMPLEMENTATION_LOG.md` |
 | **CMS doc path** | `ouiispeak-cms/docs/P8_IMPLEMENTATION_LOG.md` |
@@ -138,7 +138,12 @@ npx tsx scripts/ingest-lady-lesson.ts scripts/sample-fake-lady-lesson.json
 
 ---
 
-## Phase 3: Adapt LaDy Generator to CMS Schema (Future)
+## Phase 3: Pedagogical Appendices (RAG Bridge) ✅
+
+### Step 3.0 — [BOTH] Pedagogical Appendices workflow
+- [x] CMS: `pedagogical_appendices` table; `npm run export-pedagogical-appendices`
+- [x] `run-lady-and-ingest.sh` runs export before LaDy
+- [x] LaDy injects appendices into LLM prompt; ladyToCmsMapper maps lessonMetadata
 
 ### Step 3.1 — [LaDy] Map activities → CMS slides
 **Repo:** lesson-compiler-core  
@@ -190,4 +195,6 @@ When you add a field (e.g. `animation` on text-slide):
 [2025-02-19] Created scripts/p8-setup-prereqs.ts for module setup.
 [2025-02-19] Phase 1.3 complete. Approved lesson, verified in player. End-to-end works.
 [2025-02-19] Phase 2 complete. LaDy: to-cms-format.mjs, emit-release-cms.mjs, npm scripts. CMS: batch ingest (file or dir), run-lady-and-ingest.sh runs emit-release-cms + ingest.
+[2025-02-20] s00046 real-lesson import validated. Import flow sufficient for this lesson type. Edit-group "select lesson" fix for queued lessons. Groups metadata, structure, signature_metaphors deferred. Future refinements when adding more sophisticated lessons.
+[2025-02-20] Phase 3.0: Pedagogical Appendices RAG bridge. Export script, run-lady-and-ingest runs export before LaDy. See docs/PEDAGOGICAL_APPENDICES_WORKFLOW.md.
 ```

@@ -54,6 +54,8 @@ if [[ -n "$LADY_REPO_PATH" ]]; then
     echo "Error: LADY_REPO_PATH not found: $LADY_REPO_PATH"
     exit 1
   fi
+  echo "Exporting pedagogical appendices (CMS → LaDy)..."
+  npx tsx scripts/export-pedagogical-appendices.ts 2>/dev/null || true
   echo "Running LaDy in $LADY_REPO_PATH..."
   (cd "$LADY_REPO_PATH" && node scripts/run-generation.mjs --mode commit 2>/dev/null || true)
   echo "Emitting CMS format..."
