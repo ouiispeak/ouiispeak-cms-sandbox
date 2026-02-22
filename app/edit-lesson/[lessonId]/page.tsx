@@ -43,6 +43,7 @@ export default function EditLessonPage() {
   const [label, setLabel] = useState("");
   const [title, setTitle] = useState("");
   const [orderIndex, setOrderIndex] = useState<number>(1);
+  const [lessonStatus, setLessonStatus] = useState<"draft" | "waiting_review" | "published">("draft");
 
   // Summaries
   const [shortSummaryAdmin, setShortSummaryAdmin] = useState("");
@@ -76,6 +77,7 @@ export default function EditLessonPage() {
     label: string;
     title: string;
     orderIndex: number;
+    lessonStatus: "draft" | "waiting_review" | "published";
     shortSummaryAdmin: string;
     shortSummaryStudent: string;
     courseOrganizationGroup: string;
@@ -103,6 +105,7 @@ export default function EditLessonPage() {
       label !== initial.label ||
       title !== initial.title ||
       orderIndex !== initial.orderIndex ||
+      lessonStatus !== initial.lessonStatus ||
       shortSummaryAdmin !== initial.shortSummaryAdmin ||
       shortSummaryStudent !== initial.shortSummaryStudent ||
       courseOrganizationGroup !== initial.courseOrganizationGroup ||
@@ -169,6 +172,7 @@ export default function EditLessonPage() {
       setLabel(data.label ?? "");
       setTitle(data.title ?? "");
       setOrderIndex(data.orderIndex ?? 1);
+      setLessonStatus((data.status as "draft" | "waiting_review" | "published") || "draft");
 
       // Summaries
       setShortSummaryAdmin(data.shortSummaryAdmin ?? "");
@@ -201,6 +205,7 @@ export default function EditLessonPage() {
         label: data.label ?? "",
         title: data.title ?? "",
         orderIndex: data.orderIndex ?? 1,
+        lessonStatus: (data.status as "draft" | "waiting_review" | "published") || "draft",
         shortSummaryAdmin: data.shortSummaryAdmin ?? "",
         shortSummaryStudent: data.shortSummaryStudent ?? "",
         courseOrganizationGroup: data.courseOrganizationGroup ?? "",
@@ -252,6 +257,7 @@ export default function EditLessonPage() {
       label: label.trim() || null,
       title: title.trim() || undefined,
       order_index: orderIndex,
+      status: lessonStatus,
       short_summary_admin: shortSummaryAdmin || null,
       short_summary_student: shortSummaryStudent || null,
       course_organization_group: courseOrganizationGroup || null,
@@ -288,6 +294,7 @@ export default function EditLessonPage() {
         label: result.data.label,
         title: result.data.title ?? undefined,
         order_index: result.data.order_index,
+        status: result.data.status,
         short_summary_admin: result.data.short_summary_admin,
         short_summary_student: result.data.short_summary_student,
         course_organization_group: result.data.course_organization_group,
@@ -345,13 +352,14 @@ export default function EditLessonPage() {
       
       if (reloadError || !reloadedData) {
         // If reload fails, use the current form state
-        if (initialDataRef.current) {
-          initialDataRef.current = {
-            moduleId,
-            lessonSlugPart,
-            label,
-            title,
-            orderIndex,
+      if (initialDataRef.current) {
+        initialDataRef.current = {
+          moduleId,
+          lessonSlugPart,
+          label,
+          title,
+          orderIndex,
+          lessonStatus,
             shortSummaryAdmin,
             shortSummaryStudent,
             courseOrganizationGroup,
@@ -381,6 +389,7 @@ export default function EditLessonPage() {
         setLabel(reloadedData.label ?? "");
         setTitle(reloadedData.title ?? "");
         setOrderIndex(reloadedData.orderIndex ?? 1);
+        setLessonStatus((reloadedData.status as "draft" | "waiting_review" | "published") || "draft");
         setShortSummaryAdmin(reloadedData.shortSummaryAdmin ?? "");
         setShortSummaryStudent(reloadedData.shortSummaryStudent ?? "");
         setCourseOrganizationGroup(reloadedData.courseOrganizationGroup ?? "");
@@ -405,6 +414,7 @@ export default function EditLessonPage() {
             label: reloadedData.label ?? "",
             title: reloadedData.title ?? "",
             orderIndex: reloadedData.orderIndex ?? 1,
+            lessonStatus: (reloadedData.status as "draft" | "waiting_review" | "published") || "draft",
             shortSummaryAdmin: reloadedData.shortSummaryAdmin ?? "",
             shortSummaryStudent: reloadedData.shortSummaryStudent ?? "",
             courseOrganizationGroup: reloadedData.courseOrganizationGroup ?? "",
@@ -477,6 +487,21 @@ export default function EditLessonPage() {
           <CmsSection title="Lesson Details" backgroundColor="#b5d5d5" borderColor="#6aabab">
             <FormField label="Lesson ID" borderColor="#6aabab">
               <Input value={lessonId || ""} disabled readOnly />
+            </FormField>
+
+            <FormField
+              label="Status"
+              borderColor="#6aabab"
+              infoTooltip="draft: editable, visible in dashboard. published: live for learners. waiting_review: queued (from LaDy ingest)."
+            >
+              <Select
+                value={lessonStatus}
+                onChange={(e) => setLessonStatus(e.target.value as "draft" | "waiting_review" | "published")}
+              >
+                <option value="draft">draft</option>
+                <option value="published">published</option>
+                <option value="waiting_review">waiting_review</option>
+              </Select>
             </FormField>
 
             <FormField label="Module" required borderColor="#6aabab">

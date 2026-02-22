@@ -24,6 +24,7 @@ import { createLesson, loadLessonOrderIndexesByModule, loadQueuedLessons } from 
 import { createGroup } from "../lib/data/groups";
 import { createSlide } from "../lib/data/slides";
 import { loadModuleBySlug } from "../lib/data/modules";
+import { getSupabaseAdmin } from "../lib/supabaseAdmin";
 
 const MODULE_SLUG = process.env.LADY_INGEST_MODULE_SLUG || "incoming";
 
@@ -103,18 +104,26 @@ async function main() {
 }
 
 async function runIngest(ladyLesson: import("../lib/types/ladyLesson").LadyLessonOutput) {
+  // Use service role when available (bypasses RLS for scripts)
+  const adminClient = getSupabaseAdmin();
+
   // Resolve target module
-  const moduleResult = await loadModuleBySlug(MODULE_SLUG);
+  const moduleResult = await loadModuleBySlug(MODULE_SLUG, adminClient ?? undefined);
   if (moduleResult.error || !moduleResult.data) {
     console.error(
       `Module slug "${MODULE_SLUG}" not found. Create it first:\n  npx tsx scripts/p8-setup-prereqs.ts`
     );
     console.error(moduleResult.error || "No module found");
+    if (!adminClient) {
+      console.error(
+        "Tip: Add SUPABASE_SERVICE_ROLE_KEY to .env.local if RLS blocks reads."
+      );
+    }
     process.exit(1);
   }
 
   const module_ = moduleResult.data;
-  const orderResult = await loadLessonOrderIndexesByModule(module_.id);
+  const orderResult = await loadLessonOrderIndexesByModule(module_.id, adminClient ?? undefined);
   const maxOrder =
     orderResult.data?.reduce((max, n) => Math.max(max, n), 0) ?? 0;
   const nextOrderIndex = maxOrder + 1;
@@ -127,7 +136,7 @@ async function runIngest(ladyLesson: import("../lib/types/ladyLesson").LadyLesso
   );
 
   // Create lesson
-  const lessonResult = await createLesson(lesson);
+  const lessonResult = await createLesson(lesson, adminClient ?? undefined);
   if (lessonResult.error || !lessonResult.data) {
     console.error("Failed to create lesson:", lessonResult.error);
     console.error("Ensure migrations 004 (lesson status) and 005 (lesson metadata) are applied.");
@@ -141,10 +150,10 @@ async function runIngest(ladyLesson: import("../lib/types/ladyLesson").LadyLesso
   let slideCount = 0;
 
   for (const { group, slideTemplates } of slideMappings) {
-    const groupResult = await createGroup({
-      ...group,
-      lesson_id: lessonId,
-    });
+    const groupResult = await createGroup(
+      { ...group, lesson_id: lessonId },
+      adminClient ?? undefined
+    );
 
     if (groupResult.error || !groupResult.data) {
       console.error(`Failed to create group: ${groupResult.error}`);
@@ -155,11 +164,10 @@ async function runIngest(ladyLesson: import("../lib/types/ladyLesson").LadyLesso
     const groupId = groupResult.data.id;
 
     for (const template of slideTemplates) {
-      const slideResult = await createSlide({
-        ...template,
-        lesson_id: lessonId,
-        group_id: groupId,
-      });
+      const slideResult = await createSlide(
+        { ...template, lesson_id: lessonId, group_id: groupId },
+        adminClient ?? undefined
+      );
 
       if (slideResult.error || !slideResult.data) {
         console.error(`Failed to create slide: ${slideResult.error}`);

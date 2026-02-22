@@ -272,7 +272,7 @@ export function extractInitialFormValues(
     activityName: meta.activityName || "",
     phrases: initialPhrases,
     lines: initialLines,
-    instructions: (isAISpeakStudentRepeatSlideProps(props) || isAISpeakRepeatSlideProps(props)) ? props.instructions || "" : "",
+    instructions: isAISpeakStudentRepeatSlideProps(props) ? props.instructions || "" : "",
     promptLabel: isAISpeakStudentRepeatSlideProps(props) ? props.promptLabel || "" : "",
     onCompleteAtIndex:
       isAISpeakStudentRepeatSlideProps(props) &&

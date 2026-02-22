@@ -173,9 +173,14 @@ export async function loadModuleById(id: string): Promise<ModuleResult<Module>> 
 /**
  * Load a single module by slug
  * Used by LaDy ingestion to resolve target module (e.g. "incoming")
+ * @param client - Optional Supabase client (e.g. service role) to bypass RLS
  */
-export async function loadModuleBySlug(slug: string): Promise<ModuleResult<Module>> {
-  const { data, error } = await supabase
+export async function loadModuleBySlug(
+  slug: string,
+  client?: import("@supabase/supabase-js").SupabaseClient
+): Promise<ModuleResult<Module>> {
+  const db = client ?? supabase;
+  const { data, error } = await db
     .from("modules")
     .select(MODULE_FIELDS)
     .eq("slug", slug)
@@ -195,8 +200,13 @@ export async function loadModuleBySlug(slug: string): Promise<ModuleResult<Modul
 /**
  * Create a new module
  * Returns domain model (camelCase)
+ * @param input - Module data
+ * @param client - Optional Supabase client (e.g. service role) to bypass RLS
  */
-export async function createModule(input: CreateModuleInput): Promise<ModuleResult<Module>> {
+export async function createModule(
+  input: CreateModuleInput,
+  client?: import("@supabase/supabase-js").SupabaseClient
+): Promise<ModuleResult<Module>> {
   // Validate input using schema
   // Apply defaults for required NOT NULL fields: status and visibility
   // DB requires title NOT NULL; use label as fallback when title is empty
@@ -226,7 +236,8 @@ export async function createModule(input: CreateModuleInput): Promise<ModuleResu
     insertData.title = insertData.label;
   }
 
-  const { data, error } = await supabase
+  const db = client ?? supabase;
+  const { data, error } = await db
     .from("modules")
     .insert(insertData)
     .select(MODULE_FIELDS)

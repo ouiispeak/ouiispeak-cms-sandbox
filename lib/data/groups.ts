@@ -208,8 +208,12 @@ export async function loadGroupById(id: string): Promise<GroupResult<Group>> {
  * 
  * Defaults for required NOT NULL fields:
  * - is_required_to_pass: false (if not provided)
+ * @param client - Optional Supabase client (e.g. service role) to bypass RLS
  */
-export async function createGroup(input: CreateGroupInput): Promise<GroupResult<GroupMinimal>> {
+export async function createGroup(
+  input: CreateGroupInput,
+  client?: import("@supabase/supabase-js").SupabaseClient
+): Promise<GroupResult<GroupMinimal>> {
   // Validate input using schema
   // Apply defaults for required NOT NULL fields
   const validationResult = groupInputSchema.safeParse({
@@ -238,7 +242,8 @@ export async function createGroup(input: CreateGroupInput): Promise<GroupResult<
     return { data: null, error: `Validation error: ${firstError.message}` };
   }
 
-  const { data, error } = await supabase
+  const db = client ?? supabase;
+  const { data, error } = await db
     .from("lesson_groups")
     .insert(validationResult.data)
     .select("id, lesson_id, order_index, label, title")

@@ -67,7 +67,7 @@ export default function QueuedPage() {
     }
 
     setLessons((prev) => prev.filter((l) => l.id !== lessonId));
-    setMessage(data ? `"${getLessonDisplayName(toLesson(data as LessonData))}" approved. It is now visible in the dashboard.` : "Lesson approved.");
+    setMessage(data ? `"${getLessonDisplayName(data)}" approved. It is now visible in the dashboard.` : "Lesson approved.");
     setApprovingId(null);
   }
 
@@ -101,7 +101,7 @@ export default function QueuedPage() {
             style={{
               marginBottom: uiTokens.space.md,
               padding: uiTokens.space.sm,
-              backgroundColor: message.startsWith("Deletion failed") ? (uiTokens.color.dangerBg || "#ffebee") : (uiTokens.color.successBg || "#e8f5e9"),
+              backgroundColor: message.startsWith("Deletion failed") ? "#ffebee" : "#e8f5e9",
               color: message.startsWith("Deletion failed") ? (uiTokens.color.danger || "#c62828") : uiTokens.color.text,
               borderRadius: uiTokens.radius.sm,
               fontSize: uiTokens.font.meta.size,

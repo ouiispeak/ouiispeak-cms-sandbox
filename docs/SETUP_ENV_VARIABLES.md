@@ -31,6 +31,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `LADY_INGEST_MODULE_SLUG` | `incoming` | Module slug where ingested lessons are placed |
+| `SUPABASE_SERVICE_ROLE_KEY` | — | Service role key for scripts that bypass RLS (e.g. creating modules). Find: Dashboard → Settings → API → service_role. **Never commit.** |
 | `LADY_REPO_PATH` | — | Path to lesson-compiler-core (for `run-lady-and-ingest.sh`) |
 | `LADY_OUTPUT_PATH` | — | Explicit path to LaDy JSON file or directory |
 | `LADY_CMS_OUTPUT_DIR` | — | Override CMS output dir when using `LADY_REPO_PATH` |

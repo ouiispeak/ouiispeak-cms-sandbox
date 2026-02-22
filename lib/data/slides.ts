@@ -263,8 +263,12 @@ const nonActivityTypes = ["default", "title-slide", "title", "lesson-end", "text
  * - is_activity: computed from slide type if not provided
  * - score_type: defaults to 'none' if not provided
  * - pass_required_for_next: defaults to false if not provided
+ * @param client - Optional Supabase client (e.g. service role) to bypass RLS
  */
-export async function createSlide(input: CreateSlideInput): Promise<SlideResult<SlideMinimal>> {
+export async function createSlide(
+  input: CreateSlideInput,
+  client?: import("@supabase/supabase-js").SupabaseClient
+): Promise<SlideResult<SlideMinimal>> {
   // Validate required NOT NULL fields
   if (!input.lesson_id) {
     return { data: null, error: "lesson_id is required (NOT NULL)" };
@@ -299,7 +303,8 @@ export async function createSlide(input: CreateSlideInput): Promise<SlideResult<
     pass_required_for_next: input.pass_required_for_next ?? false, // NOT NULL - default to false
   };
 
-  const { data, error } = await supabase
+  const db = client ?? supabase;
+  const { data, error } = await db
     .from("slides")
     .insert(insertPayload)
     .select(SLIDE_FIELDS_MINIMAL)
@@ -380,6 +385,75 @@ export async function deleteSlide(id: string): Promise<SlideResult<void>> {
     "delete_slide_transaction",
     { slide_id: id }
   );
+
+  return transactionResultToStandard(result);
+}
+
+/**
+ * Insert a slide at a specific index, shifting existing slides atomically.
+ * Uses RPC for single-transaction: shift + insert. Prevents partial failures.
+ */
+export async function insertSlideAtIndex(
+  input: CreateSlideInput
+): Promise<SlideResult<SlideMinimal>> {
+  if (!input.lesson_id || !input.group_id || input.order_index == null || !input.type) {
+    return { data: null, error: "lesson_id, group_id, order_index, and type are required" };
+  }
+
+  const isActivityValue = defaultIsActivity(input.type, input.is_activity);
+
+  const result = await executeTransaction<string>(
+    "insert_slide_at_index_transaction",
+    {
+      p_group_id: input.group_id,
+      p_lesson_id: input.lesson_id,
+      p_type: input.type,
+      p_order_index: input.order_index,
+      p_props_json: input.props_json ?? {},
+      p_meta_json: input.meta_json ?? {},
+      p_aid_hook: input.aid_hook ?? null,
+      p_code: input.code ?? null,
+      p_is_activity: isActivityValue,
+      p_score_type: input.score_type ?? "none",
+      p_passing_score_value: input.passing_score_value ?? null,
+      p_max_score_value: input.max_score_value ?? null,
+      p_pass_required_for_next: input.pass_required_for_next ?? false,
+    }
+  );
+
+  if (result.error) {
+    return { data: null, error: result.error };
+  }
+
+  const newId = result.data;
+  if (!newId) {
+    return { data: null, error: "Insert succeeded but no id returned" };
+  }
+
+  const { data: row, error: fetchError } = await supabase
+    .from("slides")
+    .select(SLIDE_FIELDS_MINIMAL)
+    .eq("id", newId)
+    .maybeSingle();
+
+  if (fetchError || !row) {
+    return { data: null, error: fetchError?.message ?? "Insert succeeded but failed to fetch new slide" };
+  }
+
+  return { data: toSlideMinimal(row as SlideDataMinimal), error: null };
+}
+
+/**
+ * Swap order_index of two slides atomically. Both must belong to the same group.
+ */
+export async function swapSlidesOrder(
+  slideId1: string,
+  slideId2: string
+): Promise<SlideResult<void>> {
+  const result = await executeTransaction<void>("swap_slides_order_transaction", {
+    p_slide_id_1: slideId1,
+    p_slide_id_2: slideId2,
+  });
 
   return transactionResultToStandard(result);
 }

@@ -160,11 +160,14 @@ export async function loadLessons(): Promise<LessonResult<LessonMinimal[]>> {
 /**
  * Load all lesson order_index values for a module (including queued).
  * Used by ingestion to compute next order_index.
+ * @param client - Optional Supabase client (e.g. service role) to bypass RLS
  */
 export async function loadLessonOrderIndexesByModule(
-  moduleId: string
+  moduleId: string,
+  client?: import("@supabase/supabase-js").SupabaseClient
 ): Promise<LessonResult<number[]>> {
-  const { data, error } = await supabase
+  const db = client ?? supabase;
+  const { data, error } = await db
     .from("lessons")
     .select("order_index")
     .eq("module_id", moduleId);
@@ -340,8 +343,12 @@ export async function loadLessonById(id: string): Promise<LessonResult<Lesson>> 
 
 /**
  * Create a new lesson
+ * @param client - Optional Supabase client (e.g. service role) to bypass RLS
  */
-export async function createLesson(input: CreateLessonInput): Promise<LessonResult<LessonDataMinimal>> {
+export async function createLesson(
+  input: CreateLessonInput,
+  client?: import("@supabase/supabase-js").SupabaseClient
+): Promise<LessonResult<LessonDataMinimal>> {
   // Normalize activity_types: DB column is TEXT[] so we must pass an array, not a string
   let activityTypesForDb: string[] | null = null;
   if (input.activity_types) {
@@ -387,7 +394,8 @@ export async function createLesson(input: CreateLessonInput): Promise<LessonResu
     return { data: null, error: `Validation error: ${firstError.message}` };
   }
 
-  const { data, error } = await supabase
+  const db = client ?? supabase;
+  const { data, error } = await db
     .from("lessons")
     .insert(validationResult.data)
     .select("id, module_id, slug, label, title, order_index")

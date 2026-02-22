@@ -43,6 +43,8 @@
 | [P8_IMPLEMENTATION_LOG.md](./P8_IMPLEMENTATION_LOG.md) | Step-by-step implementation, phases, branch setup |
 | [P8_Phase4_Execution_Workflow.md](./P8_Phase4_Execution_Workflow.md) | Schema reference, execution workflow, slide types |
 
+**Pipeline test:** `./scripts/test-pipeline.sh` — runs Tier D (per-component tests) and Tier B (Lady → CMS). Use `LADY_REPO_PATH` to point at lesson-compiler-core. See plan: Pipeline Test Suite — Validation Before Build Plan.
+
 ---
 
 ## Player & Integration

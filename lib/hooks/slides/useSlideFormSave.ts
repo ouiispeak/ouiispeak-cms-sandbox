@@ -21,6 +21,7 @@ import {
   type TextSlideProps,
   type TitleSlideProps,
   type ChoiceElement,
+  type LineCell,
 } from "../../types/slideProps";
 import { mapCmsLanguageToPlayer } from "../../constants/slideConstants";
 import type { SlideFormState } from "./useSlideFormState";
@@ -283,13 +284,7 @@ export function useSlideFormSave() {
           speechMatchProps.elements = originalSpeechMatchElements as SpeechMatchSlideProps["elements"];
         }
 
-        // Add speech-match specific fields
-        if (state.instructions.trim()) {
-          speechMatchProps.instructions = state.instructions.trim();
-        }
-        if (state.promptLabel.trim()) {
-          speechMatchProps.promptLabel = state.promptLabel.trim();
-        }
+        // Add speech-match specific fields (SpeechMatchSlideProps has subtitle, note, elements only)
         if (state.note.trim()) {
           speechMatchProps.note = state.note.trim();
         }
@@ -358,7 +353,7 @@ export function useSlideFormSave() {
                   return null;
                 }
 
-                const cellData: AISpeakRepeatSlideProps["lines"][0][0] = {
+                const cellData: LineCell = {
                   label: cellLabel,
                   speech: {
                     mode: cell.speech.mode || "tts",
@@ -419,10 +414,7 @@ export function useSlideFormSave() {
           }
         }
 
-        // Add ai-speak-repeat specific fields
-        if (state.instructions.trim()) {
-          aiSpeakRepeatProps.instructions = state.instructions.trim();
-        }
+        // AISpeakRepeatSlideProps has lines/phrases, subtitle, note - no instructions
       }
 
       // Remove undefined values (but keep false values for booleans)

@@ -13,7 +13,7 @@ import StatusMessage from "../../../components/ui/StatusMessage";
 import LinkButton from "../../../components/ui/LinkButton";
 import { uiTokens } from "../../../lib/uiTokens";
 import { loadGroupById } from "../../../lib/data/groups";
-import { loadSlidesByGroup, createSlide, loadSlideById } from "../../../lib/data/slides";
+import { loadSlidesByGroup, insertSlideAtIndex, createSlide, loadSlideById, swapSlidesOrder } from "../../../lib/data/slides";
 import type { Group } from "../../../lib/domain/group";
 import { supabase } from "../../../lib/supabase";
 
@@ -152,40 +152,14 @@ export default function GroupSlidesPage() {
     setSaving(true);
 
     try {
-      // Step 1: Increment order_index for all slides at or after the insertion position
-      // This makes room for the new slide
-      const slidesToUpdate = sortedSlides.filter(
-        (slide) => slide.orderIndex !== null && slide.orderIndex >= parsedOrderIndex
-      );
+      const { error: insertError } = await insertSlideAtIndex({
+        lesson_id: group.lessonId,
+        group_id: groupId,
+        type: slideType,
+        order_index: parsedOrderIndex,
+      });
 
-      if (slidesToUpdate.length > 0) {
-        // Update each slide's order_index (increment by 1)
-        const updatePromises = slidesToUpdate.map((slide) =>
-          supabase
-            .from("slides")
-            .update({ order_index: slide.orderIndex! + 1 })
-            .eq("id", slide.id)
-        );
-
-        const updateResults = await Promise.all(updatePromises);
-        const updateErrors = updateResults.filter((result) => result.error);
-        
-        if (updateErrors.length > 0) {
-          setMessage(`Error reordering slides: ${updateErrors[0].error?.message || "Unknown error"}`);
-          setSaving(false);
-          return;
-        }
-      }
-
-      // Step 2: Create the new slide at the insertion position
-    const { error: insertError } = await createSlide({
-      lesson_id: group.lessonId,
-      group_id: groupId,
-      type: slideType,
-      order_index: parsedOrderIndex,
-    });
-
-    if (insertError) {
+      if (insertError) {
         setMessage(`Error creating slide: ${insertError}`);
         setSaving(false);
         return;
@@ -336,7 +310,6 @@ export default function GroupSlidesPage() {
     setError(null);
 
     try {
-      // Find the slide that's currently at the target position
       const targetSlide = sortedSlides.find((s) => s.orderIndex === targetIndex);
 
       if (!targetSlide) {
@@ -344,54 +317,10 @@ export default function GroupSlidesPage() {
         return;
       }
 
-      // Swap the order_index values
-      // First, set the current slide to a temporary value to avoid conflicts
-      const tempIndex = maxIndex + 1000; // Use a high temporary value
+      const { error: swapError } = await swapSlidesOrder(slideId, targetSlide.id);
 
-      // Step 1: Move current slide to temp position
-      const { error: tempError } = await supabase
-        .from("slides")
-        .update({ order_index: tempIndex })
-        .eq("id", slideId);
-
-      if (tempError) {
-        setMessage(`Error: ${tempError.message}`);
-        return;
-      }
-
-      // Step 2: Move target slide to current slide's position
-      const { error: targetError } = await supabase
-        .from("slides")
-        .update({ order_index: currentIndex })
-        .eq("id", targetSlide.id);
-
-      if (targetError) {
-        // Try to restore on error
-        await supabase
-          .from("slides")
-          .update({ order_index: currentIndex })
-          .eq("id", slideId);
-        setMessage(`Error: ${targetError.message}`);
-        return;
-      }
-
-      // Step 3: Move current slide to target position
-      const { error: finalError } = await supabase
-        .from("slides")
-        .update({ order_index: targetIndex })
-        .eq("id", slideId);
-
-      if (finalError) {
-        // Try to restore on error
-        await supabase
-          .from("slides")
-          .update({ order_index: currentIndex })
-          .eq("id", slideId);
-        await supabase
-          .from("slides")
-          .update({ order_index: targetIndex })
-          .eq("id", targetSlide.id);
-        setMessage(`Error: ${finalError.message}`);
+      if (swapError) {
+        setMessage(`Error: ${swapError}`);
         return;
       }
 

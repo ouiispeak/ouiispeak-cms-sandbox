@@ -22,6 +22,20 @@ Or run a specific migration:
 supabase migration up
 ```
 
+## Migration 002: Performance Indexes (Tier 1.1)
+
+**File:** `002_add_performance_indexes.sql`
+
+**What it does:**
+- Creates indexes on foreign keys (slides.lesson_id, slides.group_id, lessons.module_id, lesson_groups.lesson_id)
+- Creates composite indexes for ordering (e.g. slides by lesson_id + order_index)
+- Uses `IF NOT EXISTS` — safe to run multiple times
+
+**Apply manually via Dashboard:**
+1. Supabase Dashboard → SQL Editor → New query
+2. Paste the contents of `docs/migrations/002_add_performance_indexes.sql`
+3. Run
+
 ## Migration 004: Lesson Status Column
 
 **File:** `004_add_lesson_status_column.sql`
@@ -75,6 +89,20 @@ supabase migration up
 **File:** `008_pedagogical_appendices_enhance.sql`
 
 **What it does:** Adds `asset_type`, `is_active`, `target_l1` to `pedagogical_appendices`. Run after 007. (If 007 was created with the enhanced schema, columns may already exist; `ADD COLUMN IF NOT EXISTS` is safe.)
+
+## Migration 009: Atomic Slide Ordering (ouiispeak-cms audit #1)
+
+**File:** `009_atomic_slide_ordering.sql`
+
+**What it does:**
+- Adds `insert_slide_at_index_transaction` — atomically shifts existing slides and inserts a new slide at a given index
+- Adds `swap_slides_order_transaction` — atomically swaps `order_index` of two slides in the same group
+- Prevents partial failures that corrupt `order_index` when create/reorder were split across multiple updates
+
+**Apply manually via Dashboard:**
+1. Supabase Dashboard → SQL Editor → New query
+2. Paste the contents of `docs/migrations/009_atomic_slide_ordering.sql`
+3. Run
 
 ---
 
