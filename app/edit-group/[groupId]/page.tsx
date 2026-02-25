@@ -47,6 +47,9 @@ export default function EditGroupPage() {
   const [shortSummary, setShortSummary] = useState("");
   const [groupType, setGroupType] = useState("");
   const [groupSummary, setGroupSummary] = useState("");
+  const [extractabilityTier, setExtractabilityTier] = useState("");
+  const [purposeRelationshipTag, setPurposeRelationshipTag] = useState("");
+  const [targetNodeKeys, setTargetNodeKeys] = useState("");
   const [groupGoal, setGroupGoal] = useState("");
   const [prerequisites, setPrerequisites] = useState("");
   const [isRequiredToPass, setIsRequiredToPass] = useState(false);
@@ -70,6 +73,9 @@ export default function EditGroupPage() {
     shortSummary: string;
     groupType: string;
     groupSummary: string;
+    extractabilityTier: string;
+    purposeRelationshipTag: string;
+    targetNodeKeys: string;
     groupGoal: string;
     prerequisites: string;
     isRequiredToPass: boolean;
@@ -95,6 +101,9 @@ export default function EditGroupPage() {
       shortSummary !== initial.shortSummary ||
       groupType !== initial.groupType ||
       groupSummary !== initial.groupSummary ||
+      extractabilityTier !== initial.extractabilityTier ||
+      purposeRelationshipTag !== initial.purposeRelationshipTag ||
+      targetNodeKeys !== initial.targetNodeKeys ||
       groupGoal !== initial.groupGoal ||
       prerequisites !== initial.prerequisites ||
       isRequiredToPass !== initial.isRequiredToPass ||
@@ -167,6 +176,9 @@ export default function EditGroupPage() {
       setShortSummary(data.shortSummary ?? "");
       setGroupType(data.groupType ?? "");
       setGroupSummary(data.groupSummary ?? "");
+      setExtractabilityTier(data.extractabilityTier ?? "");
+      setPurposeRelationshipTag(data.purposeRelationshipTag ?? "");
+      setTargetNodeKeys(Array.isArray(data.targetNodeKeys) ? data.targetNodeKeys.join(", ") : (data.targetNodeKeys ?? ""));
       setGroupGoal(data.groupGoal ?? "");
       setPrerequisites(data.prerequisites ?? "");
       setIsRequiredToPass(data.isRequiredToPass ?? false);
@@ -191,6 +203,9 @@ export default function EditGroupPage() {
         shortSummary: data.shortSummary ?? "",
         groupType: data.groupType ?? "",
         groupSummary: data.groupSummary ?? "",
+        extractabilityTier: data.extractabilityTier ?? "",
+        purposeRelationshipTag: data.purposeRelationshipTag ?? "",
+        targetNodeKeys: Array.isArray(data.targetNodeKeys) ? data.targetNodeKeys.join(", ") : (data.targetNodeKeys ?? ""),
         groupGoal: data.groupGoal ?? "",
         prerequisites: data.prerequisites ?? "",
         isRequiredToPass: data.isRequiredToPass ?? false,
@@ -232,6 +247,9 @@ export default function EditGroupPage() {
       short_summary: shortSummary || null,
       group_type: groupType || null,
       group_summary: groupSummary || null,
+      extractability_tier: extractabilityTier || null,
+      purpose_relationship_tag: purposeRelationshipTag || null,
+      target_node_keys: targetNodeKeys.trim() ? targetNodeKeys.split(",").map((s) => s.trim()).filter(Boolean) : null,
       group_goal: groupGoal || null,
       prerequisites: prerequisites || null,
       is_required_to_pass: isRequiredToPass,
@@ -261,6 +279,9 @@ export default function EditGroupPage() {
         short_summary: result.data.short_summary,
         group_type: result.data.group_type,
         group_summary: result.data.group_summary,
+        extractability_tier: result.data.extractability_tier,
+        purpose_relationship_tag: result.data.purpose_relationship_tag,
+        target_node_keys: result.data.target_node_keys,
         group_goal: result.data.group_goal,
         prerequisites: result.data.prerequisites,
         is_required_to_pass: result.data.is_required_to_pass,
@@ -291,6 +312,9 @@ export default function EditGroupPage() {
           shortSummary,
           groupType,
           groupSummary,
+          extractabilityTier,
+          purposeRelationshipTag,
+          targetNodeKeys,
           groupGoal,
           prerequisites,
           isRequiredToPass,
@@ -406,8 +430,16 @@ export default function EditGroupPage() {
               <Input value={title} onChange={(e) => setTitle(e.target.value)} />
             </FormField>
 
-            <FormField label="Group code" borderColor="#9cc7c7">
-              <Input value={groupCode} onChange={(e) => setGroupCode(e.target.value)} />
+            <FormField
+              label="Group code"
+              borderColor="#9cc7c7"
+              infoTooltip="Stable identifier for portable groups. e.g. grp::n00160_nntlex::SCAFFOLDED_PRACTICE"
+            >
+              <Input
+                value={groupCode}
+                onChange={(e) => setGroupCode(e.target.value)}
+                placeholder="e.g. grp::n00160_nntlex::SCAFFOLDED_PRACTICE"
+              />
             </FormField>
 
             <FormField label="Short summary" borderColor="#9cc7c7">
@@ -456,16 +488,58 @@ export default function EditGroupPage() {
               Group structure
             </h2>
 
-            <FormField label="Group type" borderColor="#9cc7c7">
+            <FormField
+              label="Group type"
+              borderColor="#9cc7c7"
+              infoTooltip="Canonical phase (Group Laws V1). Must be exactly one of."
+            >
               <Select value={groupType} onChange={(e) => setGroupType(e.target.value)}>
                 <option value="">Select a type…</option>
-                <option value="title">Title</option>
-                <option value="intro">Intro</option>
-                <option value="practice">Practice</option>
-                <option value="test">Test</option>
-                <option value="wrap-up">Wrap-up</option>
-                <option value="finale">Finale</option>
+                <option value="ORIENTATION">ORIENTATION</option>
+                <option value="INPUT">INPUT</option>
+                <option value="SCAFFOLDED_PRACTICE">SCAFFOLDED_PRACTICE</option>
+                <option value="TARGET_PERFORMANCE">TARGET_PERFORMANCE</option>
+                <option value="INTEGRATION">INTEGRATION</option>
               </Select>
+            </FormField>
+
+            <FormField
+              label="Extractability tier"
+              borderColor="#9cc7c7"
+              infoTooltip="Governs extraction for remediation, spaced repetition, standalone practice"
+            >
+              <Select value={extractabilityTier} onChange={(e) => setExtractabilityTier(e.target.value)}>
+                <option value="">Select…</option>
+                <option value="HIGH">HIGH</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="LOW">LOW</option>
+              </Select>
+            </FormField>
+
+            <FormField
+              label="Purpose relationship tag"
+              borderColor="#9cc7c7"
+              infoTooltip="How this group contributes to the lesson's learning transition"
+            >
+              <Select value={purposeRelationshipTag} onChange={(e) => setPurposeRelationshipTag(e.target.value)}>
+                <option value="">Select…</option>
+                <option value="PREPARE_FOR_PURPOSE">PREPARE_FOR_PURPOSE</option>
+                <option value="SUPPORT_FIRST_CONTROL">SUPPORT_FIRST_CONTROL</option>
+                <option value="MEASURE_FIRST_CONTROL">MEASURE_FIRST_CONTROL</option>
+                <option value="STABILIZE_TRANSFER">STABILIZE_TRANSFER</option>
+              </Select>
+            </FormField>
+
+            <FormField
+              label="Target node keys"
+              borderColor="#9cc7c7"
+              infoTooltip="Comma-separated canonical_node_key strings. Node tagging for portable groups."
+            >
+              <Input
+                value={targetNodeKeys}
+                onChange={(e) => setTargetNodeKeys(e.target.value)}
+                placeholder="e.g. n00160_nntlex, n00161_nntlex"
+              />
             </FormField>
 
             <FormField label="Is required to pass" borderColor="#9cc7c7">

@@ -8,7 +8,7 @@ import { executeTransaction, transactionResultToStandard } from "../utils/transa
  * Standard fields to select from lesson_groups table
  * Centralized to avoid repetition across pages
  */
-const GROUP_FIELDS_FULL = "id, lesson_id, label, title, order_index, group_code, short_summary, group_type, group_summary, group_goal, prerequisites, is_required_to_pass, passing_score_type, passing_score_value, max_score_value, extra_practice_notes, l1_l2, media_used_ids, group_slides_plan";
+const GROUP_FIELDS_FULL = "id, lesson_id, label, title, order_index, group_code, short_summary, group_type, group_summary, extractability_tier, purpose_relationship_tag, target_node_keys, group_goal, prerequisites, is_required_to_pass, passing_score_type, passing_score_value, max_score_value, extra_practice_notes, l1_l2, media_used_ids, group_slides_plan";
 
 /**
  * Minimal fields for dropdowns/lists
@@ -28,6 +28,9 @@ export type GroupData = {
   short_summary: string | null;
   group_type: string | null;
   group_summary: string | null;
+  extractability_tier: string | null;
+  purpose_relationship_tag: string | null;
+  target_node_keys: string[] | null;
   group_goal: string | null;
   prerequisites: string | null;
   is_required_to_pass: boolean | null;
@@ -63,6 +66,9 @@ export type CreateGroupInput = {
   short_summary?: string | null;
   group_type?: string | null;
   group_summary?: string | null;
+  extractability_tier?: string | null;
+  purpose_relationship_tag?: string | null;
+  target_node_keys?: string[] | null;
   group_goal?: string | null;
   prerequisites?: string | null;
   is_required_to_pass?: boolean | null;
@@ -225,6 +231,9 @@ export async function createGroup(
     short_summary: input.short_summary?.trim() || null,
     group_type: input.group_type?.trim() || null,
     group_summary: input.group_summary?.trim() || null,
+    extractability_tier: input.extractability_tier?.trim() || null,
+    purpose_relationship_tag: input.purpose_relationship_tag?.trim() || null,
+    target_node_keys: input.target_node_keys ?? null,
     group_goal: input.group_goal?.trim() || null,
     prerequisites: input.prerequisites?.trim() || null,
     is_required_to_pass: input.is_required_to_pass ?? false, // Default to false for required NOT NULL field
@@ -278,6 +287,9 @@ export async function updateGroup(
   if (input.short_summary !== undefined) updateData.short_summary = input.short_summary?.trim() || null;
   if (input.group_type !== undefined) updateData.group_type = input.group_type?.trim() || null;
   if (input.group_summary !== undefined) updateData.group_summary = input.group_summary?.trim() || null;
+  if (input.extractability_tier !== undefined) updateData.extractability_tier = input.extractability_tier?.trim() || null;
+  if (input.purpose_relationship_tag !== undefined) updateData.purpose_relationship_tag = input.purpose_relationship_tag?.trim() || null;
+  if (input.target_node_keys !== undefined) updateData.target_node_keys = input.target_node_keys;
   if (input.group_goal !== undefined) updateData.group_goal = input.group_goal?.trim() || null;
   if (input.prerequisites !== undefined) updateData.prerequisites = input.prerequisites?.trim() || null;
   if (input.is_required_to_pass !== undefined) updateData.is_required_to_pass = input.is_required_to_pass;

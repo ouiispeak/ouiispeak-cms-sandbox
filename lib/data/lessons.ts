@@ -9,10 +9,25 @@ import { executeTransaction, transactionResultToStandard } from "../utils/transa
  * Standard fields to select from lessons table
  * Centralized to avoid repetition across pages
  */
-const LESSON_FIELDS_FULL = "id, module_id, label, title, slug, order_index, status, metadata, estimated_minutes, required_score, content, short_summary_admin, short_summary_student, course_organization_group, slide_contents, grouping_strategy_summary, activity_types, activity_description, signature_metaphors, main_grammar_topics, pronunciation_focus, vocabulary_theme, l1_l2_issues, prerequisites, learning_objectives, notes_for_teacher_or_ai";
+const LESSON_FIELDS_FULL = "id, module_id, label, title, slug, order_index, status, metadata, estimated_minutes, required_score, content, short_summary_admin, short_summary_student, course_organization_group, slide_contents, activity_types, activity_description, signature_metaphors, main_grammar_topics, pronunciation_focus, vocabulary_theme, l1_l2_issues, prerequisites, learning_objectives, notes_for_teacher_or_ai";
 
 /** Status values: approved lessons (visible in dashboard, hierarchy, etc.) */
 const APPROVED_STATUSES = ["draft", "published"];
+
+/**
+ * Protected lesson IDs (manual lessons that must not be deleted or overwritten).
+ * Set PROTECTED_LESSON_IDS in .env.local (comma-separated UUIDs).
+ */
+function getProtectedLessonIds(): Set<string> {
+  const raw = process.env.PROTECTED_LESSON_IDS;
+  if (!raw || typeof raw !== "string") return new Set();
+  return new Set(
+    raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0)
+  );
+}
 
 /**
  * Minimal fields for dropdowns/lists
@@ -48,7 +63,6 @@ export type LessonData = {
   short_summary_student: string | null;
   course_organization_group: string | null;
   slide_contents: string | null;
-  grouping_strategy_summary: string | null;
   activity_types: string | null;
   activity_description: string | null;
   signature_metaphors: string | null;
@@ -89,7 +103,6 @@ export type CreateLessonInput = {
   short_summary_student?: string | null;
   course_organization_group?: string | null;
   slide_contents?: string | null;
-  grouping_strategy_summary?: string | null;
   activity_types?: string | null;
   activity_description?: string | null;
   signature_metaphors?: string | null;
@@ -376,7 +389,6 @@ export async function createLesson(
     short_summary_student: input.short_summary_student?.trim() || null,
     course_organization_group: input.course_organization_group?.trim() || null,
     slide_contents: input.slide_contents?.trim() || null,
-    grouping_strategy_summary: input.grouping_strategy_summary?.trim() || null,
     activity_types: activityTypesForDb,
     activity_description: input.activity_description?.trim() || null,
     signature_metaphors: input.signature_metaphors?.trim() || null,
@@ -439,7 +451,6 @@ export async function updateLesson(
   if (input.short_summary_student !== undefined) updateData.short_summary_student = input.short_summary_student?.trim() || null;
   if (input.course_organization_group !== undefined) updateData.course_organization_group = input.course_organization_group?.trim() || null;
   if (input.slide_contents !== undefined) updateData.slide_contents = input.slide_contents?.trim() || null;
-  if (input.grouping_strategy_summary !== undefined) updateData.grouping_strategy_summary = input.grouping_strategy_summary?.trim() || null;
   
   // Normalize activity_types: convert string to array if needed (database column is TEXT[])
   if (input.activity_types !== undefined) {
@@ -520,14 +531,25 @@ export async function updateLesson(
 /**
  * Delete a lesson by ID with cascading deletes
  * Deletes slides, groups, and the lesson itself atomically
- * 
+ *
+ * Protected lessons: If PROTECTED_LESSON_IDS is set in .env.local (comma-separated UUIDs),
+ * deletion is rejected for those IDs. Use this to protect manually created lessons.
+ *
  * Tier 2.2 Step 4: Uses transaction wrapper for atomic deletion
- * 
+ *
  * Note: DB has FK constraint user_lessons.lesson_id → lessons.id ON DELETE CASCADE,
  * so user_lessons records are automatically deleted by the database when the lesson is deleted.
  * No manual deletion of user_lessons is needed.
  */
 export async function deleteLesson(id: string): Promise<LessonResult<void>> {
+  const protectedIds = getProtectedLessonIds();
+  if (protectedIds.has(id)) {
+    return {
+      data: null,
+      error: "Cannot delete: this lesson is protected (PROTECTED_LESSON_IDS).",
+    };
+  }
+
   const result = await executeTransaction<void>(
     "delete_lesson_transaction",
     { lesson_id: id }

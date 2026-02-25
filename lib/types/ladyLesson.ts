@@ -4,7 +4,22 @@
  * Shape for CMS ingestion. Supports title, text, ai-speak-repeat, and speech-match slides.
  */
 
-export type LadySlideType = "title" | "text" | "ai-speak-repeat" | "speech-match" | "need-to-be-created";
+/** S1 canonical slide types + need-to-be-created. Legacy: title, text (alias for title-slide, text-slide). */
+export type LadySlideType =
+  | "title-slide"
+  | "title"
+  | "lesson-end"
+  | "text-slide"
+  | "text"
+  | "ai-speak-repeat"
+  | "ai-speak-student-repeat"
+  | "student-record-accuracy"
+  | "student-speak-only"
+  | "spell-and-pronounce"
+  | "speech-match"
+  | "speech-choice-verify"
+  | "avatar-command-round"
+  | "need-to-be-created";
 
 /** Line cell for ai-speak-repeat (label + speech config) */
 export interface LadyLineCell {
@@ -18,6 +33,20 @@ export interface LadyChoiceElement {
   speech: { mode: "tts" | "file"; text?: string; fileUrl?: string; lang?: string };
 }
 
+/** Choice element for speech-choice-verify (label, referenceText, speech) */
+export interface LadySpeechChoiceElement {
+  label: string;
+  referenceText: string;
+  speech: { mode: "tts" | "file"; text?: string; fileUrl?: string; lang?: string };
+}
+
+/** Action for avatar-command-round */
+export interface LadyAvatarCommandAction {
+  label: string;
+  commands: string[];
+  avatarAction: string;
+}
+
 export type LadySlide = {
   type: LadySlideType;
   /** title-slide: label for the slide */
@@ -26,10 +55,24 @@ export type LadySlide = {
   title?: string | null;
   /** text-slide: body content */
   body?: string | null;
+  /** text-slide: pedagogical subtype (MOTIVATION, INSTRUCTION, EXPLANATION, EXAMPLE, FEEDBACK_SUMMARY) */
+  text_subtype?: string | null;
   /** ai-speak-repeat: phrases organized as lines (rows of {label, speech}) */
   lines?: LadyLineCell[][] | null;
-  /** speech-match: choice elements with label and speech */
-  elements?: LadyChoiceElement[] | null;
+  /** speech-match, ai-speak-student-repeat, student-speak-only: elements */
+  elements?: (LadyChoiceElement | LadySpeechChoiceElement | { samplePrompt?: string; referenceText?: string; speech?: unknown })[] | null;
+  /** ai-speak-student-repeat, student-record-accuracy, student-speak-only: sample prompt */
+  samplePrompt?: string | null;
+  /** ai-speak-student-repeat, student-record-accuracy: reference text */
+  referenceText?: string | null;
+  /** spell-and-pronounce: imageUrl, word */
+  imageUrl?: string | null;
+  word?: string | null;
+  /** avatar-command-round: actions */
+  actions?: LadyAvatarCommandAction[] | null;
+  /** lesson-end: message, actions */
+  message?: string | null;
+  lessonEndActions?: unknown;
   /** speech-match: optional note below subtitle */
   note?: string | null;
   /** subtitle for ai-speak-repeat, speech-match */
@@ -38,6 +81,12 @@ export type LadySlide = {
   proposedType?: string | null;
   /** need-to-be-created: human-readable content from proposed activity */
   proposedContent?: string | null;
+  /** need-to-be-created: stimulus (what learner sees/hears) */
+  stimulus?: string | null;
+  /** need-to-be-created: action (what learner does) */
+  action?: string | null;
+  /** need-to-be-created: feedback (response to action) */
+  feedback?: string | null;
   /** need-to-be-created: full raw activity object for manual implementation */
   rawActivity?: Record<string, unknown> | null;
   /** RAG-ready (MVP: optional; future: Reference RAG fills these) */
@@ -54,13 +103,41 @@ export type LadyCompilerMeta = {
   [key: string]: unknown;
 };
 
+/** Group Laws V1: when LaDy produces groups (future) */
+export type LadyGroupType =
+  | "ORIENTATION"
+  | "INPUT"
+  | "SCAFFOLDED_PRACTICE"
+  | "TARGET_PERFORMANCE"
+  | "INTEGRATION";
+
+export type LadyExtractabilityTier = "HIGH" | "MEDIUM" | "LOW";
+
+export type LadyPurposeRelationshipTag =
+  | "PREPARE_FOR_PURPOSE"
+  | "SUPPORT_FIRST_CONTROL"
+  | "MEASURE_FIRST_CONTROL"
+  | "STABILIZE_TRANSFER";
+
+export type LadyGroup = {
+  group_type: LadyGroupType;
+  group_summary: string;
+  group_code?: string | null;
+  target_node_keys?: string[] | null;
+  extractability_tier?: LadyExtractabilityTier | null;
+  purpose_relationship_tag?: LadyPurposeRelationshipTag | null;
+  prerequisites?: string[] | null;
+  slides: LadySlide[];
+};
+
 export type LadyLessonMetadata = {
   title?: string | null;
+  system_purpose?: string | null;
+  learner_outcome?: string | null;
   short_summary_admin?: string | null;
   short_summary_student?: string | null;
   course_organization_group?: string | null;
   slide_contents?: string | null;
-  grouping_strategy_summary?: string | null;
   activity_types?: string | null;
   activity_description?: string | null;
   signature_metaphors?: string | null;
@@ -76,17 +153,24 @@ export type LadyLessonMetadata = {
 export type LadyLessonOutput = {
   lessonId: string;
   targetNodeIds: string | string[];
+  /** When present, use groups (with nested slides). Otherwise fall back to 1-slide-per-group from slides. */
+  groups?: LadyGroup[] | null;
   slides: LadySlide[];
   compilerMeta?: LadyCompilerMeta | null;
   lessonMetadata?: LadyLessonMetadata | null;
   [key: string]: unknown;
 };
 
-const VALID_SLIDE_TYPES = ["title", "text", "ai-speak-repeat", "speech-match", "need-to-be-created"] as const;
+const VALID_SLIDE_TYPES = [
+  "title-slide", "title", "lesson-end", "text-slide", "text",
+  "ai-speak-repeat", "ai-speak-student-repeat", "student-record-accuracy", "student-speak-only",
+  "spell-and-pronounce", "speech-match", "speech-choice-verify", "avatar-command-round",
+  "need-to-be-created",
+] as const;
 
 /**
  * Minimal validation: lessonId, targetNodeIds, slides[] required.
- * Each slide must have type "title", "text", "ai-speak-repeat", "speech-match", or "need-to-be-created".
+ * Each slide must have type in VALID_SLIDE_TYPES.
  * ai-speak-repeat requires lines; speech-match requires elements; need-to-be-created requires proposedType, proposedContent, rawActivity.
  */
 export function isValidLadyLesson(data: unknown): data is LadyLessonOutput {
@@ -103,7 +187,7 @@ export function isValidLadyLesson(data: unknown): data is LadyLessonOutput {
     const s = slide as Record<string, unknown>;
     const type = String(s.type ?? "");
     if (!(VALID_SLIDE_TYPES as readonly string[]).includes(type)) return false;
-    if (type === "ai-speak-repeat" && !Array.isArray(s.lines)) return false;
+    if ((type === "ai-speak-repeat") && !Array.isArray(s.lines)) return false;
     if (type === "speech-match" && !Array.isArray(s.elements)) return false;
     if (type === "need-to-be-created") {
       if (typeof s.proposedType !== "string" || typeof s.proposedContent !== "string") return false;

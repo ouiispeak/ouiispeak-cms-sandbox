@@ -23,8 +23,12 @@ export const SLIDE_TYPES = {
   LESSON_END: "lesson-end",
   AI_SPEAK_REPEAT: "ai-speak-repeat",
   AI_SPEAK_STUDENT_REPEAT: "ai-speak-student-repeat",
+  STUDENT_RECORD_ACCURACY: "student-record-accuracy",
+  STUDENT_SPEAK_ONLY: "student-speak-only",
+  SPELL_AND_PRONOUNCE: "spell-and-pronounce",
   SPEECH_MATCH: "speech-match",
   SPEECH_CHOICE_VERIFY: "speech-choice-verify",
+  AVATAR_COMMAND_ROUND: "avatar-command-round",
   /** LLM-proposed activity type not yet implemented. Manual implementation needed. */
   NEED_TO_BE_CREATED: "need-to-be-created",
 } as const;

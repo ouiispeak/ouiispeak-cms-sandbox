@@ -22,7 +22,6 @@ const lessonMapper = createMapper<Lesson, LessonData>({
     shortSummaryStudent: "short_summary_student",
     courseOrganizationGroup: "course_organization_group",
     slideContents: "slide_contents",
-    groupingStrategySummary: "grouping_strategy_summary",
     activityTypes: "activity_types",
     activityDescription: "activity_description",
     signatureMetaphors: "signature_metaphors",

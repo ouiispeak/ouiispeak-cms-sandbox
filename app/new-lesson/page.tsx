@@ -99,7 +99,6 @@ function NewLessonForm() {
       short_summary_admin: null,
       course_organization_group: null,
       slide_contents: null,
-      grouping_strategy_summary: null,
       activity_types: null,
       activity_description: null,
       signature_metaphors: null,
@@ -134,7 +133,6 @@ function NewLessonForm() {
         short_summary_admin: result.data.short_summary_admin,
         course_organization_group: result.data.course_organization_group,
         slide_contents: result.data.slide_contents,
-        grouping_strategy_summary: result.data.grouping_strategy_summary,
         activity_types: Array.isArray(result.data.activity_types) 
           ? result.data.activity_types.join(",") 
           : result.data.activity_types,

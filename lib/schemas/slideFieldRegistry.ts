@@ -156,6 +156,22 @@ export const FIELD_REGISTRY: FieldDefinition[] = [
     rows: 6,
     defaultSection: "content"
   },
+
+  {
+    id: "text_subtype",
+    displayName: "Text Subtype",
+    type: "select",
+    infoTooltip: "Pedagogical role of this text slide. MOTIVATION: hooks interest; INSTRUCTION: what to do; EXPLANATION: why/how; EXAMPLE: model; FEEDBACK_SUMMARY: wrap-up.",
+    selectOptions: [
+      { value: "", label: "Select subtype..." },
+      { value: "MOTIVATION", label: "Motivation" },
+      { value: "INSTRUCTION", label: "Instruction" },
+      { value: "EXPLANATION", label: "Explanation" },
+      { value: "EXAMPLE", label: "Example" },
+      { value: "FEEDBACK_SUMMARY", label: "Feedback Summary" }
+    ],
+    defaultSection: "content"
+  },
   
   {
     id: "lessonEndMessage",
@@ -445,7 +461,7 @@ export const FIELD_REGISTRY: FieldDefinition[] = [
     displayName: "Proposed Type",
     type: "text",
     readOnly: true,
-    infoTooltip: "Activity type the LLM proposed (e.g. SENTENCE_TEMPLATE_CHOICE). Implement this type in the CMS, then add it to activityTypeRegistry.mjs in LaDy.",
+    infoTooltip: "Slide type the LLM proposed (e.g. SENTENCE_TEMPLATE_CHOICE). Implement this type in the CMS and Player, then add to S1 canonical types.",
     placeholder: "e.g. SENTENCE_TEMPLATE_CHOICE",
     defaultSection: "content"
   },
@@ -464,9 +480,39 @@ export const FIELD_REGISTRY: FieldDefinition[] = [
     displayName: "Raw Activity (JSON)",
     type: "textarea",
     readOnly: true,
-    infoTooltip: "Full raw activity object from LaDy. Reference when implementing the new slide type in CMS and LaDy activityTypeRegistry.",
+    infoTooltip: "Full raw activity/slide object from LaDy. Reference when implementing the new slide type in CMS and Player.",
     placeholder: "Raw activity JSON...",
     rows: 8,
+    defaultSection: "content"
+  },
+  {
+    id: "stimulus",
+    displayName: "Stimulus",
+    type: "textarea",
+    readOnly: true,
+    infoTooltip: "What the learner sees/hears. Future-friendly for Flag/Recreate.",
+    placeholder: "Stimulus content...",
+    rows: 3,
+    defaultSection: "content"
+  },
+  {
+    id: "action",
+    displayName: "Action",
+    type: "textarea",
+    readOnly: true,
+    infoTooltip: "What the learner does. Future-friendly for Flag/Recreate.",
+    placeholder: "Action description...",
+    rows: 3,
+    defaultSection: "content"
+  },
+  {
+    id: "feedback",
+    displayName: "Feedback",
+    type: "textarea",
+    readOnly: true,
+    infoTooltip: "Response to the action. Future-friendly for Flag/Recreate.",
+    placeholder: "Feedback content...",
+    rows: 3,
     defaultSection: "content"
   }
 ];

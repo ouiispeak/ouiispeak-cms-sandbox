@@ -12,6 +12,9 @@ export type Group = {
   shortSummary: string | null;
   groupType: string | null;
   groupSummary: string | null;
+  extractabilityTier: string | null;
+  purposeRelationshipTag: string | null;
+  targetNodeKeys: string[] | null;
   groupGoal: string | null;
   prerequisites: string | null;
   isRequiredToPass: boolean | null;

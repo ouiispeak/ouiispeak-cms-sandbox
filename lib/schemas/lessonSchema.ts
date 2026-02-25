@@ -20,7 +20,6 @@ export const createLessonSchema = z.object({
   short_summary_student: z.string().trim().nullable().optional(),
   course_organization_group: z.string().trim().nullable().optional(),
   slide_contents: z.string().trim().nullable().optional(),
-  grouping_strategy_summary: z.string().trim().nullable().optional(),
   activity_types: z.union([
     z.string().trim(),
     z.array(z.string().trim())
@@ -68,7 +67,6 @@ export const lessonInputSchema = z.object({
   short_summary_student: z.string().trim().nullable(),
   course_organization_group: z.string().trim().nullable(),
   slide_contents: z.string().trim().nullable(),
-  grouping_strategy_summary: z.string().trim().nullable(),
   activity_types: z.union([z.string().trim().nullable(), z.array(z.string()).nullable()]).nullable(),
   activity_description: z.string().trim().nullable(),
   signature_metaphors: z.string().trim().nullable(),

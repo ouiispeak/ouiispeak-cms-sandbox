@@ -52,7 +52,6 @@ export default function EditLessonPage() {
   // Lesson structure
   const [courseOrganizationGroup, setCourseOrganizationGroup] = useState("");
   const [slideContents, setSlideContents] = useState("");
-  const [groupingStrategySummary, setGroupingStrategySummary] = useState("");
 
   // Activities
   const [activityTypes, setActivityTypes] = useState("");
@@ -82,7 +81,6 @@ export default function EditLessonPage() {
     shortSummaryStudent: string;
     courseOrganizationGroup: string;
     slideContents: string;
-    groupingStrategySummary: string;
     activityTypes: string;
     activityDescription: string;
     signatureMetaphors: string;
@@ -110,7 +108,6 @@ export default function EditLessonPage() {
       shortSummaryStudent !== initial.shortSummaryStudent ||
       courseOrganizationGroup !== initial.courseOrganizationGroup ||
       slideContents !== initial.slideContents ||
-      groupingStrategySummary !== initial.groupingStrategySummary ||
       activityTypes !== initial.activityTypes ||
       activityDescription !== initial.activityDescription ||
       signatureMetaphors !== initial.signatureMetaphors ||
@@ -181,7 +178,6 @@ export default function EditLessonPage() {
       // Lesson structure
       setCourseOrganizationGroup(data.courseOrganizationGroup ?? "");
       setSlideContents(data.slideContents ?? "");
-      setGroupingStrategySummary(data.groupingStrategySummary ?? "");
 
       // Activities - activityTypes is a string (comma-separated) in domain model
       setActivityTypes(data.activityTypes ?? "");
@@ -210,7 +206,6 @@ export default function EditLessonPage() {
         shortSummaryStudent: data.shortSummaryStudent ?? "",
         courseOrganizationGroup: data.courseOrganizationGroup ?? "",
         slideContents: data.slideContents ?? "",
-        groupingStrategySummary: data.groupingStrategySummary ?? "",
         activityTypes: data.activityTypes ?? "",
         activityDescription: data.activityDescription ?? "",
         signatureMetaphors: data.signatureMetaphors ?? "",
@@ -262,7 +257,6 @@ export default function EditLessonPage() {
       short_summary_student: shortSummaryStudent || null,
       course_organization_group: courseOrganizationGroup || null,
       slide_contents: slideContents || null,
-      grouping_strategy_summary: groupingStrategySummary || null,
       activity_types: activityTypes || null,
       activity_description: activityDescription || null,
       signature_metaphors: signatureMetaphors || null,
@@ -299,7 +293,6 @@ export default function EditLessonPage() {
         short_summary_student: result.data.short_summary_student,
         course_organization_group: result.data.course_organization_group,
         slide_contents: result.data.slide_contents,
-        grouping_strategy_summary: result.data.grouping_strategy_summary,
         activity_types: activityTypesStr ?? null,
         activity_description: result.data.activity_description,
         signature_metaphors: result.data.signature_metaphors,
@@ -364,7 +357,6 @@ export default function EditLessonPage() {
             shortSummaryStudent,
             courseOrganizationGroup,
             slideContents,
-            groupingStrategySummary,
             activityTypes,
             activityDescription,
             signatureMetaphors,
@@ -394,7 +386,6 @@ export default function EditLessonPage() {
         setShortSummaryStudent(reloadedData.shortSummaryStudent ?? "");
         setCourseOrganizationGroup(reloadedData.courseOrganizationGroup ?? "");
         setSlideContents(reloadedData.slideContents ?? "");
-        setGroupingStrategySummary(reloadedData.groupingStrategySummary ?? "");
         setActivityTypes(reloadedData.activityTypes ?? "");
         setActivityDescription(reloadedData.activityDescription ?? "");
         setSignatureMetaphors(reloadedData.signatureMetaphors ?? "");
@@ -419,7 +410,6 @@ export default function EditLessonPage() {
             shortSummaryStudent: reloadedData.shortSummaryStudent ?? "",
             courseOrganizationGroup: reloadedData.courseOrganizationGroup ?? "",
             slideContents: reloadedData.slideContents ?? "",
-            groupingStrategySummary: reloadedData.groupingStrategySummary ?? "",
             activityTypes: reloadedData.activityTypes ?? "",
             activityDescription: reloadedData.activityDescription ?? "",
             signatureMetaphors: reloadedData.signatureMetaphors ?? "",
@@ -596,11 +586,15 @@ export default function EditLessonPage() {
           </CmsSection>
 
           <CmsSection title="Lesson Structure" backgroundColor="#b5d5d5" borderColor="#6aabab">
-            <FormField label="Course Organization Group" borderColor="#6aabab">
+            <FormField
+              label="Topic / Category"
+              borderColor="#6aabab"
+              helper="e.g. English Grammar > Adverbs > Frequency. Not course order."
+            >
               <Input
                 value={courseOrganizationGroup}
                 onChange={(e) => setCourseOrganizationGroup(e.target.value)}
-                placeholder="e.g. 6 Groups"
+                placeholder="e.g. English Grammar > Adverbs > Frequency"
               />
             </FormField>
 
@@ -613,14 +607,6 @@ export default function EditLessonPage() {
                 value={slideContents}
                 onChange={(e) => setSlideContents(e.target.value)}
                 rows={2}
-              />
-            </FormField>
-
-            <FormField label="Grouping Strategy Summary" borderColor="#6aabab">
-              <Textarea
-                value={groupingStrategySummary}
-                onChange={(e) => setGroupingStrategySummary(e.target.value)}
-                rows={3}
               />
             </FormField>
           </CmsSection>

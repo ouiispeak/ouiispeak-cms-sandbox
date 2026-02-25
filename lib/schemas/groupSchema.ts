@@ -1,9 +1,30 @@
 import { z } from "zod";
 
 /**
- * Group type enum
+ * Group type enum (Group Laws V1 — canonical phases)
  */
-export const GroupType = z.enum(["title", "intro", "practice", "test", "wrap-up", "finale"]);
+export const GroupType = z.enum([
+  "ORIENTATION",
+  "INPUT",
+  "SCAFFOLDED_PRACTICE",
+  "TARGET_PERFORMANCE",
+  "INTEGRATION",
+]);
+
+/**
+ * Extractability tier — governs extraction for remediation, spaced repetition, standalone practice
+ */
+export const ExtractabilityTier = z.enum(["HIGH", "MEDIUM", "LOW"]);
+
+/**
+ * Purpose relationship tag — how the group contributes to the lesson's learning transition
+ */
+export const PurposeRelationshipTag = z.enum([
+  "PREPARE_FOR_PURPOSE",
+  "SUPPORT_FIRST_CONTROL",
+  "MEASURE_FIRST_CONTROL",
+  "STABILIZE_TRANSFER",
+]);
 
 /**
  * Passing score type enum
@@ -24,6 +45,9 @@ export const createGroupSchema = z.object({
   short_summary: z.string().trim().nullable().optional(),
   group_type: GroupType.nullable().optional(),
   group_summary: z.string().trim().nullable().optional(),
+  extractability_tier: ExtractabilityTier.nullable().optional(),
+  purpose_relationship_tag: PurposeRelationshipTag.nullable().optional(),
+  target_node_keys: z.array(z.string()).nullable().optional(),
   group_goal: z.string().trim().nullable().optional(),
   prerequisites: z.string().trim().nullable().optional(),
   is_required_to_pass: z.boolean().nullable().optional(),
@@ -88,6 +112,9 @@ export const groupInputSchema = z.object({
   short_summary: z.string().trim().nullable(),
   group_type: GroupType.nullable(),
   group_summary: z.string().trim().nullable(),
+  extractability_tier: ExtractabilityTier.nullable(),
+  purpose_relationship_tag: PurposeRelationshipTag.nullable(),
+  target_node_keys: z.array(z.string()).nullable(),
   group_goal: z.string().trim().nullable(),
   prerequisites: z.string().trim().nullable(),
   is_required_to_pass: z.boolean().nullable(),

@@ -29,7 +29,6 @@ class MockDataAccess implements IDataAccess {
         shortSummaryStudent: null,
         courseOrganizationGroup: null,
         slideContents: null,
-        groupingStrategySummary: null,
         activityTypes: null,
         activityDescription: null,
         signatureMetaphors: null,

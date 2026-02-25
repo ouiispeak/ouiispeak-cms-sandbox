@@ -23,7 +23,6 @@ export type Lesson = {
   shortSummaryStudent: string | null;
   courseOrganizationGroup: string | null;
   slideContents: string | null;
-  groupingStrategySummary: string | null;
   activityTypes: string | null;
   activityDescription: string | null;
   signatureMetaphors: string | null;

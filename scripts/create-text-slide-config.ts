@@ -126,9 +126,16 @@ async function createTextSlideConfig() {
           visible: true
         },
         {
-          fieldId: "buttons",
+          fieldId: "text_subtype",
           sectionId: "content",
           order: 4,
+          required: false,
+          visible: true
+        },
+        {
+          fieldId: "buttons",
+          sectionId: "content",
+          order: 5,
           required: false,
           visible: true
         }
