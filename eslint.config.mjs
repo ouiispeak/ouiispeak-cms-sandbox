@@ -1,18 +1,23 @@
 import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import nextCoreVitals from "eslint-config-next/core-web-vitals";
+import nextTypeScript from "eslint-config-next/typescript";
 
-const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
-  // Override default ignores of eslint-config-next.
+export default defineConfig([
+  ...nextCoreVitals,
+  ...nextTypeScript,
+  {
+    files: ["app/**/*.tsx"],
+    rules: {
+      // Server components in this repo intentionally use route-level try/catch
+      // to render deterministic fallback UI for data-loading failures.
+      "react-hooks/error-boundaries": "off",
+    },
+  },
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "tsconfig.tsbuildinfo",
   ]),
 ]);
-
-export default eslintConfig;

@@ -1,46 +1,28 @@
 {
-  "name": "ouiispeak-cms",
-  "version": "0.1.0",
+  "name": "ouiispeak-cms-sandbox",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "verify-migration": "tsx scripts/verify-slide-config-migration.ts",
-    "ingest-lady": "tsx scripts/ingest-lady-lesson.ts",
-    "archive-non-protected-lessons": "tsx scripts/archive-non-protected-lessons.ts",
-    "export-pedagogical-appendices": "tsx scripts/export-pedagogical-appendices.ts",
-    "create-text-slide-config": "tsx scripts/create-text-slide-config.ts",
-    "create-all-slide-configs": "tsx scripts/create-all-slide-configs.ts",
-    "test-all-slide-configs": "tsx scripts/test-all-slide-configs.ts",
-    "verify-text-slide-config": "tsx scripts/verify-text-slide-config.ts",
-    "verify-current-form": "tsx scripts/verify-current-form.ts"
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/**/*.test.ts",
+    "check": "npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.87.1",
-    "next": "16.0.8",
+    "next": "^16.2.2",
     "react": "19.2.1",
-    "react-dom": "19.2.1",
-    "zod": "^4.1.13"
+    "react-dom": "19.2.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.1",
-    "@testing-library/user-event": "^14.6.1",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "baseline-browser-mapping": "^2.9.19",
-    "dotenv": "^17.2.3",
-    "eslint": "^9",
-    "eslint-config-next": "16.0.8",
-    "jsdom": "^27.4.0",
-    "tailwindcss": "^4",
-    "typescript": "^5",
-    "vitest": "^2.1.0"
+    "@types/node": "^20.17.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "eslint": "^9.39.0",
+    "eslint-config-next": "^16.2.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   }
 }

@@ -1,0 +1,9 @@
+Identity and Hiearchy:
+  moduleId: text field
+  lessonId: text field
+  groupId: text field
+  slideId: text field
+  title: text field
+  level: text field
+  text: text field
+  subtitle: text field
