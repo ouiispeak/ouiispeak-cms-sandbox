@@ -378,7 +378,6 @@
           "central/SOT/universal_configs.md",
           "central/FIELD_DICTIONARY.md",
           "central/FIELD_DICTIONARY.csv",
-          "central/DRAFT_FIELDS_V1.md",
           "docs/LOCAL_SUPABASE_MANUAL_SETUP.md"
         ]
       },

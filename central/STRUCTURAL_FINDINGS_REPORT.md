@@ -7,7 +7,7 @@ Constitution Reference: central/CONSTITUTION.md
 
 Date: 2026-04-09
 Repository: ouiispeak-cms-sandbox
-Status: all findings fixed now (no defer bucket)
+Status: verified snapshot at commit `f6b3d24` (no structural defer bucket in this snapshot)
 
 ## Scope
 1. Duplicate audit: files, definitions, overlapping logic
@@ -42,7 +42,7 @@ Status: all findings fixed now (no defer bucket)
 ## Verification
 1. `npm run lint` passed.
 2. `npm run typecheck` passed.
-3. `npm run test` passed (44/44).
+3. `npm run test` passed (57/57).
 4. `npm run check:activity-rpc-boundary` passed.
 5. `npm run build` passed.
 

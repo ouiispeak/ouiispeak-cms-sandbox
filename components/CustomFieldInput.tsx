@@ -4,39 +4,24 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import AudioPromptField from "@/components/custom-fields/AudioPromptField";
 import BlanksMapper, { type BlankMapperRow } from "@/components/custom-fields/BlanksMapper";
-
-type SpeechMode = "tts" | "file";
-type SpeechLang = "en" | "fr";
-
-type Speech = {
-  mode: SpeechMode;
-  lang?: SpeechLang;
-  text?: string;
-  fileUrl?: string;
-};
-
-type ChoiceElement = {
-  label: string;
-  speech: Speech;
-};
+import AudioFileSelector from "@/components/custom-fields/AudioFileSelector";
+import AudioLinesMapper, { type AudioLinesValue } from "@/components/custom-fields/AudioLinesMapper";
+import ChoiceElementMapper, {
+  type ChoiceElementValue as ChoiceElement,
+  type SpeechLang,
+  type SpeechMode,
+  type SpeechValue as Speech,
+} from "@/components/custom-fields/ChoiceElementMapper";
+import MatchPairsMapper, { type MatchPairValue as MatchPair } from "@/components/custom-fields/MatchPairsMapper";
+import DialogueTurnsMapper, {
+  type DialogueTurnValue as DialogueTurn,
+} from "@/components/custom-fields/DialogueTurnsMapper";
 
 type AudioPromptValue = {
   label: string;
   speech: Speech;
 };
 
-type MatchPair = {
-  left: string;
-  right: string;
-};
-
-type DialogueTurn = {
-  id: string;
-  avatarLine: string;
-  avatarAction: string;
-  audioFile: string;
-  correctResponses: string[];
-};
 
 type WordBankItem = {
   word: string;
@@ -215,7 +200,7 @@ function parseBlanks(value: string | undefined): BlankMapperRow[] {
   return parsed.map((row) => asBlankRow(row));
 }
 
-function parseLines(value: string | undefined): ChoiceElement[][] {
+function parseLines(value: string | undefined): AudioLinesValue {
   const parsed = parseJson<unknown>(value, []);
   if (!Array.isArray(parsed)) {
     return [];
@@ -499,7 +484,7 @@ export default function CustomFieldInput({
   const [audioList, setAudioList] = useState<string[]>(() => parseAudioList(defaultValue));
   const [audioPrompt, setAudioPrompt] = useState<AudioPromptValue>(() => parseAudioPrompt(defaultValue));
   const [blanks, setBlanks] = useState<BlankMapperRow[]>(() => parseBlanks(defaultValue));
-  const [lines, setLines] = useState<ChoiceElement[][]>(() => parseLines(defaultValue));
+  const [lines, setLines] = useState<AudioLinesValue>(() => parseLines(defaultValue));
   const [choiceElements, setChoiceElements] = useState<ChoiceElement[]>(() => parseChoiceElements(defaultValue));
   const [pairs, setPairs] = useState<MatchPair[]>(() => parsePairs(defaultValue));
   const [dialogues, setDialogues] = useState<DialogueTurn[]>(() => parseDialogues(defaultValue));
@@ -1170,15 +1155,7 @@ export default function CustomFieldInput({
   if (inputType === "audio_selector") {
     return (
       <>
-        <input
-          id={id}
-          type="text"
-          value={audioPath}
-          onChange={(event) => setAudioPath(event.target.value)}
-          readOnly={readOnly}
-          disabled={readOnly}
-          placeholder="lesson-audio/file.mp3"
-        />
+        <AudioFileSelector id={id} value={audioPath} onChange={setAudioPath} readOnly={readOnly} />
         <HiddenValue name={name} value={serializedValue} />
       </>
     );
@@ -1234,100 +1211,7 @@ export default function CustomFieldInput({
   if (inputType === "audio_lines_mapper") {
     return (
       <>
-        <div style={{ display: "grid", gap: 8 }}>
-          {lines.map((row, rowIndex) => (
-            <CustomCard key={`${id}-row-${rowIndex}`}>
-              <strong>{`Row ${rowIndex + 1}`}</strong>
-              {row.map((cell, cellIndex) => (
-                <CustomCard key={`${id}-row-${rowIndex}-cell-${cellIndex}`}>
-                  <label htmlFor={`${id}-row-${rowIndex}-cell-${cellIndex}-label`}>Label</label>
-                  <input
-                    id={`${id}-row-${rowIndex}-cell-${cellIndex}-label`}
-                    type="text"
-                    value={cell.label}
-                    onChange={(event) =>
-                      setLines((current) =>
-                        current.map((currentRow, currentRowIndex) =>
-                          currentRowIndex === rowIndex
-                            ? currentRow.map((currentCell, currentCellIndex) =>
-                                currentCellIndex === cellIndex
-                                  ? { ...currentCell, label: event.target.value }
-                                  : currentCell
-                              )
-                            : currentRow
-                        )
-                      )
-                    }
-                    readOnly={readOnly}
-                    disabled={readOnly}
-                  />
-                  <SpeechEditor
-                    value={cell.speech}
-                    onChange={(speech) =>
-                      setLines((current) =>
-                        current.map((currentRow, currentRowIndex) =>
-                          currentRowIndex === rowIndex
-                            ? currentRow.map((currentCell, currentCellIndex) =>
-                                currentCellIndex === cellIndex ? { ...currentCell, speech } : currentCell
-                              )
-                            : currentRow
-                        )
-                      )
-                    }
-                    readOnly={readOnly}
-                    idPrefix={`${id}-row-${rowIndex}-cell-${cellIndex}`}
-                  />
-                  <RowActions
-                    onAdd={() =>
-                      setLines((current) =>
-                        current.map((currentRow, currentRowIndex) =>
-                          currentRowIndex === rowIndex
-                            ? [...currentRow, { label: "", speech: { mode: "tts", lang: "en", text: "" } }]
-                            : currentRow
-                        )
-                      )
-                    }
-                    onRemove={() =>
-                      setLines((current) =>
-                        current.map((currentRow, currentRowIndex) =>
-                          currentRowIndex === rowIndex
-                            ? currentRow.filter((_, currentCellIndex) => currentCellIndex !== cellIndex)
-                            : currentRow
-                        )
-                      )
-                    }
-                    removeDisabled={row.length === 0}
-                    readOnly={readOnly}
-                  />
-                </CustomCard>
-              ))}
-              <RowActions
-                onAdd={() =>
-                  setLines((current) => [
-                    ...current,
-                    [{ label: "", speech: { mode: "tts", lang: "en", text: "" } }],
-                  ])
-                }
-                onRemove={() =>
-                  setLines((current) => current.filter((_, currentRowIndex) => currentRowIndex !== rowIndex))
-                }
-                removeDisabled={lines.length === 0}
-                readOnly={readOnly}
-              />
-            </CustomCard>
-          ))}
-          {lines.length === 0 ? (
-            <button
-              type="button"
-              onClick={() =>
-                setLines([[{ label: "", speech: { mode: "tts", lang: "en", text: "" } }]])
-              }
-              disabled={readOnly}
-            >
-              Add Row
-            </button>
-          ) : null}
-        </div>
+        <AudioLinesMapper idPrefix={id} value={lines} onChange={setLines} readOnly={readOnly} />
         <HiddenValue name={name} value={serializedValue} />
       </>
     );
@@ -1336,64 +1220,7 @@ export default function CustomFieldInput({
   if (inputType === "choice_elements_mapper") {
     return (
       <>
-        <div style={{ display: "grid", gap: 8 }}>
-          {choiceElements.map((element, index) => (
-            <CustomCard key={`${id}-choice-${index}`}>
-              <strong>{`Choice ${index + 1}`}</strong>
-              <label htmlFor={`${id}-choice-${index}-label`}>Label</label>
-              <input
-                id={`${id}-choice-${index}-label`}
-                type="text"
-                value={element.label}
-                onChange={(event) =>
-                  setChoiceElements((current) =>
-                    current.map((value, valueIndex) =>
-                      valueIndex === index ? { ...value, label: event.target.value } : value
-                    )
-                  )
-                }
-                readOnly={readOnly}
-                disabled={readOnly}
-              />
-              <SpeechEditor
-                value={element.speech}
-                onChange={(speech) =>
-                  setChoiceElements((current) =>
-                    current.map((value, valueIndex) =>
-                      valueIndex === index ? { ...value, speech } : value
-                    )
-                  )
-                }
-                readOnly={readOnly}
-                idPrefix={`${id}-choice-${index}`}
-              />
-              <RowActions
-                onAdd={() =>
-                  setChoiceElements((current) => [
-                    ...current,
-                    { label: "", speech: { mode: "tts", lang: "en", text: "" } },
-                  ])
-                }
-                onRemove={() =>
-                  setChoiceElements((current) => current.filter((_, valueIndex) => valueIndex !== index))
-                }
-                removeDisabled={choiceElements.length === 0}
-                readOnly={readOnly}
-              />
-            </CustomCard>
-          ))}
-          {choiceElements.length === 0 ? (
-            <button
-              type="button"
-              onClick={() =>
-                setChoiceElements([{ label: "", speech: { mode: "tts", lang: "en", text: "" } }])
-              }
-              disabled={readOnly}
-            >
-              Add Choice Element
-            </button>
-          ) : null}
-        </div>
+        <ChoiceElementMapper idPrefix={id} value={choiceElements} onChange={setChoiceElements} readOnly={readOnly} />
         <HiddenValue name={name} value={serializedValue} />
       </>
     );
@@ -1402,56 +1229,7 @@ export default function CustomFieldInput({
   if (inputType === "match_pairs_mapper") {
     return (
       <>
-        <div style={{ display: "grid", gap: 8 }}>
-          {pairs.map((pair, index) => (
-            <CustomCard key={`${id}-pair-${index}`}>
-              <strong>{`Pair ${index + 1}`}</strong>
-              <label htmlFor={`${id}-pair-${index}-left`}>Left</label>
-              <input
-                id={`${id}-pair-${index}-left`}
-                type="text"
-                value={pair.left}
-                onChange={(event) =>
-                  setPairs((current) =>
-                    current.map((value, valueIndex) =>
-                      valueIndex === index ? { ...value, left: event.target.value } : value
-                    )
-                  )
-                }
-                readOnly={readOnly}
-                disabled={readOnly}
-              />
-              <label htmlFor={`${id}-pair-${index}-right`}>Right</label>
-              <input
-                id={`${id}-pair-${index}-right`}
-                type="text"
-                value={pair.right}
-                onChange={(event) =>
-                  setPairs((current) =>
-                    current.map((value, valueIndex) =>
-                      valueIndex === index ? { ...value, right: event.target.value } : value
-                    )
-                  )
-                }
-                readOnly={readOnly}
-                disabled={readOnly}
-              />
-              <RowActions
-                onAdd={() => setPairs((current) => [...current, { left: "", right: "" }])}
-                onRemove={() =>
-                  setPairs((current) => current.filter((_, valueIndex) => valueIndex !== index))
-                }
-                removeDisabled={pairs.length === 0}
-                readOnly={readOnly}
-              />
-            </CustomCard>
-          ))}
-          {pairs.length === 0 ? (
-            <button type="button" onClick={() => setPairs([{ left: "", right: "" }])} disabled={readOnly}>
-              Add Pair
-            </button>
-          ) : null}
-        </div>
+        <MatchPairsMapper idPrefix={id} value={pairs} onChange={setPairs} readOnly={readOnly} />
         <HiddenValue name={name} value={serializedValue} />
       </>
     );
@@ -1460,134 +1238,7 @@ export default function CustomFieldInput({
   if (inputType === "avatar_dialogues_mapper") {
     return (
       <>
-        <div style={{ display: "grid", gap: 8 }}>
-          {dialogues.map((turn, index) => (
-            <CustomCard key={`${id}-dialogue-${index}`}>
-              <strong>{`Turn ${index + 1}`}</strong>
-              <label htmlFor={`${id}-dialogue-${index}-id`}>ID</label>
-              <input
-                id={`${id}-dialogue-${index}-id`}
-                type="text"
-                value={turn.id}
-                onChange={(event) =>
-                  setDialogues((current) =>
-                    current.map((value, valueIndex) =>
-                      valueIndex === index ? { ...value, id: event.target.value } : value
-                    )
-                  )
-                }
-                readOnly={readOnly}
-                disabled={readOnly}
-              />
-              <label htmlFor={`${id}-dialogue-${index}-line`}>Avatar Line</label>
-              <textarea
-                id={`${id}-dialogue-${index}-line`}
-                rows={2}
-                value={turn.avatarLine}
-                onChange={(event) =>
-                  setDialogues((current) =>
-                    current.map((value, valueIndex) =>
-                      valueIndex === index ? { ...value, avatarLine: event.target.value } : value
-                    )
-                  )
-                }
-                readOnly={readOnly}
-                disabled={readOnly}
-              />
-              <label htmlFor={`${id}-dialogue-${index}-action`}>Avatar Action</label>
-              <input
-                id={`${id}-dialogue-${index}-action`}
-                type="text"
-                value={turn.avatarAction}
-                onChange={(event) =>
-                  setDialogues((current) =>
-                    current.map((value, valueIndex) =>
-                      valueIndex === index ? { ...value, avatarAction: event.target.value } : value
-                    )
-                  )
-                }
-                readOnly={readOnly}
-                disabled={readOnly}
-              />
-              <label htmlFor={`${id}-dialogue-${index}-audio`}>Audio File</label>
-              <input
-                id={`${id}-dialogue-${index}-audio`}
-                type="text"
-                value={turn.audioFile}
-                onChange={(event) =>
-                  setDialogues((current) =>
-                    current.map((value, valueIndex) =>
-                      valueIndex === index ? { ...value, audioFile: event.target.value } : value
-                    )
-                  )
-                }
-                readOnly={readOnly}
-                disabled={readOnly}
-              />
-              <label htmlFor={`${id}-dialogue-${index}-responses`}>Correct Responses (one per line)</label>
-              <textarea
-                id={`${id}-dialogue-${index}-responses`}
-                rows={3}
-                value={turn.correctResponses.join("\n")}
-                onChange={(event) =>
-                  setDialogues((current) =>
-                    current.map((value, valueIndex) =>
-                      valueIndex === index
-                        ? {
-                            ...value,
-                            correctResponses: event.target.value
-                              .split("\n")
-                              .map((line) => line.trim())
-                              .filter(Boolean),
-                          }
-                        : value
-                    )
-                  )
-                }
-                readOnly={readOnly}
-                disabled={readOnly}
-              />
-              <RowActions
-                onAdd={() =>
-                  setDialogues((current) => [
-                    ...current,
-                    {
-                      id: `turn-${current.length + 1}`,
-                      avatarLine: "",
-                      avatarAction: "",
-                      audioFile: "",
-                      correctResponses: [],
-                    },
-                  ])
-                }
-                onRemove={() =>
-                  setDialogues((current) => current.filter((_, valueIndex) => valueIndex !== index))
-                }
-                removeDisabled={dialogues.length === 0}
-                readOnly={readOnly}
-              />
-            </CustomCard>
-          ))}
-          {dialogues.length === 0 ? (
-            <button
-              type="button"
-              onClick={() =>
-                setDialogues([
-                  {
-                    id: "turn-1",
-                    avatarLine: "",
-                    avatarAction: "",
-                    audioFile: "",
-                    correctResponses: [],
-                  },
-                ])
-              }
-              disabled={readOnly}
-            >
-              Add Dialogue Turn
-            </button>
-          ) : null}
-        </div>
+        <DialogueTurnsMapper idPrefix={id} value={dialogues} onChange={setDialogues} readOnly={readOnly} />
         <HiddenValue name={name} value={serializedValue} />
       </>
     );
