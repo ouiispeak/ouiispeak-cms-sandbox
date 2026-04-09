@@ -2,6 +2,10 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 DROP FUNCTION IF EXISTS public.import_slides_update_atomic(JSONB);
 DROP FUNCTION IF EXISTS public.import_slides_create_atomic(JSONB);
+DROP FUNCTION IF EXISTS public.import_lesson_ends_update_atomic(JSONB);
+DROP FUNCTION IF EXISTS public.import_lesson_ends_create_atomic(JSONB);
+DROP FUNCTION IF EXISTS public.import_title_slides_update_atomic(JSONB);
+DROP FUNCTION IF EXISTS public.import_title_slides_create_atomic(JSONB);
 DROP FUNCTION IF EXISTS public.import_groups_update_atomic(JSONB);
 DROP FUNCTION IF EXISTS public.import_groups_create_atomic(JSONB);
 DROP FUNCTION IF EXISTS public.import_lessons_update_atomic(JSONB);
@@ -14,6 +18,10 @@ DROP TABLE IF EXISTS public.field_dictionary_scoped_mappings CASCADE;
 
 DROP TABLE IF EXISTS public.slide_field_values CASCADE;
 DROP TABLE IF EXISTS public.slides CASCADE;
+DROP TABLE IF EXISTS public.lesson_end_field_values CASCADE;
+DROP TABLE IF EXISTS public.lesson_ends CASCADE;
+DROP TABLE IF EXISTS public.title_slide_field_values CASCADE;
+DROP TABLE IF EXISTS public.title_slides CASCADE;
 DROP TABLE IF EXISTS public.group_field_values CASCADE;
 DROP TABLE IF EXISTS public.groups CASCADE;
 DROP TABLE IF EXISTS public.lesson_field_values CASCADE;
@@ -161,7 +169,7 @@ GRANT SELECT ON public.slide_field_values TO anon, authenticated;
 SELECT *
 FROM public.upsert_field_dictionary_entry(
   'moduleId',
-  'Identity and Hiearchy',
+  'Identity & Lifecycle',
   'text',
   1,
   'active',
@@ -171,7 +179,7 @@ FROM public.upsert_field_dictionary_entry(
 SELECT *
 FROM public.upsert_field_dictionary_entry(
   'lessonId',
-  'Identity and Hiearchy',
+  'Identity & Lifecycle',
   'text',
   2,
   'active',
@@ -181,7 +189,7 @@ FROM public.upsert_field_dictionary_entry(
 SELECT *
 FROM public.upsert_field_dictionary_entry(
   'groupId',
-  'Identity and Hiearchy',
+  'Identity & Lifecycle',
   'text',
   3,
   'active',
@@ -190,8 +198,18 @@ FROM public.upsert_field_dictionary_entry(
 
 SELECT *
 FROM public.upsert_field_dictionary_entry(
+  'slug',
+  'Identity & Lifecycle',
+  'text',
+  5,
+  'active',
+  NULL
+);
+
+SELECT *
+FROM public.upsert_field_dictionary_entry(
   'slideId',
-  'Identity and Hiearchy',
+  'Identity & Lifecycle',
   'text',
   4,
   'active',
@@ -203,6 +221,7 @@ SELECT public.set_field_dictionary_status('id', 'legacy');
 SELECT public.set_field_dictionary_component_presence('id', 'modules', false, false);
 SELECT public.set_field_dictionary_component_presence('slideId', 'modules', false, false);
 SELECT public.set_field_dictionary_component_presence('moduleId', 'modules', true, true);
+SELECT public.set_field_dictionary_component_presence('slug', 'modules', true, true);
 SELECT public.set_field_dictionary_component_presence('title', 'modules', true, true);
 SELECT public.set_field_dictionary_component_presence('text', 'modules', true, false);
 SELECT public.set_field_dictionary_component_presence('level', 'modules', true, true);
@@ -211,6 +230,7 @@ SELECT public.set_field_dictionary_component_presence('subtitle', 'modules', fal
 SELECT public.set_field_dictionary_component_presence('id', 'lessons', false, false);
 SELECT public.set_field_dictionary_component_presence('slideId', 'lessons', false, false);
 SELECT public.set_field_dictionary_component_presence('lessonId', 'lessons', true, true);
+SELECT public.set_field_dictionary_component_presence('slug', 'lessons', true, true);
 SELECT public.set_field_dictionary_component_presence('moduleId', 'lessons', false, false);
 SELECT public.set_field_dictionary_component_presence('title', 'lessons', true, false);
 SELECT public.set_field_dictionary_component_presence('text', 'lessons', true, false);
@@ -220,6 +240,7 @@ SELECT public.set_field_dictionary_component_presence('level', 'lessons', false,
 SELECT public.set_field_dictionary_component_presence('id', 'groups', false, false);
 SELECT public.set_field_dictionary_component_presence('slideId', 'groups', false, false);
 SELECT public.set_field_dictionary_component_presence('groupId', 'groups', true, true);
+SELECT public.set_field_dictionary_component_presence('slug', 'groups', true, true);
 SELECT public.set_field_dictionary_component_presence('lessonId', 'groups', false, false);
 SELECT public.set_field_dictionary_component_presence('title', 'groups', true, false);
 SELECT public.set_field_dictionary_component_presence('text', 'groups', true, false);
@@ -231,6 +252,7 @@ SELECT public.set_field_dictionary_component_presence('moduleId', 'slides', fals
 SELECT public.set_field_dictionary_component_presence('lessonId', 'slides', false, false);
 SELECT public.set_field_dictionary_component_presence('groupId', 'slides', false, false);
 SELECT public.set_field_dictionary_component_presence('slideId', 'slides', true, true);
+SELECT public.set_field_dictionary_component_presence('slug', 'slides', true, true);
 SELECT public.set_field_dictionary_component_presence('title', 'slides', false, false);
 SELECT public.set_field_dictionary_component_presence('text', 'slides', false, false);
 SELECT public.set_field_dictionary_component_presence('subtitle', 'slides', false, false);

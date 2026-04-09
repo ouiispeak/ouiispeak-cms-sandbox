@@ -1,9 +1,12 @@
 import { loadSlideById, type SlideDetailRow } from "@/lib/slides";
 import { loadSlideConfigCategories, type UniversalConfigCategory } from "@/lib/universalConfigs";
+import { exportValueFromStoredValue, type ExportTemplateValue } from "@/lib/exportTemplateValues";
+import { getTopLevelOnlyFieldKeys } from "@/lib/canonicalFieldMap";
 
 export const dynamic = "force-dynamic";
+const SLIDE_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("slides");
 
-type SlideTemplate = Record<string, Record<string, string>>;
+type SlideTemplate = Record<string, Record<string, ExportTemplateValue>>;
 
 function resolveSlideFieldValue(
   slideRecord: SlideDetailRow,
@@ -29,14 +32,14 @@ function buildSlideTemplate(
   const template: SlideTemplate = {};
 
   for (const category of categories) {
-    const categoryPayload: Record<string, string> = {};
+    const categoryPayload: Record<string, ExportTemplateValue> = {};
 
     for (const field of category.fields) {
-      if (field.key === "slideId") {
+      if (SLIDE_TOP_LEVEL_ONLY_FIELDS.has(field.key)) {
         continue;
       }
       const value = resolveSlideFieldValue(slideRecord, category.key, field.key);
-      categoryPayload[field.key] = value ?? "";
+      categoryPayload[field.key] = exportValueFromStoredValue(field.inputType, value);
     }
 
     template[category.key] = categoryPayload;

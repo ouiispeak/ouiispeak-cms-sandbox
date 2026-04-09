@@ -1,4 +1,5 @@
-import { loadGroupConfigCategories } from "@/lib/universalConfigs";
+import CustomFieldInput from "@/components/CustomFieldInput";
+import { isCustomComplexInputType, loadGroupConfigCategories } from "@/lib/universalConfigs";
 import { createGroupFromFormData, loadGroupById, updateGroupFromFormData } from "@/lib/groups";
 import { loadLessons } from "@/lib/lessons";
 import { redirect } from "next/navigation";
@@ -101,15 +102,107 @@ export default async function EditGroupPage({ params }: { params: Promise<{ grou
                 {category.fields.map((field) => (
                   <div key={`${category.key}-${field.key}`} className="configField">
                     <label htmlFor={`edit-group-${category.key}-${field.key}`}>{field.label}</label>
-                    <input
-                      id={`edit-group-${category.key}-${field.key}`}
-                      name={`${category.key}.${field.key}`}
-                      type={field.inputType}
-                      defaultValue={getFieldDefaultValue(category.key, field.key)}
-                      readOnly={field.key === "groupId"}
-                      disabled={field.key === "groupId"}
-                      required={field.isRequired && field.key !== "groupId"}
-                    />
+                    {(() => {
+                      const fieldDefaultValue = getFieldDefaultValue(category.key, field.key);
+                      const isLockedField = field.isReadOnly || field.key === "groupId";
+                      const hasCurrentValue =
+                        fieldDefaultValue !== undefined && fieldDefaultValue !== null && fieldDefaultValue !== "";
+                      const currentInOptions =
+                        hasCurrentValue && field.options.includes(String(fieldDefaultValue));
+
+                      if (isCustomComplexInputType(field.inputType)) {
+                        return (
+                          <CustomFieldInput
+                            id={`edit-group-${category.key}-${field.key}`}
+                            name={`${category.key}.${field.key}`}
+                            inputType={field.inputType}
+                            defaultValue={fieldDefaultValue}
+                            readOnly={isLockedField}
+                          />
+                        );
+                      }
+
+                      if (field.inputType === "textarea" || field.inputType === "json" || field.inputType === "list") {
+                        return (
+                          <textarea
+                            id={`edit-group-${category.key}-${field.key}`}
+                            name={`${category.key}.${field.key}`}
+                            defaultValue={fieldDefaultValue}
+                            readOnly={isLockedField}
+                            disabled={isLockedField}
+                            required={field.isRequired && !isLockedField}
+                          />
+                        );
+                      }
+
+                      if (field.inputType === "checkbox") {
+                        const checkboxChecked = String(fieldDefaultValue ?? "").toLowerCase() === "true";
+                        if (isLockedField) {
+                          return (
+                            <input
+                              id={`edit-group-${category.key}-${field.key}`}
+                              type="checkbox"
+                              defaultChecked={checkboxChecked}
+                              disabled
+                              aria-readonly="true"
+                            />
+                          );
+                        }
+                        return (
+                          <>
+                            <input type="hidden" name={`${category.key}.${field.key}`} value="false" />
+                            <input
+                              id={`edit-group-${category.key}-${field.key}`}
+                              name={`${category.key}.${field.key}`}
+                              type="checkbox"
+                              value="true"
+                              defaultChecked={checkboxChecked}
+                            />
+                          </>
+                        );
+                      }
+
+                      if (field.inputType === "select") {
+                        return (
+                          <select
+                            id={`edit-group-${category.key}-${field.key}`}
+                            name={`${category.key}.${field.key}`}
+                            defaultValue={fieldDefaultValue ?? ""}
+                            disabled={isLockedField}
+                            required={field.isRequired && !isLockedField}
+                          >
+                            {!field.isRequired && <option value="">—</option>}
+                            {field.options.length === 0 && (
+                              <option value="">
+                                {field.selectSource
+                                  ? `Dynamic (${field.selectSource})`
+                                  : "No options configured"}
+                              </option>
+                            )}
+                            {hasCurrentValue && !currentInOptions && (
+                              <option value={String(fieldDefaultValue)}>{String(fieldDefaultValue)}</option>
+                            )}
+                            {field.options.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        );
+                      }
+
+                      return (
+                        <input
+                          id={`edit-group-${category.key}-${field.key}`}
+                          name={`${category.key}.${field.key}`}
+                          type={field.inputType}
+                          defaultValue={fieldDefaultValue}
+                          readOnly={isLockedField}
+                          disabled={isLockedField}
+                          required={field.isRequired && !isLockedField}
+                        />
+                      );
+                    })()}
                   </div>
                 ))}
               </div>

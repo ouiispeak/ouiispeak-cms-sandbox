@@ -1,9 +1,12 @@
 import { loadModuleById, type ModuleDetailRow } from "@/lib/modules";
 import { loadModuleConfigCategories, type UniversalConfigCategory } from "@/lib/universalConfigs";
+import { exportValueFromStoredValue, type ExportTemplateValue } from "@/lib/exportTemplateValues";
+import { getTopLevelOnlyFieldKeys } from "@/lib/canonicalFieldMap";
 
 export const dynamic = "force-dynamic";
+const MODULE_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("modules");
 
-type ModuleTemplate = Record<string, Record<string, string>>;
+type ModuleTemplate = Record<string, Record<string, ExportTemplateValue>>;
 
 function resolveModuleFieldValue(
   moduleRecord: ModuleDetailRow,
@@ -44,14 +47,14 @@ function buildModuleTemplate(
   const template: ModuleTemplate = {};
 
   for (const category of categories) {
-    const categoryPayload: Record<string, string> = {};
+    const categoryPayload: Record<string, ExportTemplateValue> = {};
 
     for (const field of category.fields) {
-      if (field.key === "moduleId") {
+      if (MODULE_TOP_LEVEL_ONLY_FIELDS.has(field.key)) {
         continue;
       }
       const value = resolveModuleFieldValue(moduleRecord, category.key, field.key);
-      categoryPayload[field.key] = value ?? "";
+      categoryPayload[field.key] = exportValueFromStoredValue(field.inputType, value);
     }
 
     template[category.key] = categoryPayload;

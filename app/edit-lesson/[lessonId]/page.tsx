@@ -1,4 +1,5 @@
-import { loadLessonConfigCategories } from "@/lib/universalConfigs";
+import CustomFieldInput from "@/components/CustomFieldInput";
+import { isCustomComplexInputType, loadLessonConfigCategories } from "@/lib/universalConfigs";
 import { createLessonFromFormData, loadLessonById, updateLessonFromFormData } from "@/lib/lessons";
 import { loadModules } from "@/lib/modules";
 import { redirect } from "next/navigation";
@@ -23,6 +24,12 @@ export default async function EditLessonPage({ params }: { params: Promise<{ les
   const { lessonId } = await params;
   const isNewLessonRoute = lessonId === "new";
   const pageTitle = isNewLessonRoute ? "New Lesson" : "Edit Lesson";
+  const lessonPlayerBaseUrl =
+    process.env.LESSON_PLAYER_BASE_URL ??
+    process.env.NEXT_PUBLIC_LESSON_PLAYER_BASE_URL ??
+    "http://localhost:3001";
+  const normalizedLessonPlayerBaseUrl = lessonPlayerBaseUrl.replace(/\/+$/, "");
+  const lessonPlayerUrl = `${normalizedLessonPlayerBaseUrl}/lab/lesson/${encodeURIComponent(lessonId)}`;
 
   try {
     const [categories, lessonRecord, modules] = await Promise.all([
@@ -101,15 +108,107 @@ export default async function EditLessonPage({ params }: { params: Promise<{ les
                 {category.fields.map((field) => (
                   <div key={`${category.key}-${field.key}`} className="configField">
                     <label htmlFor={`edit-lesson-${category.key}-${field.key}`}>{field.label}</label>
-                    <input
-                      id={`edit-lesson-${category.key}-${field.key}`}
-                      name={`${category.key}.${field.key}`}
-                      type={field.inputType}
-                      defaultValue={getFieldDefaultValue(category.key, field.key)}
-                      readOnly={field.key === "lessonId"}
-                      disabled={field.key === "lessonId"}
-                      required={field.isRequired && field.key !== "lessonId"}
-                    />
+                    {(() => {
+                      const fieldDefaultValue = getFieldDefaultValue(category.key, field.key);
+                      const isLockedField = field.isReadOnly || field.key === "lessonId";
+                      const hasCurrentValue =
+                        fieldDefaultValue !== undefined && fieldDefaultValue !== null && fieldDefaultValue !== "";
+                      const currentInOptions =
+                        hasCurrentValue && field.options.includes(String(fieldDefaultValue));
+
+                      if (isCustomComplexInputType(field.inputType)) {
+                        return (
+                          <CustomFieldInput
+                            id={`edit-lesson-${category.key}-${field.key}`}
+                            name={`${category.key}.${field.key}`}
+                            inputType={field.inputType}
+                            defaultValue={fieldDefaultValue}
+                            readOnly={isLockedField}
+                          />
+                        );
+                      }
+
+                      if (field.inputType === "textarea" || field.inputType === "json" || field.inputType === "list") {
+                        return (
+                          <textarea
+                            id={`edit-lesson-${category.key}-${field.key}`}
+                            name={`${category.key}.${field.key}`}
+                            defaultValue={fieldDefaultValue}
+                            readOnly={isLockedField}
+                            disabled={isLockedField}
+                            required={field.isRequired && !isLockedField}
+                          />
+                        );
+                      }
+
+                      if (field.inputType === "checkbox") {
+                        const checkboxChecked = String(fieldDefaultValue ?? "").toLowerCase() === "true";
+                        if (isLockedField) {
+                          return (
+                            <input
+                              id={`edit-lesson-${category.key}-${field.key}`}
+                              type="checkbox"
+                              defaultChecked={checkboxChecked}
+                              disabled
+                              aria-readonly="true"
+                            />
+                          );
+                        }
+                        return (
+                          <>
+                            <input type="hidden" name={`${category.key}.${field.key}`} value="false" />
+                            <input
+                              id={`edit-lesson-${category.key}-${field.key}`}
+                              name={`${category.key}.${field.key}`}
+                              type="checkbox"
+                              value="true"
+                              defaultChecked={checkboxChecked}
+                            />
+                          </>
+                        );
+                      }
+
+                      if (field.inputType === "select") {
+                        return (
+                          <select
+                            id={`edit-lesson-${category.key}-${field.key}`}
+                            name={`${category.key}.${field.key}`}
+                            defaultValue={fieldDefaultValue ?? ""}
+                            disabled={isLockedField}
+                            required={field.isRequired && !isLockedField}
+                          >
+                            {!field.isRequired && <option value="">—</option>}
+                            {field.options.length === 0 && (
+                              <option value="">
+                                {field.selectSource
+                                  ? `Dynamic (${field.selectSource})`
+                                  : "No options configured"}
+                              </option>
+                            )}
+                            {hasCurrentValue && !currentInOptions && (
+                              <option value={String(fieldDefaultValue)}>{String(fieldDefaultValue)}</option>
+                            )}
+                            {field.options.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        );
+                      }
+
+                      return (
+                        <input
+                          id={`edit-lesson-${category.key}-${field.key}`}
+                          name={`${category.key}.${field.key}`}
+                          type={field.inputType}
+                          defaultValue={fieldDefaultValue}
+                          readOnly={isLockedField}
+                          disabled={isLockedField}
+                          required={field.isRequired && !isLockedField}
+                        />
+                      );
+                    })()}
                   </div>
                 ))}
               </div>
@@ -164,6 +263,9 @@ export default async function EditLessonPage({ params }: { params: Promise<{ les
         <div className="panelHeader">
           <h2>{pageTitle}</h2>
           <div className="panelActions">
+            <form action={lessonPlayerUrl} method="get" target="_blank">
+              <button type="submit">View Lesson</button>
+            </form>
             <form action={`/api/lessons/${lessonId}/export-json`} method="get">
               <button type="submit">Export JSON File</button>
             </form>

@@ -1,6 +1,11 @@
+Authority Role: guide
+Artifact Type: component-behavior-guide
+Canonical Source: central/CONSTITUTION.md
+Constitution Reference: central/CONSTITUTION.md
+
 # Slide Laws
 
-Date: 2026-04-06
+Date: 2026-04-07
 Repository: ouiispeak-cms-sandbox
 
 1. A slide must always belong to a group through `public.slides.group_id` (UUID FK).
@@ -10,7 +15,7 @@ Repository: ouiispeak-cms-sandbox
 5. `/edit-slide/[slideId]` must prefill inputs from `public.slide_field_values` for enabled slide config fields.
 6. `Save Changes` on `/edit-slide/[slideId]` must upsert all posted config fields to `public.slide_field_values`.
 7. Slide field availability in UI is controlled by config authority (`public.field_dictionary` -> `public.universal_fields` and `public.field_dictionary_component_rules` -> `public.component_config_fields`).
-8. Slide config fields currently active are `slideId` only.
+8. Slide text component active fields are controlled only by `public.field_dictionary_component_rules` (`component_name = 'slides'`) and mirrored in `central/SOT/slides_configs.md`.
 9. `slideId` is system-controlled:
    - On `/edit-slide/new`, it must be non-editable and not user-submittable.
    - On `/edit-slide/[slideId]`, it must display `public.slides.id` and remain non-editable.
@@ -22,3 +27,5 @@ Repository: ouiispeak-cms-sandbox
 15. Slide JSON create requires top-level `groupId`; slide JSON update requires top-level `slideId` and allows optional top-level `groupId`.
 16. Slide batch create/update imports must run through atomic RPC functions (`public.import_slides_create_atomic`, `public.import_slides_update_atomic`) so one failing entry rolls back the whole upload.
 17. Slide category payloads in JSON import/export must use canonical keys only.
+18. Slides in this component are group-scoped content slides only; lesson-scoped boundary title_slides are stored in `public.title_slides`.
+19. activity_slides are not stored in `public.slides`; they are stored in `public.activity_slides` with values in `public.activity_slide_field_values`.

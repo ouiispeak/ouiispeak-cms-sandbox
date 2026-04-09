@@ -12,6 +12,8 @@ const links = [
   { href: "/lessons", label: "Lessons" },
   { href: "/groups", label: "Groups" },
   { href: "/slides", label: "Slides" },
+  { href: "/activity-slides", label: "Activity Slides" },
+  { href: "/title-slides", label: "Title Slides" },
   { href: "/import", label: "Import" },
   { href: "/configs", label: "Configs" }
 ];

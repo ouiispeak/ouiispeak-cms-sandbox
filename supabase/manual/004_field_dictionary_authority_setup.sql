@@ -7,12 +7,43 @@ CREATE TABLE IF NOT EXISTS public.field_dictionary (
   field_key TEXT PRIMARY KEY,
   category_name TEXT NOT NULL REFERENCES public.config_categories(name) ON UPDATE CASCADE ON DELETE RESTRICT,
   input_type TEXT NOT NULL,
+  select_options_json JSONB,
+  select_source TEXT,
+  is_read_only BOOLEAN NOT NULL DEFAULT false,
   field_order INTEGER NOT NULL DEFAULT 100,
   status TEXT NOT NULL DEFAULT 'active',
   definition TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  CONSTRAINT field_dictionary_input_type_check CHECK (input_type IN ('text')),
+  CONSTRAINT field_dictionary_input_type_check CHECK (
+    input_type IN (
+      'text',
+      'textarea',
+      'number',
+      'checkbox',
+      'select',
+      'json',
+      'list',
+      'audio_selector',
+      'audio_list',
+      'audio_prompt',
+      'blanks_mapper',
+      'audio_lines_mapper',
+      'choice_elements_mapper',
+      'match_pairs_mapper',
+      'avatar_dialogues_mapper',
+      'media_picker'
+    )
+  ),
+  CONSTRAINT field_dictionary_select_options_json_type_check
+    CHECK (select_options_json IS NULL OR jsonb_typeof(select_options_json) = 'array'),
+  CONSTRAINT field_dictionary_select_source_check
+    CHECK (select_source IS NULL OR btrim(select_source) <> ''),
+  CONSTRAINT field_dictionary_select_metadata_check
+    CHECK (
+      input_type = 'select'
+      OR (select_options_json IS NULL AND select_source IS NULL)
+    ),
   CONSTRAINT field_dictionary_field_order_check CHECK (field_order >= 0),
   CONSTRAINT field_dictionary_status_check CHECK (status IN ('active', 'legacy'))
 );
@@ -29,6 +60,82 @@ ALTER TABLE public.field_dictionary
 
 ALTER TABLE public.field_dictionary
   ALTER COLUMN updated_at SET DEFAULT NOW();
+
+ALTER TABLE public.field_dictionary
+  ADD COLUMN IF NOT EXISTS select_options_json JSONB;
+
+ALTER TABLE public.field_dictionary
+  ADD COLUMN IF NOT EXISTS select_source TEXT;
+
+ALTER TABLE public.field_dictionary
+  ADD COLUMN IF NOT EXISTS is_read_only BOOLEAN;
+
+UPDATE public.field_dictionary
+SET is_read_only = false
+WHERE is_read_only IS NULL;
+
+ALTER TABLE public.field_dictionary
+  ALTER COLUMN is_read_only SET NOT NULL;
+
+ALTER TABLE public.field_dictionary
+  ALTER COLUMN is_read_only SET DEFAULT false;
+
+UPDATE public.field_dictionary
+SET
+  select_options_json = NULL,
+  select_source = NULL
+WHERE input_type <> 'select'
+  AND (select_options_json IS NOT NULL OR select_source IS NOT NULL);
+
+ALTER TABLE public.field_dictionary
+  DROP CONSTRAINT IF EXISTS field_dictionary_input_type_check;
+
+ALTER TABLE public.field_dictionary
+  ADD CONSTRAINT field_dictionary_input_type_check
+  CHECK (
+    input_type IN (
+      'text',
+      'textarea',
+      'number',
+      'checkbox',
+      'select',
+      'json',
+      'list',
+      'audio_selector',
+      'audio_list',
+      'audio_prompt',
+      'blanks_mapper',
+      'audio_lines_mapper',
+      'choice_elements_mapper',
+      'match_pairs_mapper',
+      'avatar_dialogues_mapper',
+      'media_picker'
+    )
+  );
+
+ALTER TABLE public.field_dictionary
+  DROP CONSTRAINT IF EXISTS field_dictionary_select_options_json_type_check;
+
+ALTER TABLE public.field_dictionary
+  ADD CONSTRAINT field_dictionary_select_options_json_type_check
+  CHECK (select_options_json IS NULL OR jsonb_typeof(select_options_json) = 'array');
+
+ALTER TABLE public.field_dictionary
+  DROP CONSTRAINT IF EXISTS field_dictionary_select_source_check;
+
+ALTER TABLE public.field_dictionary
+  ADD CONSTRAINT field_dictionary_select_source_check
+  CHECK (select_source IS NULL OR btrim(select_source) <> '');
+
+ALTER TABLE public.field_dictionary
+  DROP CONSTRAINT IF EXISTS field_dictionary_select_metadata_check;
+
+ALTER TABLE public.field_dictionary
+  ADD CONSTRAINT field_dictionary_select_metadata_check
+  CHECK (
+    input_type = 'select'
+    OR (select_options_json IS NULL AND select_source IS NULL)
+  );
 
 CREATE TABLE IF NOT EXISTS public.field_dictionary_locations (
   field_key TEXT NOT NULL REFERENCES public.field_dictionary(field_key) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -316,8 +423,26 @@ BEGIN
     RAISE EXCEPTION 'p_category_name cannot be empty';
   END IF;
 
-  IF p_input_type IS NULL OR p_input_type <> 'text' THEN
-    RAISE EXCEPTION 'p_input_type must be "text"';
+  IF p_input_type IS NULL OR p_input_type NOT IN (
+    'text',
+    'textarea',
+    'number',
+    'checkbox',
+    'select',
+    'json',
+    'list',
+    'audio_selector',
+    'audio_list',
+    'audio_prompt',
+    'blanks_mapper',
+    'audio_lines_mapper',
+    'choice_elements_mapper',
+    'match_pairs_mapper',
+    'avatar_dialogues_mapper',
+    'media_picker'
+  ) THEN
+    RAISE EXCEPTION
+      'p_input_type must be one of: text, textarea, number, checkbox, select, json, list, audio_selector, audio_list, audio_prompt, blanks_mapper, audio_lines_mapper, choice_elements_mapper, match_pairs_mapper, avatar_dialogues_mapper, media_picker';
   END IF;
 
   IF p_field_order IS NULL OR p_field_order < 0 THEN

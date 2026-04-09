@@ -1,6 +1,11 @@
+Authority Role: guide
+Artifact Type: component-behavior-guide
+Canonical Source: central/CONSTITUTION.md
+Constitution Reference: central/CONSTITUTION.md
+
 # Lesson Laws
 
-Date: 2026-04-06
+Date: 2026-04-07
 Repository: ouiispeak-cms-sandbox
 
 1. Lessons are nested under modules through `public.lessons.module_id` (UUID FK).
@@ -9,7 +14,7 @@ Repository: ouiispeak-cms-sandbox
 4. `/edit-lesson/[lessonId]` must prefill inputs from `public.lesson_field_values` for enabled lesson config fields.
 5. `Save Changes` on `/edit-lesson/[lessonId]` must upsert all posted config fields to `public.lesson_field_values`.
 6. Lesson field availability in UI is controlled by config authority (`public.field_dictionary` -> `public.universal_fields` and `public.field_dictionary_component_rules` -> `public.component_config_fields`).
-7. Lesson config fields currently active are `lessonId`, `title`, `text`, and `subtitle`.
+7. Lesson active fields are controlled only by `public.field_dictionary_component_rules` (`component_name = 'lessons'`) and mirrored in `central/SOT/lessons_configs.md`.
 8. `lessonId` is system-controlled:
    - On `/edit-lesson/new`, it must be non-editable and not user-submittable.
    - On `/edit-lesson/[lessonId]`, it must display `public.lessons.id` and remain non-editable.

@@ -1,9 +1,241 @@
-Identity and Hiearchy:
-  moduleId: text field
-  lessonId: text field
+Authority Role: mirror
+Artifact Type: component-field-snapshot
+Canonical Source: public.field_dictionary + public.field_dictionary_component_rules (seed snapshots: supabase/manual/010_field_dictionary_catalog_seed.sql, supabase/manual/012_component_activation_seed.sql)
+Constitution Reference: central/CONSTITUTION.md
+
+Identity & Lifecycle:
+  activityId: text field
   groupId: text field
+  groupName: text field
+  lastUpdatedAt: text field
+  lastUpdatedBy: text field
+  lessonId: text field
+  moduleId: select field
+  ownerTeam: text field
   slideId: text field
+  slug: text field
   title: text field
-  level: text field
-  text: text field
+  version: text field
+  visibility: select field
+  sourceVersion: text field
+  type: text field
+
+Purpose & Outcomes:
+  moduleGoal: textarea field
+  moduleOutcomes: textarea field
+  groupGoal: textarea field
+  groupSummary: textarea field
+  description: textarea field
+  activityDescription: textarea field
+  learningObjectives: textarea field
+  competencyTags: textarea field
+  tags: text field
+  coreTopics: textarea field
+  topicCategory: text field
+  keywords: text field
+
+Scope, Prerequisites & Targeting:
+  audienceNotes: textarea field
+  level: select field
+  cefrLevel: select field
+  levelMax: select field
+  cefrMax: select field
+  levelMin: select field
+  cefrMin: select field
+  diagnosticChecks: textarea field
+  prerequisiteModules: text field
+  prerequisites: textarea field
+  priorLessons: text field
+  prerequisiteEdges: text field
+  prerequisiteNodes: text field
+  prerequisiteSlices: text field
+
+Content & Media:
+  audioId: audio_selector field
   subtitle: text field
+  textSubtype: select field
+  note: text field
+  body: textarea field
+  body1: textarea field
+  body2: textarea field
+  body3: textarea field
+  body4: textarea field
+  body5: textarea field
+  body6: textarea field
+  body7: textarea field
+  body8: textarea field
+  buttons: json field
+  lessonEndMessage: textarea field
+  lessonEndActions: json field
+  primaryCtaAction: select field
+  primaryCtaLabel: text field
+
+Instructions & Flow:
+  instructions: textarea field
+  allowRetry: checkbox field
+  retryPolicy: select field
+  allowSkip: checkbox field
+  skipPolicy: select field
+  minAttemptsBeforeSkip: number field
+  autoAdvance: checkbox field
+  delayMs: number field
+  recommendedNextStep: select field
+
+Pedagogy & Scaffolding:
+  scaffoldingPlan: textarea field
+  pedagogicalStrategy: select field
+  differentiationPaths: textarea field
+  differentiationStrategies: textarea field
+  remediationGuidance: textarea field
+  remediationPaths: textarea field
+  discourseFocus: textarea field
+  grammarFocus: textarea field
+  pronunciationFocus: textarea field
+  vocabularyTheme: textarea field
+  extraPracticeNotes: textarea field
+  pacingNotes: textarea field
+  practiceProgression: textarea field
+
+Assessment & Mastery:
+  moduleAssessmentPlan: textarea field
+  moduleMasteryRule: select field
+  moduleMasteryThreshold: number field
+  assessmentPlan: textarea field
+  successCriteria: textarea field
+  isRequiredToPass: checkbox field
+  passRequiredForNext: checkbox field
+  passingScoreType: select field
+  passingScoreValue: number field
+  requiredScore: number field
+  maxAttempts: number field
+  maxScoreValue: number field
+  masteryRule: select field
+  masteryThreshold: number field
+
+Structure & Sequencing:
+  orderIndex: number field
+  capstoneLesson: select field
+  lessonSequenceRules: textarea field
+  requiredLessons: text field
+  optionalLessons: text field
+  groupPlan: textarea field
+  groupSlidesPlan: textarea field
+  groupType: select field
+  progressionNotes: textarea field
+  purposeRelationshipTag: select field
+  sequenceType: select field
+  slidePlan: textarea field
+
+Localization:
+  culturalContext: textarea field
+  defaultLang: select field
+  l1InterferenceNotes: textarea field
+  registerTone: select field
+  registerVariants: text field
+  targetLanguage: text field
+
+Teacher Guidance:
+  teacherNotes: textarea field
+  teacherOverview: textarea field
+  notesForTeacherOrAI: textarea field
+  authorNotes: textarea field
+  anecdoteOrMemoryHook: textarea field
+  commonMisconceptions: textarea field
+  shortSummaryTeacherModule: textarea field
+  shortSummaryLessonAdmin: textarea field
+  shortSummaryTeacherLesson: textarea field
+  shortSummaryLessonStudent: textarea field
+  shortSummaryTeacherGroup: textarea field
+  shortSummaryTeacherActivity: textarea field
+  shortSummaryTeacherSlide: textarea field
+
+AI Generation & Prompting:
+  aiInstructions: textarea field
+  exampleResponses: textarea field
+  expansionGuidelines: textarea field
+  forbiddenPatterns: textarea field
+  signatureMetaphors: textarea field
+  simplificationGuidelines: textarea field
+  styleConstraints: textarea field
+
+Activities & Interaction:
+  acceptedCorrections: list field
+  activityTypes: text field
+  audioA: audio_selector field
+  audioB: audio_selector field
+  audioClips: audio_list field
+  audioPrompt: audio_prompt field
+  avatarDialogues: avatar_dialogues_mapper field
+  blanks: blanks_mapper field
+  categoryLabels: list field
+  choiceElements: choice_elements_mapper field
+  correctAnswer: select field
+  correctCurveId: select field
+  correctOddIndex: number field
+  correctOrderClips: list field
+  correctStressIndex: number field
+  errorIndex: number field
+  imageUrl: media_picker field
+  incorrectSentence: textarea field
+  intonationOptions: text field
+  keywordThreshold: number field
+  letterUnits: list field
+  lines: audio_lines_mapper field
+  matchPairs: match_pairs_mapper field
+  maxRetries: number field
+  maxWordCount: number field
+  minWordCount: number field
+  passThreshold: number field
+  propsJson: json field
+  promptMode: select field
+  promptText: textarea field
+  sentenceCards: list field
+  sentenceTokens: list field
+  sentenceWithGaps: textarea field
+  statement: textarea field
+  syllableBreakdown: textarea field
+  targetKeywords: list field
+  targetText: textarea field
+  tenseBins: list field
+  word: text field
+  wordAudio: audio_prompt field
+  wordBank: list field
+
+Links, Dependencies & Summaries:
+  keyTakeawaysLesson: textarea field
+  keyTakeawaysSlide: textarea field
+  learningGoalPreviewModule: textarea field
+  learningGoalPreviewLesson: textarea field
+  learningGoalPreviewGroup: textarea field
+  linkedModules: text field
+  linkedGroups: text field
+  linkedResources: text field
+  timeExpectationLesson: number field
+  timeExpectationGroup: number field
+  timeExpectationActivity: number field
+  estimatedMinutes: number field
+
+Telemetry & Analytics:
+  canonicalNodeKey: text field
+  expectedCompletionRate: number field
+  expectedModuleDurationMinutes: number field
+  expectedTimeOnTask: number field
+  experimentFlag: text field
+  targetedEdges: text field
+  targetedNodes: text field
+  targetedSlices: text field
+  targetNodeKeys: text field
+  telemetryTags: textarea field
+
+Operations, Provenance & Governance:
+  breakingChangeGuard: checkbox field
+  changeImpactAssessment: textarea field
+  diffLog: json field
+  extractabilityTier: select field
+  ingestPayload: json field
+  ingestSource: select field
+  manualOverrideJson: json field
+  metadata: json field
+  publishNotes: textarea field
+  reviewRequired: checkbox field
+  runtimeContractV1: json field

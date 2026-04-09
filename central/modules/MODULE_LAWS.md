@@ -1,6 +1,11 @@
+Authority Role: guide
+Artifact Type: component-behavior-guide
+Canonical Source: central/CONSTITUTION.md
+Constitution Reference: central/CONSTITUTION.md
+
 # Module Laws
 
-Date: 2026-04-06
+Date: 2026-04-07
 Repository: ouiispeak-cms-sandbox
 
 1. A module may have null `public.modules.level_number`.

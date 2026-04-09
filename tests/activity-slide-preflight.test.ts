@@ -199,7 +199,59 @@ test("activity preflight accepts valid ACT-009 payload using shape-lock rules", 
   assert.doesNotThrow(() => validateActivitySlideImportPayloadPreflight(payload, "create"));
 });
 
-test("activity preflight rejects ACT-026 payload missing required audioPrompt", () => {
+test("activity preflight rejects ACT-017 payload missing sentenceWithGaps", () => {
+  const payload = [
+    {
+      groupId: "376913db-4f97-46f5-b5fa-b854b849f436",
+      "Identity & Lifecycle": {
+        activityId: "ACT-017",
+        type: "activity",
+      },
+      "Activities & Interaction": {
+        propsJson: {
+          runtimeContractV1: validRuntimeContract("InlineGapTextInput"),
+          blanks: [{ correctGapIndex: 1, acceptedAlternatives: ["bonjour"] }],
+        },
+      },
+      "Operations, Provenance & Governance": {
+        runtimeContractV1: validRuntimeContract("InlineGapTextInput"),
+      },
+    },
+  ];
+
+  assert.throws(
+    () => validateActivitySlideImportPayloadPreflight(payload, "create"),
+    /ACT-017 requires non-empty propsJson\.sentenceWithGaps/
+  );
+});
+
+test("activity preflight rejects ACT-021 payload missing correctAnswer", () => {
+  const payload = [
+    {
+      groupId: "376913db-4f97-46f5-b5fa-b854b849f436",
+      "Identity & Lifecycle": {
+        activityId: "ACT-021",
+        type: "activity",
+      },
+      "Activities & Interaction": {
+        propsJson: {
+          runtimeContractV1: validRuntimeContract("ChipAudioMatcher"),
+          choiceElements: [{ label: "A" }, { label: "B" }],
+        },
+      },
+      "Operations, Provenance & Governance": {
+        runtimeContractV1: validRuntimeContract("ChipAudioMatcher"),
+      },
+    },
+  ];
+
+  assert.throws(
+    () => validateActivitySlideImportPayloadPreflight(payload, "create"),
+    /ACT-021 requires non-empty propsJson\.correctAnswer/
+  );
+});
+
+test("activity preflight rejects ACT-026 payload missing required promptText\/targetText", () => {
   const payload = [
     {
       groupId: "376913db-4f97-46f5-b5fa-b854b849f436",
@@ -210,7 +262,7 @@ test("activity preflight rejects ACT-026 payload missing required audioPrompt", 
       "Activities & Interaction": {
         propsJson: {
           runtimeContractV1: validRuntimeContract("FreeRecorder"),
-          body: "Talk about your day.",
+          body: " ",
         },
       },
       "Operations, Provenance & Governance": {
@@ -221,6 +273,30 @@ test("activity preflight rejects ACT-026 payload missing required audioPrompt", 
 
   assert.throws(
     () => validateActivitySlideImportPayloadPreflight(payload, "create"),
-    /ACT-026 requires non-empty propsJson\.audioPrompt/
+    /ACT-026 requires non-empty propsJson\.promptText/
   );
+});
+
+test("activity preflight accepts ACT-026 payload with promptText and targetText", () => {
+  const payload = [
+    {
+      groupId: "376913db-4f97-46f5-b5fa-b854b849f436",
+      "Identity & Lifecycle": {
+        activityId: "ACT-026",
+        type: "activity",
+      },
+      "Activities & Interaction": {
+        propsJson: {
+          runtimeContractV1: validRuntimeContract("FreeRecorder"),
+          promptText: "Describe your day.",
+          targetText: "Use at least three key words.",
+        },
+      },
+      "Operations, Provenance & Governance": {
+        runtimeContractV1: validRuntimeContract("FreeRecorder"),
+      },
+    },
+  ];
+
+  assert.doesNotThrow(() => validateActivitySlideImportPayloadPreflight(payload, "create"));
 });

@@ -8,6 +8,31 @@ const STRUCTURED_OVERRIDE_FIELD_KEYS = [
   "targetText",
   "body",
   "choiceElements",
+  "correctAnswer",
+  "promptText",
+  "statement",
+  "correctOddIndex",
+  "matchPairs",
+  "categoryLabels",
+  "wordBank",
+  "sentenceTokens",
+  "correctOrderWords",
+  "tenseBins",
+  "sentenceCards",
+  "sentenceWithGaps",
+  "blanks",
+  "incorrectSentence",
+  "acceptedCorrections",
+  "errorIndex",
+  "targetKeywords",
+  "keywordThreshold",
+  "minWordCount",
+  "maxWordCount",
+  "avatarDialogues",
+  "word",
+  "letterUnits",
+  "audioClips",
+  "correctOrderClips",
   "audio",
   "buttons",
   "promptMode",
@@ -241,9 +266,6 @@ function validateActSpecificShape(
       throw new Error(`${contextLabel} ACT-002 requires propsJson.correctStressIndex as a 1-based integer.`);
     }
 
-    if (!hasPlayableAudio(propsJson)) {
-      throw new Error(`${contextLabel} ACT-002 requires playable audio via propsJson.audioId or propsJson.audio.speech.`);
-    }
     return;
   }
 

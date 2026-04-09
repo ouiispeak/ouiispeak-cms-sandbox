@@ -20,12 +20,23 @@ import {
   updateCoreRow,
   upsertDynamicFieldRows,
 } from "@/lib/componentCore";
-import type { UniversalConfigCategory } from "@/lib/universalConfigs";
+import type { UniversalConfigCategory, UniversalConfigField } from "@/lib/universalConfigs";
 
 type DynamicValueRow = {
   category_name: string;
   field_name: string;
   field_value: string | null;
+};
+
+export type SystemAssignedFieldMode = "create" | "update" | "import_create" | "import_update";
+
+export type SystemAssignedFieldContext = {
+  mode: SystemAssignedFieldMode;
+  id?: string;
+  parentValue?: string;
+  values: FieldInputMap;
+  categories: UniversalConfigCategory[];
+  operationState: Map<string, unknown>;
 };
 
 export type CoreFieldSpec = {
@@ -99,6 +110,7 @@ type EngineConfig<CoreRow extends { id: string }, DetailRow> = {
   queries: QuerySpec;
   dynamicValues: DynamicValueSpec;
   mapDetail: (coreRow: CoreRow, values: ValueMap) => DetailRow;
+  applySystemAssignedFields?: (context: SystemAssignedFieldContext) => Promise<void> | void;
 };
 
 type ParsedImportCreateRow = {
@@ -253,16 +265,20 @@ function parseParentValueFromImportEntryUpdate(
 function parseEntryFieldValues(
   entry: Record<string, unknown>,
   allowedFields: Set<string>,
+  fieldInputTypes: Map<string, UniversalConfigField["inputType"]>,
   componentLabel: string,
   ignoredTopLevelKeys: Set<string>,
-  systemControlledFieldNames: Set<string>
+  systemControlledFieldNames: Set<string>,
+  topLevelOnlyFieldNames: Set<string>
 ): FieldInputMap {
   return parseFieldInputsFromPayloadEntry({
     entry,
     allowedFields,
+    fieldInputTypes,
     componentLabel,
     ignoredTopLevelKeys,
     systemControlledFieldNames,
+    topLevelOnlyFieldNames,
   });
 }
 
@@ -281,6 +297,42 @@ function toDynamicValueRowsWithScope(
   }));
 }
 
+function fieldInputMapFromDynamicRows(rows: DynamicValueRow[]): FieldInputMap {
+  const output: FieldInputMap = new Map();
+
+  for (const row of rows) {
+    output.set(`${row.category_name}.${row.field_name}`, row.field_value);
+  }
+
+  return output;
+}
+
+const ENFORCED_TARGET_LANGUAGE = "english";
+
+function setFieldValueIfActiveInCategories(
+  values: FieldInputMap,
+  categories: UniversalConfigCategory[],
+  fieldName: string,
+  fieldValue: string
+): void {
+  for (const category of categories) {
+    if (!category.fields.some((field) => field.key === fieldName)) {
+      continue;
+    }
+
+    values.set(`${category.key}.${fieldName}`, fieldValue);
+    return;
+  }
+}
+
+function applyGlobalSystemAssignedValues(
+  values: FieldInputMap,
+  categories: UniversalConfigCategory[]
+): void {
+  setFieldValueIfActiveInCategories(values, categories, "lastUpdatedAt", new Date().toISOString());
+  setFieldValueIfActiveInCategories(values, categories, "targetLanguage", ENFORCED_TARGET_LANGUAGE);
+}
+
 export function createHierarchyComponentEngine<CoreRow extends { id: string }, ListRow, DetailRow>(
   config: EngineConfig<CoreRow, DetailRow>
 ) {
@@ -288,15 +340,34 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
     config.updateIdentityEntryKey,
     ...(config.parentSpec ? config.parentSpec.entryKeys : []),
   ]);
+  const topLevelOnlyFieldNames = new Set<string>(
+    config.parentSpec ? config.parentSpec.entryKeys : []
+  );
+
+  async function applySystemAssignedValues(context: SystemAssignedFieldContext): Promise<void> {
+    applyGlobalSystemAssignedValues(context.values, context.categories);
+    if (config.applySystemAssignedFields) {
+      await config.applySystemAssignedFields(context);
+    }
+  }
 
   async function loadCategoriesAndAllowedFields(): Promise<{
     categories: UniversalConfigCategory[];
     allowedFields: Set<string>;
+    fieldInputTypes: Map<string, UniversalConfigField["inputType"]>;
   }> {
     const categories = await config.loadConfigCategories();
+    const fieldInputTypes = new Map<string, UniversalConfigField["inputType"]>();
+    for (const category of categories) {
+      for (const field of category.fields) {
+        fieldInputTypes.set(`${category.key}.${field.key}`, field.inputType);
+      }
+    }
+
     return {
       categories,
       allowedFields: buildAllowedFieldSet(categories),
+      fieldInputTypes,
     };
   }
 
@@ -322,7 +393,8 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
 
   function parseImportCreateRow(
     entry: unknown,
-    allowedFields: Set<string>
+    allowedFields: Set<string>,
+    fieldInputTypes: Map<string, UniversalConfigField["inputType"]>
   ): ParsedImportCreateRow {
     if (!isObjectRecord(entry)) {
       throw new Error(`Each imported ${config.componentLabel} entry must be an object.`);
@@ -332,9 +404,11 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
     const values = parseEntryFieldValues(
       entry,
       allowedFields,
+      fieldInputTypes,
       config.componentLabel,
       ignoredTopLevelKeys,
-      config.systemControlledFieldNames
+      config.systemControlledFieldNames,
+      topLevelOnlyFieldNames
     );
 
     return { parentValue, values };
@@ -342,7 +416,8 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
 
   function parseImportUpdateRow(
     entry: unknown,
-    allowedFields: Set<string>
+    allowedFields: Set<string>,
+    fieldInputTypes: Map<string, UniversalConfigField["inputType"]>
   ): ParsedImportUpdateRow {
     if (!isObjectRecord(entry)) {
       throw new Error(`Each imported ${config.componentLabel} update entry must be an object.`);
@@ -353,9 +428,11 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
     const values = parseEntryFieldValues(
       entry,
       allowedFields,
+      fieldInputTypes,
       config.componentLabel,
       ignoredTopLevelKeys,
-      config.systemControlledFieldNames
+      config.systemControlledFieldNames,
+      topLevelOnlyFieldNames
     );
 
     return { id, parentValue, values };
@@ -369,6 +446,15 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
         allowedFields,
         config.systemControlledFieldNames
       );
+      const parentValue = parseParentValueFromFormData(formData, config.parentSpec, "create");
+      const operationState = new Map<string, unknown>();
+      await applySystemAssignedValues({
+        mode: "create",
+        parentValue,
+        values,
+        categories,
+        operationState,
+      });
       assertRequiredFieldValues(
         values,
         categories,
@@ -377,7 +463,6 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
         config.componentLabel
       );
 
-      const parentValue = parseParentValueFromFormData(formData, config.parentSpec, "create");
       const coreInsert = buildCoreInsertRow(values, config.coreFields, config.parentSpec, parentValue);
       const id = await createCoreRow(config.tableName, coreInsert, config.entityLabel);
       await upsertValueRows(id, values);
@@ -387,22 +472,38 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
     async updateFromFormData(pathId: string, formData: FormData): Promise<void> {
       const id = parseUuidFromPathValue(pathId, config.idPathLabel);
       const { categories, allowedFields } = await loadCategoriesAndAllowedFields();
+      await ensureCoreRowExists(config.tableName, config.idColumn, id, config.idPathLabel.replace(" id", ""));
       const values = extractFieldInputsFromFormData(
         formData,
         allowedFields,
         config.systemControlledFieldNames
       );
-      assertRequiredFieldValues(
+      const parentValue = parseParentValueFromFormData(formData, config.parentSpec, "update");
+      const operationState = new Map<string, unknown>();
+      await applySystemAssignedValues({
+        mode: "update",
+        id,
+        parentValue,
         values,
+        categories,
+        operationState,
+      });
+      const existingValueRows = await loadValueRowsById(id);
+      const existingValues = fieldInputMapFromDynamicRows(existingValueRows);
+      const valuesForRequiredCheck: FieldInputMap = new Map(existingValues);
+      for (const [key, value] of values.entries()) {
+        valuesForRequiredCheck.set(key, value);
+      }
+
+      assertRequiredFieldValues(
+        valuesForRequiredCheck,
         categories,
         config.systemControlledFieldNames,
         "Update/save",
         config.componentLabel
       );
 
-      const parentValue = parseParentValueFromFormData(formData, config.parentSpec, "update");
       const corePatch = buildCorePatchRow(values, config.coreFields, config.parentSpec, parentValue);
-      await ensureCoreRowExists(config.tableName, config.idColumn, id, config.idPathLabel.replace(" id", ""));
       await updateCoreRow(config.tableName, config.idColumn, id, corePatch, config.entityLabel);
       await upsertValueRows(id, values);
     },
@@ -412,10 +513,18 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
 
       const entries = parseImportEntries(payload);
       const rpcRows: unknown[] = [];
+      const operationState = new Map<string, unknown>();
 
       for (const [entryIndex, entry] of entries.entries()) {
         try {
-          const parsed = parseImportCreateRow(entry, configData.allowedFields);
+          const parsed = parseImportCreateRow(entry, configData.allowedFields, configData.fieldInputTypes);
+          await applySystemAssignedValues({
+            mode: "import_create",
+            parentValue: parsed.parentValue,
+            values: parsed.values,
+            categories: configData.categories,
+            operationState,
+          });
           assertRequiredFieldValues(
             parsed.values,
             configData.categories,
@@ -452,11 +561,22 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
       const configData = await loadCategoriesAndAllowedFields();
 
       const entries = parseImportEntries(payload);
-      const parsedRows = entries.map((entry) => parseImportUpdateRow(entry, configData.allowedFields));
+      const parsedRows = entries.map((entry) =>
+        parseImportUpdateRow(entry, configData.allowedFields, configData.fieldInputTypes)
+      );
       const rpcRows: unknown[] = [];
+      const operationState = new Map<string, unknown>();
 
       for (const [entryIndex, row] of parsedRows.entries()) {
         try {
+          await applySystemAssignedValues({
+            mode: "import_update",
+            id: row.id,
+            parentValue: row.parentValue,
+            values: row.values,
+            categories: configData.categories,
+            operationState,
+          });
           assertRequiredFieldValues(
             row.values,
             configData.categories,

@@ -16,6 +16,40 @@ import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
+type CompositeLeaderFieldKey =
+  | "syllableBreakdown"
+  | "intonationOptions"
+  | "categoryLabels"
+  | "sentenceTokens"
+  | "tenseBins"
+  | "incorrectSentence"
+  | "promptText"
+  | "word"
+  | "audioClips";
+
+const COMPOSITE_FIELD_GROUPS: Record<CompositeLeaderFieldKey, readonly string[]> = {
+  syllableBreakdown: ["correctStressIndex"],
+  intonationOptions: ["correctCurveId"],
+  categoryLabels: ["wordBank"],
+  sentenceTokens: ["correctOrderWords"],
+  tenseBins: ["sentenceCards"],
+  incorrectSentence: ["errorIndex", "acceptedCorrections"],
+  promptText: ["targetKeywords", "keywordThreshold", "minWordCount", "maxWordCount"],
+  word: ["letterUnits"],
+  audioClips: ["correctOrderClips"],
+};
+
+const COMPOSITE_LEADER_FIELD_KEYS = new Set<string>(Object.keys(COMPOSITE_FIELD_GROUPS));
+const COMPOSITE_FOLLOWER_TO_LEADER_MAP = new Map<string, CompositeLeaderFieldKey>(
+  Object.entries(COMPOSITE_FIELD_GROUPS).flatMap(([leaderKey, followerKeys]) =>
+    followerKeys.map((followerKey) => [followerKey, leaderKey as CompositeLeaderFieldKey] as const)
+  )
+);
+
+function isCompositeLeaderFieldKey(fieldKey: string): fieldKey is CompositeLeaderFieldKey {
+  return COMPOSITE_LEADER_FIELD_KEYS.has(fieldKey);
+}
+
 const ACTIVITY_PROFILE_DEFAULTS: Record<
   ConcreteActivityProfile,
   {
@@ -226,6 +260,9 @@ export default async function EditActivitySlidePage({
       : resolveConcreteActivityProfileFromActivityId(savedActivityId);
     const profileDefaults = ACTIVITY_PROFILE_DEFAULTS[selectedProfile];
     const profileCategories = filterActivitySlideCategoriesForProfile(categories, selectedProfile);
+    const profileFieldKeySet = new Set(
+      profileCategories.flatMap((category) => category.fields.map((field) => field.key))
+    );
 
     const getFieldDefaultValue = (categoryKey: string, fieldKey: string): string | undefined => {
       if (isNewActivitySlideRoute) {
@@ -281,7 +318,18 @@ export default async function EditActivitySlidePage({
             ) : (
               <div className="configForm">
                 {category.fields.map((field) => (
-                  <div key={`${category.key}-${field.key}`} className="configField">
+                  (() => {
+                    const leaderFieldKey = COMPOSITE_FOLLOWER_TO_LEADER_MAP.get(field.key);
+                    if (
+                      leaderFieldKey &&
+                      profileFieldKeySet.has(leaderFieldKey) &&
+                      COMPOSITE_LEADER_FIELD_KEYS.has(leaderFieldKey)
+                    ) {
+                      return null;
+                    }
+
+                    return (
+                      <div key={`${category.key}-${field.key}`} className="configField">
                     <label htmlFor={`edit-activity-slide-${category.key}-${field.key}`}>{field.label}</label>
                     {(() => {
                       const fieldDefaultValue = getFieldDefaultValue(category.key, field.key);
@@ -291,13 +339,25 @@ export default async function EditActivitySlidePage({
                       const currentInOptions =
                         hasCurrentValue && field.options.includes(String(fieldDefaultValue));
 
-                      if (isCustomComplexInputType(field.inputType)) {
+                      if (isCustomComplexInputType(field.inputType) || isCompositeLeaderFieldKey(field.key)) {
+                        const compositeFollowerKeys = isCompositeLeaderFieldKey(field.key)
+                          ? COMPOSITE_FIELD_GROUPS[field.key].filter((followerKey) => profileFieldKeySet.has(followerKey))
+                          : [];
+
+                        const compositeFields = compositeFollowerKeys.map((followerKey) => ({
+                          key: followerKey,
+                          name: `${category.key}.${followerKey}`,
+                          defaultValue: getFieldDefaultValue(category.key, followerKey),
+                        }));
+
                         return (
                           <CustomFieldInput
                             id={`edit-activity-slide-${category.key}-${field.key}`}
                             name={`${category.key}.${field.key}`}
                             inputType={field.inputType}
+                            fieldKey={field.key}
                             defaultValue={fieldDefaultValue}
+                            compositeFields={compositeFields}
                             readOnly={isLockedField}
                           />
                         );
@@ -385,6 +445,8 @@ export default async function EditActivitySlidePage({
                       );
                     })()}
                   </div>
+                    );
+                  })()
                 ))}
               </div>
             )}

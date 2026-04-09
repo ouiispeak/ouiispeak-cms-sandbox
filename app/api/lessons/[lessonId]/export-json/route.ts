@@ -1,9 +1,12 @@
 import { loadLessonById, type LessonDetailRow } from "@/lib/lessons";
 import { loadLessonConfigCategories, type UniversalConfigCategory } from "@/lib/universalConfigs";
+import { exportValueFromStoredValue, type ExportTemplateValue } from "@/lib/exportTemplateValues";
+import { getTopLevelOnlyFieldKeys } from "@/lib/canonicalFieldMap";
 
 export const dynamic = "force-dynamic";
+const LESSON_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("lessons");
 
-type LessonTemplate = Record<string, Record<string, string>>;
+type LessonTemplate = Record<string, Record<string, ExportTemplateValue>>;
 
 function resolveLessonFieldValue(
   lessonRecord: LessonDetailRow,
@@ -41,14 +44,14 @@ function buildLessonTemplate(
   const template: LessonTemplate = {};
 
   for (const category of categories) {
-    const categoryPayload: Record<string, string> = {};
+    const categoryPayload: Record<string, ExportTemplateValue> = {};
 
     for (const field of category.fields) {
-      if (field.key === "lessonId") {
+      if (LESSON_TOP_LEVEL_ONLY_FIELDS.has(field.key)) {
         continue;
       }
       const value = resolveLessonFieldValue(lessonRecord, category.key, field.key);
-      categoryPayload[field.key] = value ?? "";
+      categoryPayload[field.key] = exportValueFromStoredValue(field.inputType, value);
     }
 
     template[category.key] = categoryPayload;

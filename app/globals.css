@@ -194,7 +194,9 @@ a { color: inherit; text-decoration: none; }
   font-weight: 600;
 }
 
-.configField input {
+.configField input:not([type="checkbox"]),
+.configField textarea,
+.configField select {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -202,6 +204,25 @@ a { color: inherit; text-decoration: none; }
   font: inherit;
   color: var(--ink);
   background: #fff;
+}
+
+.configField textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.configCheckboxRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+}
+
+.configCheckboxInput {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
 }
 
 @media (max-width: 900px) {

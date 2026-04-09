@@ -1,4 +1,11 @@
-export type HierarchyComponentName = "modules" | "lessons" | "groups" | "slides";
+export type HierarchyComponentName =
+  | "modules"
+  | "lessons"
+  | "groups"
+  | "slides"
+  | "activity_slides"
+  | "title_slides"
+  | "lesson_ends";
 
 type ComponentCanonicalFieldMap = {
   identityFieldKey: string;
@@ -49,4 +56,36 @@ export const CANONICAL_COMPONENT_FIELD_MAP: Record<HierarchyComponentName, Compo
     parentDbColumn: "group_id",
     coreFieldDbColumns: {},
   },
+  activity_slides: {
+    identityFieldKey: "slideId",
+    identityDbColumn: "id",
+    parentFieldKey: "groupId",
+    parentDbColumn: "group_id",
+    coreFieldDbColumns: {},
+  },
+  title_slides: {
+    identityFieldKey: "slideId",
+    identityDbColumn: "id",
+    parentFieldKey: "lessonId",
+    parentDbColumn: "lesson_id",
+    coreFieldDbColumns: {},
+  },
+  lesson_ends: {
+    identityFieldKey: "slideId",
+    identityDbColumn: "id",
+    parentFieldKey: "lessonId",
+    parentDbColumn: "lesson_id",
+    coreFieldDbColumns: {},
+  },
 };
+
+export function getTopLevelOnlyFieldKeys(componentName: HierarchyComponentName): Set<string> {
+  const componentMap = CANONICAL_COMPONENT_FIELD_MAP[componentName];
+  const keys = new Set<string>([componentMap.identityFieldKey]);
+
+  if (componentMap.parentFieldKey) {
+    keys.add(componentMap.parentFieldKey);
+  }
+
+  return keys;
+}

@@ -1,3 +1,8 @@
+Authority Role: guide
+Artifact Type: level-taxonomy
+Canonical Source: central/CONSTITUTION.md
+Constitution Reference: central/CONSTITUTION.md
+
 Rules:
 1. Level definitions are internal and cannot be defined by external curriculum frameworks or outside sources.
 2. Once a level definition is completed and accepted, it is frozen and not revised retroactively.

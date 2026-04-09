@@ -1,0 +1,211 @@
+Authority Role: mirror
+Artifact Type: component-field-snapshot
+Canonical Source: public.field_dictionary + public.field_dictionary_component_rules (seed snapshots: supabase/manual/010_field_dictionary_catalog_seed.sql, supabase/manual/012_component_activation_seed.sql)
+Constitution Reference: central/CONSTITUTION.md
+
+activity_slides:
+  source_of_truth:
+    - supabase/manual/012_component_activation_seed.sql
+    - supabase/manual/015_act_001_slide_setup.sql
+    - lib/activityProfiles.ts
+    - lib/activityShapeLock.ts
+    - lib/activitySlidePreflight.ts
+  component_scope: activity_slides_only
+  profile:
+    - default
+    - ACT-001
+    - ACT-002
+    - ACT-003
+    - ACT-004
+    - ACT-005
+    - ACT-009
+    - ACT-010
+    - ACT-011
+    - ACT-012
+    - ACT-013
+    - ACT-014
+    - ACT-015
+    - ACT-016
+    - ACT-017
+    - ACT-018
+    - ACT-019
+    - ACT-020
+    - ACT-021
+    - ACT-022
+    - ACT-023
+    - ACT-024
+    - ACT-025
+    - ACT-026
+  active_field_keys:
+    - activityId
+    - acceptedCorrections
+    - aiInstructions
+    - allowRetry
+    - allowSkip
+    - anecdoteOrMemoryHook
+    - assessmentPlan
+    - audienceNotes
+    - audioA
+    - audioB
+    - audioClips
+    - audioId
+    - audioPrompt
+    - autoAdvance
+    - avatarDialogues
+    - levelMax
+    - levelMin
+    - body
+    - blanks
+    - buttons
+    - categoryLabels
+    - cefrLevel
+    - cefrMax
+    - cefrMin
+    - choiceElements
+    - commonMisconceptions
+    - competencyTags
+    - correctAnswer
+    - correctCurveId
+    - correctOddIndex
+    - correctOrderClips
+    - correctOrderWords
+    - correctStressIndex
+    - coreTopics
+    - culturalContext
+    - defaultLang
+    - delayMs
+    - description
+    - diagnosticChecks
+    - differentiationPaths
+    - differentiationStrategies
+    - diffLog
+    - discourseFocus
+    - estimatedMinutes
+    - errorIndex
+    - exampleResponses
+    - expectedCompletionRate
+    - expectedTimeOnTask
+    - expansionGuidelines
+    - extractabilityTier
+    - extraPracticeNotes
+    - forbiddenPatterns
+    - grammarFocus
+    - groupId
+    - groupName
+    - ingestPayload
+    - ingestSource
+    - instructions
+    - isRequiredToPass
+    - intonationOptions
+    - incorrectSentence
+    - keywordThreshold
+    - keywords
+    - l1InterferenceNotes
+    - lastUpdatedAt
+    - lastUpdatedBy
+    - letterUnits
+    - learningObjectives
+    - lessonId
+    - lines
+    - matchPairs
+    - linkedResources
+    - manualOverrideJson
+    - masteryRule
+    - masteryThreshold
+    - maxAttempts
+    - maxScoreValue
+    - maxWordCount
+    - metadata
+    - minWordCount
+    - minAttemptsBeforeSkip
+    - moduleId
+    - note
+    - notesForTeacherOrAI
+    - orderIndex
+    - ownerTeam
+    - passRequiredForNext
+    - passingScoreType
+    - passingScoreValue
+    - prerequisiteEdges
+    - prerequisiteModules
+    - prerequisiteNodes
+    - prerequisiteSlices
+    - prerequisites
+    - priorLessons
+    - pronunciationFocus
+    - promptMode
+    - promptText
+    - propsJson
+    - registerTone
+    - registerVariants
+    - remediationGuidance
+    - remediationPaths
+    - requiredScore
+    - retryPolicy
+    - runtimeContractV1
+    - shortSummaryTeacherActivity
+    - shortSummaryTeacherSlide
+    - signatureMetaphors
+    - simplificationGuidelines
+    - skipPolicy
+    - slideId
+    - slug
+    - sourceVersion
+    - styleConstraints
+    - subtitle
+    - sentenceCards
+    - sentenceTokens
+    - sentenceWithGaps
+    - statement
+    - syllableBreakdown
+    - successCriteria
+    - tags
+    - targetedEdges
+    - targetedNodes
+    - targetedSlices
+    - targetLanguage
+    - targetKeywords
+    - targetNodeKeys
+    - targetText
+    - teacherNotes
+    - teacherOverview
+    - telemetryTags
+    - textSubtype
+    - tenseBins
+    - timeExpectationActivity
+    - title
+    - topicCategory
+    - type
+    - version
+    - visibility
+    - vocabularyTheme
+    - word
+    - wordBank
+  notes:
+    - `slideId` and `slug` are required in activity_slides activation seed.
+    - content slides are managed separately under `slides`.
+    - Active activity profiles are `ACT-001..ACT-005` and `ACT-009..ACT-026` (`ACT-006/007/008` are inactive).
+    - Activity profile field filters:
+      - ACT-001 adds `lines`.
+      - ACT-002 adds `audioId`, `audioPrompt`, `syllableBreakdown`, `correctStressIndex`.
+      - ACT-003 adds `audioId`, `audioA`, `audioB`, `promptMode`, `choiceElements`.
+      - ACT-004 adds `audioId`, `audioPrompt`, `intonationOptions`, `correctCurveId`.
+      - ACT-005 adds `lines`, `targetText`.
+      - ACT-009 adds `audioPrompt`, `choiceElements`, `correctAnswer`.
+      - ACT-010 adds `promptText`, `choiceElements`, `correctAnswer`.
+      - ACT-011 adds `statement`, `correctAnswer`.
+      - ACT-012 adds `choiceElements`, `correctOddIndex`.
+      - ACT-013 adds `matchPairs`.
+      - ACT-014 adds `categoryLabels`, `wordBank`.
+      - ACT-015 adds `sentenceTokens`, `correctOrderWords`.
+      - ACT-016 adds `tenseBins`, `sentenceCards`.
+      - ACT-017 adds `sentenceWithGaps`, `blanks`.
+      - ACT-018 adds `wordBank`, `sentenceWithGaps`.
+      - ACT-019 adds `incorrectSentence`, `acceptedCorrections`, `errorIndex`.
+      - ACT-020 adds `promptText`, `targetText`.
+      - ACT-021 adds `choiceElements`, `correctAnswer`.
+      - ACT-022 adds `promptText`, `targetKeywords`, `keywordThreshold`, `minWordCount`, `maxWordCount`.
+      - ACT-023 adds `avatarDialogues`.
+      - ACT-024 adds `word`, `letterUnits`.
+      - ACT-025 adds `audioClips`, `correctOrderClips`.
+      - ACT-026 adds `promptText`, `targetText`.

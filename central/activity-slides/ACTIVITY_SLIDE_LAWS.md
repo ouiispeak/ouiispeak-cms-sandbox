@@ -28,3 +28,4 @@ Repository: ouiispeak-cms-sandbox
 16. activity_slides batch create/update imports must run through atomic RPC functions (`public.import_activity_slides_create_atomic`, `public.import_activity_slides_update_atomic`) so one failing entry rolls back the whole upload.
 17. activity_slides category payloads in JSON import/export must use canonical keys only.
 18. Activity profiles in this repo are ACT-001..ACT-005 and ACT-009..ACT-026 (ACT-006/007/008 are inactive); profile switching in configs/edit routes must stay under `activity_slides` authority and may not mutate `slides` authority.
+19. Per-ACT required payload shape, tool mapping, active/inactive state, and contamination policy must follow `central/ACTIVITY_PROFILES.md` (authority order inside that file).

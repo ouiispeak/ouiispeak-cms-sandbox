@@ -5,8 +5,36 @@
 
 CREATE TABLE IF NOT EXISTS public.config_categories (
   name TEXT PRIMARY KEY,
+  category_order INTEGER NOT NULL DEFAULT 100,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE public.config_categories
+  ADD COLUMN IF NOT EXISTS category_order INTEGER;
+
+UPDATE public.config_categories
+SET category_order = 100
+WHERE category_order IS NULL;
+
+ALTER TABLE public.config_categories
+  ALTER COLUMN category_order SET DEFAULT 100;
+
+ALTER TABLE public.config_categories
+  ALTER COLUMN category_order SET NOT NULL;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'config_categories_category_order_check'
+      AND conrelid = 'public.config_categories'::regclass
+  ) THEN
+    ALTER TABLE public.config_categories
+      ADD CONSTRAINT config_categories_category_order_check
+      CHECK (category_order >= 0);
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.universal_fields (
   name TEXT PRIMARY KEY,
@@ -14,7 +42,26 @@ CREATE TABLE IF NOT EXISTS public.universal_fields (
   input_type TEXT NOT NULL,
   field_order INTEGER NOT NULL DEFAULT 100,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  CONSTRAINT universal_fields_input_type_check CHECK (input_type IN ('text')),
+  CONSTRAINT universal_fields_input_type_check CHECK (
+    input_type IN (
+      'text',
+      'textarea',
+      'number',
+      'checkbox',
+      'select',
+      'json',
+      'list',
+      'audio_selector',
+      'audio_list',
+      'audio_prompt',
+      'blanks_mapper',
+      'audio_lines_mapper',
+      'choice_elements_mapper',
+      'match_pairs_mapper',
+      'avatar_dialogues_mapper',
+      'media_picker'
+    )
+  ),
   CONSTRAINT universal_fields_field_order_check CHECK (field_order >= 0)
 );
 
@@ -30,6 +77,32 @@ ALTER TABLE public.universal_fields
 
 ALTER TABLE public.universal_fields
   ALTER COLUMN field_order SET NOT NULL;
+
+ALTER TABLE public.universal_fields
+  DROP CONSTRAINT IF EXISTS universal_fields_input_type_check;
+
+ALTER TABLE public.universal_fields
+  ADD CONSTRAINT universal_fields_input_type_check
+  CHECK (
+    input_type IN (
+      'text',
+      'textarea',
+      'number',
+      'checkbox',
+      'select',
+      'json',
+      'list',
+      'audio_selector',
+      'audio_list',
+      'audio_prompt',
+      'blanks_mapper',
+      'audio_lines_mapper',
+      'choice_elements_mapper',
+      'match_pairs_mapper',
+      'avatar_dialogues_mapper',
+      'media_picker'
+    )
+  );
 
 DO $$
 BEGIN
@@ -112,8 +185,16 @@ SELECT
   uf.category_name,
   uf.name AS field_name,
   uf.input_type,
-  uf.field_order
-FROM public.universal_fields uf;
+  uf.field_order,
+  cc.category_order,
+  fd.select_options_json,
+  fd.select_source,
+  fd.is_read_only
+FROM public.universal_fields uf
+JOIN public.config_categories cc
+  ON cc.name = uf.category_name
+LEFT JOIN public.field_dictionary fd
+  ON fd.field_key = uf.name;
 
 CREATE OR REPLACE VIEW public.config_component_fields AS
 SELECT
@@ -121,11 +202,19 @@ SELECT
   ccf.category_name,
   ccf.field_name,
   uf.input_type,
-  uf.field_order
+  uf.field_order,
+  cc.category_order,
+  fd.select_options_json,
+  fd.select_source,
+  fd.is_read_only
 FROM public.component_config_fields ccf
 JOIN public.universal_fields uf
   ON uf.category_name = ccf.category_name
- AND uf.name = ccf.field_name;
+ AND uf.name = ccf.field_name
+JOIN public.config_categories cc
+  ON cc.name = ccf.category_name
+LEFT JOIN public.field_dictionary fd
+  ON fd.field_key = ccf.field_name;
 
 CREATE OR REPLACE FUNCTION public.rename_universal_field(old_name TEXT, new_name TEXT)
 RETURNS TABLE(category_name TEXT, name TEXT, input_type TEXT)
@@ -252,16 +341,32 @@ GRANT EXECUTE ON FUNCTION public.set_component_config_field_enabled(TEXT, TEXT, 
 GRANT SELECT ON public.config_universal_fields TO anon, authenticated;
 GRANT SELECT ON public.config_component_fields TO anon, authenticated;
 
-INSERT INTO public.config_categories (name)
-VALUES ('Identity and Hiearchy')
-ON CONFLICT (name) DO NOTHING;
+INSERT INTO public.config_categories (name, category_order)
+VALUES
+  ('Identity & Lifecycle', 1),
+  ('Purpose & Outcomes', 2),
+  ('Scope, Prerequisites & Targeting', 3),
+  ('Content & Media', 4),
+  ('Instructions & Flow', 5),
+  ('Pedagogy & Scaffolding', 6),
+  ('Assessment & Mastery', 7),
+  ('Structure & Sequencing', 8),
+  ('Localization', 9),
+  ('Teacher Guidance', 10),
+  ('AI Generation & Prompting', 11),
+  ('Activities & Interaction', 12),
+  ('Links, Dependencies & Summaries', 13),
+  ('Telemetry & Analytics', 14),
+  ('Operations, Provenance & Governance', 15)
+ON CONFLICT (name) DO UPDATE
+SET category_order = EXCLUDED.category_order;
 
 UPDATE public.universal_fields
-SET category_name = 'Identity and Hiearchy'
+SET category_name = 'Identity & Lifecycle'
 WHERE category_name = 'category';
 
 UPDATE public.component_config_fields
-SET category_name = 'Identity and Hiearchy'
+SET category_name = 'Identity & Lifecycle'
 WHERE category_name = 'category';
 
 DELETE FROM public.component_config_fields
@@ -272,28 +377,47 @@ WHERE name IN ('ingestSource', 'lastUpdatedAt', 'lastUpdatedBy', 'ownerTeam', 'v
 
 INSERT INTO public.universal_fields (name, category_name, input_type, field_order)
 VALUES
-  ('id', 'Identity and Hiearchy', 'text', 1),
-  ('title', 'Identity and Hiearchy', 'text', 2),
-  ('level', 'Identity and Hiearchy', 'text', 3),
-  ('text', 'Identity and Hiearchy', 'text', 4),
-  ('subtitle', 'Identity and Hiearchy', 'text', 5)
+  ('id', 'Identity & Lifecycle', 'text', 1),
+  ('title', 'Identity & Lifecycle', 'text', 2),
+  ('level', 'Identity & Lifecycle', 'text', 3),
+  ('text', 'Identity & Lifecycle', 'text', 4),
+  ('subtitle', 'Identity & Lifecycle', 'text', 5)
 ON CONFLICT (name) DO UPDATE
 SET
   category_name = EXCLUDED.category_name,
   input_type = EXCLUDED.input_type,
   field_order = EXCLUDED.field_order;
 
-SELECT public.set_component_config_field_enabled('modules', 'Identity and Hiearchy', 'id', true);
-SELECT public.set_component_config_field_enabled('modules', 'Identity and Hiearchy', 'title', true);
-SELECT public.set_component_config_field_enabled('modules', 'Identity and Hiearchy', 'level', true);
-SELECT public.set_component_config_field_enabled('modules', 'Identity and Hiearchy', 'text', true);
-SELECT public.set_component_config_field_enabled('modules', 'Identity and Hiearchy', 'subtitle', false);
+SELECT public.set_component_config_field_enabled('modules', 'Identity & Lifecycle', 'id', true);
+SELECT public.set_component_config_field_enabled('modules', 'Identity & Lifecycle', 'title', true);
+SELECT public.set_component_config_field_enabled('modules', 'Identity & Lifecycle', 'level', true);
+SELECT public.set_component_config_field_enabled('modules', 'Identity & Lifecycle', 'text', true);
+SELECT public.set_component_config_field_enabled('modules', 'Identity & Lifecycle', 'subtitle', false);
 
 DELETE FROM public.config_categories cc
-WHERE cc.name IN ('category', 'Lifecycle And Ownership', 'Ingestion And Metadata')
+WHERE cc.name NOT IN (
+    'Identity & Lifecycle',
+    'Purpose & Outcomes',
+    'Scope, Prerequisites & Targeting',
+    'Content & Media',
+    'Instructions & Flow',
+    'Pedagogy & Scaffolding',
+    'Assessment & Mastery',
+    'Structure & Sequencing',
+    'Localization',
+    'Teacher Guidance',
+    'AI Generation & Prompting',
+    'Activities & Interaction',
+    'Links, Dependencies & Summaries',
+    'Telemetry & Analytics',
+    'Operations, Provenance & Governance'
+  )
   AND NOT EXISTS (
     SELECT 1 FROM public.universal_fields uf WHERE uf.category_name = cc.name
   )
   AND NOT EXISTS (
     SELECT 1 FROM public.component_config_fields ccf WHERE ccf.category_name = cc.name
+  )
+  AND NOT EXISTS (
+    SELECT 1 FROM public.field_dictionary fd WHERE fd.category_name = cc.name
   );

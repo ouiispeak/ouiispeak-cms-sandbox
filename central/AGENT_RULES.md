@@ -1,3 +1,8 @@
+Authority Role: guide
+Artifact Type: agent-operating-rules
+Canonical Source: central/CONSTITUTION.md
+Constitution Reference: central/CONSTITUTION.md
+
 # Agent Rules
 
 Date: 2026-04-05

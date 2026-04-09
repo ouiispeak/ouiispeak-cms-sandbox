@@ -1,4 +1,4 @@
-import type { UniversalConfigCategory } from "@/lib/universalConfigs";
+import type { UniversalConfigCategory, UniversalConfigField } from "@/lib/universalConfigs";
 
 export type FieldInputMap = Map<string, string | null>;
 export type ValueMap = Record<string, Record<string, string | null>>;
@@ -151,9 +151,33 @@ export function extractFieldInputsFromFormData(
   return fieldInputs;
 }
 
-function parseImportFieldValue(value: unknown, fieldName: string): string | null {
+const STRUCTURED_FIELD_INPUT_TYPES = new Set<UniversalConfigField["inputType"]>([
+  "json",
+  "list",
+  "audio_list",
+  "audio_prompt",
+  "blanks_mapper",
+  "audio_lines_mapper",
+  "choice_elements_mapper",
+  "match_pairs_mapper",
+  "avatar_dialogues_mapper",
+]);
+
+function parseImportFieldValue(
+  value: unknown,
+  fieldName: string,
+  inputType: UniversalConfigField["inputType"] | undefined
+): string | null {
   if (value === null) {
     return null;
+  }
+
+  if (typeof value === "object") {
+    if (value !== null && STRUCTURED_FIELD_INPUT_TYPES.has(inputType ?? "text")) {
+      return JSON.stringify(value);
+    }
+
+    throw new Error(`Field "${fieldName}" must be a string, number, boolean, or null.`);
   }
 
   if (typeof value === "string") {
@@ -170,15 +194,19 @@ function parseImportFieldValue(value: unknown, fieldName: string): string | null
 export function parseFieldInputsFromPayloadEntry({
   entry,
   allowedFields,
+  fieldInputTypes,
   componentLabel,
   ignoredTopLevelKeys,
   systemControlledFieldNames,
+  topLevelOnlyFieldNames,
 }: {
   entry: unknown;
   allowedFields: Set<string>;
+  fieldInputTypes?: Map<string, UniversalConfigField["inputType"]>;
   componentLabel: string;
   ignoredTopLevelKeys: Set<string>;
   systemControlledFieldNames: Set<string>;
+  topLevelOnlyFieldNames?: Set<string>;
 }): FieldInputMap {
   if (!isObjectRecord(entry)) {
     throw new Error(`Each imported ${componentLabel} entry must be an object.`);
@@ -202,12 +230,19 @@ export function parseFieldInputsFromPayloadEntry({
         );
       }
 
+      if (topLevelOnlyFieldNames?.has(fieldName)) {
+        throw new Error(
+          `Field "${categoryName}.${fieldName}" maps to top-level-only "${fieldName}" and cannot be imported in category payloads.`
+        );
+      }
+
       const qualifiedKey = `${categoryName}.${fieldName}`;
       if (!allowedFields.has(qualifiedKey)) {
         throw new Error(`Field "${categoryName}.${fieldName}" is not enabled in ${componentLabel} config.`);
       }
 
-      values.set(qualifiedKey, parseImportFieldValue(rawValue, qualifiedKey));
+      const inputType = fieldInputTypes?.get(qualifiedKey);
+      values.set(qualifiedKey, parseImportFieldValue(rawValue, qualifiedKey, inputType));
     }
   }
 

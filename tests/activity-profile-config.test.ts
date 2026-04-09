@@ -73,6 +73,16 @@ const SAMPLE_ACTIVITY_CATEGORY: UniversalConfigCategory = {
       isRequired: false,
     },
     {
+      key: "targetText",
+      label: "Target Text",
+      inputType: "textarea",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "textarea field",
+      isRequired: false,
+    },
+    {
       key: "statement",
       label: "Statement",
       inputType: "textarea",
@@ -90,6 +100,136 @@ const SAMPLE_ACTIVITY_CATEGORY: UniversalConfigCategory = {
       selectSource: null,
       isReadOnly: false,
       descriptor: "list field",
+      isRequired: false,
+    },
+    {
+      key: "sentenceWithGaps",
+      label: "Sentence With Gaps",
+      inputType: "textarea",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "textarea field",
+      isRequired: false,
+    },
+    {
+      key: "tenseBins",
+      label: "Tense Bins",
+      inputType: "list",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "list field",
+      isRequired: false,
+    },
+    {
+      key: "sentenceCards",
+      label: "Sentence Cards",
+      inputType: "json",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "json field",
+      isRequired: false,
+    },
+    {
+      key: "incorrectSentence",
+      label: "Incorrect Sentence",
+      inputType: "textarea",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "textarea field",
+      isRequired: false,
+    },
+    {
+      key: "acceptedCorrections",
+      label: "Accepted Corrections",
+      inputType: "list",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "list field",
+      isRequired: false,
+    },
+    {
+      key: "errorIndex",
+      label: "Error Index",
+      inputType: "number",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "number field",
+      isRequired: false,
+    },
+    {
+      key: "targetKeywords",
+      label: "Target Keywords",
+      inputType: "list",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "list field",
+      isRequired: false,
+    },
+    {
+      key: "avatarDialogues",
+      label: "Avatar Dialogues",
+      inputType: "avatar_dialogues_mapper",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "avatar_dialogues_mapper field",
+      isRequired: false,
+    },
+    {
+      key: "word",
+      label: "Word",
+      inputType: "text",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "text field",
+      isRequired: false,
+    },
+    {
+      key: "letterUnits",
+      label: "Letter Units",
+      inputType: "list",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "list field",
+      isRequired: false,
+    },
+    {
+      key: "audioClips",
+      label: "Audio Clips",
+      inputType: "audio_list",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "audio_list field",
+      isRequired: false,
+    },
+    {
+      key: "correctOrderClips",
+      label: "Correct Order Clips",
+      inputType: "list",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "list field",
+      isRequired: false,
+    },
+    {
+      key: "blanks",
+      label: "Blanks",
+      inputType: "blanks_mapper",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "blanks_mapper field",
       isRequired: false,
     },
     {
@@ -251,19 +391,28 @@ test("ACT-009 exposes audio-choice fields and hides ACT-001-only lines", () => {
   assert.equal(fieldKeys.has("lines"), false);
 });
 
-test("ACT-023 exposes buttons profile field and hides ACT-001-only lines", () => {
+test("ACT-023 exposes avatarDialogues profile field and hides ACT-001-only lines", () => {
   const filtered = filterActivitySlideCategoriesForProfile([SAMPLE_ACTIVITY_CATEGORY], "act-023");
   const fieldKeys = new Set(filtered[0]?.fields.map((field) => field.key) ?? []);
 
-  assert.equal(fieldKeys.has("buttons"), true);
+  assert.equal(fieldKeys.has("avatarDialogues"), true);
   assert.equal(fieldKeys.has("lines"), false);
 });
 
-test("ACT-026 exposes audioPrompt profile field and hides ACT-001-only lines", () => {
+test("ACT-017 exposes sentenceWithGaps and blanks fields", () => {
+  const filtered = filterActivitySlideCategoriesForProfile([SAMPLE_ACTIVITY_CATEGORY], "act-017");
+  const fieldKeys = new Set(filtered[0]?.fields.map((field) => field.key) ?? []);
+
+  assert.equal(fieldKeys.has("blanks"), true);
+  assert.equal(fieldKeys.has("sentenceWithGaps"), true);
+});
+
+test("ACT-026 exposes promptText/targetText profile fields and hides ACT-001-only lines", () => {
   const filtered = filterActivitySlideCategoriesForProfile([SAMPLE_ACTIVITY_CATEGORY], "act-026");
   const fieldKeys = new Set(filtered[0]?.fields.map((field) => field.key) ?? []);
 
-  assert.equal(fieldKeys.has("audioPrompt"), true);
+  assert.equal(fieldKeys.has("promptText"), true);
+  assert.equal(fieldKeys.has("targetText"), true);
   assert.equal(fieldKeys.has("lines"), false);
 });
 

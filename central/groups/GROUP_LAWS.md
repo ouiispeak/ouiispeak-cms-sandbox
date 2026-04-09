@@ -1,6 +1,11 @@
+Authority Role: guide
+Artifact Type: component-behavior-guide
+Canonical Source: central/CONSTITUTION.md
+Constitution Reference: central/CONSTITUTION.md
+
 # Group Laws
 
-Date: 2026-04-06
+Date: 2026-04-07
 Repository: ouiispeak-cms-sandbox
 
 1. A group must always belong to a lesson through `public.groups.lesson_id` (UUID FK).
@@ -10,7 +15,7 @@ Repository: ouiispeak-cms-sandbox
 5. `/edit-group/[groupId]` must prefill inputs from `public.group_field_values` for enabled group config fields.
 6. `Save Changes` on `/edit-group/[groupId]` must upsert all posted config fields to `public.group_field_values`.
 7. Group field availability in UI is controlled by config authority (`public.field_dictionary` -> `public.universal_fields` and `public.field_dictionary_component_rules` -> `public.component_config_fields`).
-8. Group config fields currently active are `groupId`, `title`, `text`, and `subtitle`.
+8. Group active fields are controlled only by `public.field_dictionary_component_rules` (`component_name = 'groups'`) and mirrored in `central/SOT/groups_configs.md`.
 9. Group type specializations are not in scope; `group` is a single plain component type.
 10. `groupId` is system-controlled:
     - On `/edit-group/new`, it must be non-editable and not user-submittable.

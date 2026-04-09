@@ -1,4 +1,5 @@
-import { loadModuleConfigCategories } from "@/lib/universalConfigs";
+import CustomFieldInput from "@/components/CustomFieldInput";
+import { isCustomComplexInputType, loadModuleConfigCategories } from "@/lib/universalConfigs";
 import { createModuleFromFormData, loadModuleById, updateModuleFromFormData } from "@/lib/modules";
 import { redirect } from "next/navigation";
 
@@ -94,18 +95,110 @@ export default async function EditModulePage({ params }: { params: Promise<{ mod
                 {category.fields.map((field) => (
                   <div key={`${category.key}-${field.key}`} className="configField">
                     <label htmlFor={`edit-module-${category.key}-${field.key}`}>{field.label}</label>
-                    <input
-                      id={`edit-module-${category.key}-${field.key}`}
-                      name={`${category.key}.${field.key}`}
-                      type={field.key === "level" ? "number" : field.inputType}
-                      min={field.key === "level" ? 1 : undefined}
-                      max={field.key === "level" ? 10 : undefined}
-                      step={field.key === "level" ? 1 : undefined}
-                      defaultValue={getFieldDefaultValue(category.key, field.key)}
-                      readOnly={field.key === "moduleId"}
-                      disabled={field.key === "moduleId"}
-                      required={field.isRequired && field.key !== "moduleId"}
-                    />
+                    {(() => {
+                      const fieldDefaultValue = getFieldDefaultValue(category.key, field.key);
+                      const isLockedField = field.isReadOnly || field.key === "moduleId";
+                      const hasCurrentValue =
+                        fieldDefaultValue !== undefined && fieldDefaultValue !== null && fieldDefaultValue !== "";
+                      const currentInOptions =
+                        hasCurrentValue && field.options.includes(String(fieldDefaultValue));
+
+                      if (isCustomComplexInputType(field.inputType)) {
+                        return (
+                          <CustomFieldInput
+                            id={`edit-module-${category.key}-${field.key}`}
+                            name={`${category.key}.${field.key}`}
+                            inputType={field.inputType}
+                            defaultValue={fieldDefaultValue}
+                            readOnly={isLockedField}
+                          />
+                        );
+                      }
+
+                      if (field.inputType === "textarea" || field.inputType === "json" || field.inputType === "list") {
+                        return (
+                          <textarea
+                            id={`edit-module-${category.key}-${field.key}`}
+                            name={`${category.key}.${field.key}`}
+                            defaultValue={fieldDefaultValue}
+                            readOnly={isLockedField}
+                            disabled={isLockedField}
+                            required={field.isRequired && !isLockedField}
+                          />
+                        );
+                      }
+
+                      if (field.inputType === "checkbox") {
+                        const checkboxChecked = String(fieldDefaultValue ?? "").toLowerCase() === "true";
+                        if (isLockedField) {
+                          return (
+                            <input
+                              id={`edit-module-${category.key}-${field.key}`}
+                              type="checkbox"
+                              defaultChecked={checkboxChecked}
+                              disabled
+                              aria-readonly="true"
+                            />
+                          );
+                        }
+                        return (
+                          <>
+                            <input type="hidden" name={`${category.key}.${field.key}`} value="false" />
+                            <input
+                              id={`edit-module-${category.key}-${field.key}`}
+                              name={`${category.key}.${field.key}`}
+                              type="checkbox"
+                              value="true"
+                              defaultChecked={checkboxChecked}
+                            />
+                          </>
+                        );
+                      }
+
+                      if (field.inputType === "select") {
+                        return (
+                          <select
+                            id={`edit-module-${category.key}-${field.key}`}
+                            name={`${category.key}.${field.key}`}
+                            defaultValue={fieldDefaultValue ?? ""}
+                            disabled={isLockedField}
+                            required={field.isRequired && !isLockedField}
+                          >
+                            {!field.isRequired && <option value="">—</option>}
+                            {field.options.length === 0 && (
+                              <option value="">
+                                {field.selectSource
+                                  ? `Dynamic (${field.selectSource})`
+                                  : "No options configured"}
+                              </option>
+                            )}
+                            {hasCurrentValue && !currentInOptions && (
+                              <option value={String(fieldDefaultValue)}>{String(fieldDefaultValue)}</option>
+                            )}
+                            {field.options.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        );
+                      }
+
+                      return (
+                        <input
+                          id={`edit-module-${category.key}-${field.key}`}
+                          name={`${category.key}.${field.key}`}
+                          type={field.key === "level" ? "number" : field.inputType}
+                          min={field.key === "level" ? 1 : undefined}
+                          max={field.key === "level" ? 10 : undefined}
+                          step={field.key === "level" ? 1 : undefined}
+                          defaultValue={fieldDefaultValue}
+                          readOnly={isLockedField}
+                          disabled={isLockedField}
+                          required={field.isRequired && !isLockedField}
+                        />
+                      );
+                    })()}
                   </div>
                 ))}
               </div>

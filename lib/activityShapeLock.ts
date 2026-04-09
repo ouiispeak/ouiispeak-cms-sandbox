@@ -9,17 +9,13 @@ export const ACTIVE_ACTIVITY_SHAPE_LOCK_MAP: Record<string, ActivityShapeLockSpe
   },
   "ACT-002": {
     requiredAll: ["correctStressIndex"],
-    requiredOneOf: [
-      ["syllableBreakdown", "body"],
-      ["audioId"],
-    ],
+    requiredOneOf: [["syllableBreakdown", "body"]],
   },
   "ACT-003": {
     requiredAll: ["promptMode", "choiceElements"],
   },
   "ACT-004": {
     requiredAll: ["intonationOptions", "correctCurveId"],
-    requiredOneOf: [["audioId"]],
   },
   "ACT-005": {
     requiredAll: [],
@@ -47,37 +43,37 @@ export const ACTIVE_ACTIVITY_SHAPE_LOCK_MAP: Record<string, ActivityShapeLockSpe
     requiredAll: ["sentenceTokens", "correctOrderWords"],
   },
   "ACT-016": {
-    requiredAll: ["categoryLabels", "wordBank"],
+    requiredAll: ["tenseBins", "sentenceCards"],
   },
   "ACT-017": {
-    requiredAll: ["body"],
+    requiredAll: ["sentenceWithGaps", "blanks"],
   },
   "ACT-018": {
-    requiredAll: ["body", "wordBank"],
+    requiredAll: ["wordBank", "sentenceWithGaps"],
   },
   "ACT-019": {
-    requiredAll: ["body", "correctAnswer"],
+    requiredAll: ["incorrectSentence", "acceptedCorrections", "errorIndex"],
   },
   "ACT-020": {
-    requiredAll: ["audioPrompt"],
+    requiredAll: ["promptText", "targetText"],
   },
   "ACT-021": {
-    requiredAll: ["audioPrompt", "choiceElements"],
+    requiredAll: ["choiceElements", "correctAnswer"],
   },
   "ACT-022": {
-    requiredAll: ["audioPrompt"],
+    requiredAll: ["promptText", "targetKeywords"],
   },
   "ACT-023": {
-    requiredAll: ["buttons"],
+    requiredAll: ["avatarDialogues"],
   },
   "ACT-024": {
-    requiredAll: [],
+    requiredAll: ["word", "letterUnits"],
   },
   "ACT-025": {
-    requiredAll: ["lines"],
+    requiredAll: ["audioClips", "correctOrderClips"],
   },
   "ACT-026": {
-    requiredAll: ["audioPrompt"],
+    requiredAll: ["promptText", "targetText"],
   },
 };
 

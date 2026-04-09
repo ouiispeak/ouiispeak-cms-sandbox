@@ -1,9 +1,12 @@
 import { loadGroupById, type GroupDetailRow } from "@/lib/groups";
 import { loadGroupConfigCategories, type UniversalConfigCategory } from "@/lib/universalConfigs";
+import { exportValueFromStoredValue, type ExportTemplateValue } from "@/lib/exportTemplateValues";
+import { getTopLevelOnlyFieldKeys } from "@/lib/canonicalFieldMap";
 
 export const dynamic = "force-dynamic";
+const GROUP_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("groups");
 
-type GroupTemplate = Record<string, Record<string, string>>;
+type GroupTemplate = Record<string, Record<string, ExportTemplateValue>>;
 
 function resolveGroupFieldValue(
   groupRecord: GroupDetailRow,
@@ -41,15 +44,15 @@ function buildGroupTemplate(
   const template: GroupTemplate = {};
 
   for (const category of categories) {
-    const categoryPayload: Record<string, string> = {};
+    const categoryPayload: Record<string, ExportTemplateValue> = {};
 
     for (const field of category.fields) {
-      if (field.key === "groupId") {
+      if (GROUP_TOP_LEVEL_ONLY_FIELDS.has(field.key)) {
         continue;
       }
 
       const value = resolveGroupFieldValue(groupRecord, category.key, field.key);
-      categoryPayload[field.key] = value ?? "";
+      categoryPayload[field.key] = exportValueFromStoredValue(field.inputType, value);
     }
 
     template[category.key] = categoryPayload;

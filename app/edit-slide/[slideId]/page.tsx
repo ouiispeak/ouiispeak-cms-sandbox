@@ -1,4 +1,5 @@
-import { loadSlideConfigCategories } from "@/lib/universalConfigs";
+import CustomFieldInput from "@/components/CustomFieldInput";
+import { isCustomComplexInputType, loadSlideConfigCategories } from "@/lib/universalConfigs";
 import { createSlideFromFormData, loadSlideById, updateSlideFromFormData } from "@/lib/slides";
 import { loadGroups } from "@/lib/groups";
 import { redirect } from "next/navigation";
@@ -19,10 +20,14 @@ async function updateSlideAction(slideId: string, formData: FormData) {
   redirect(`/edit-slide/${slideId}`);
 }
 
-export default async function EditSlidePage({ params }: { params: Promise<{ slideId: string }> }) {
+export default async function EditSlidePage({
+  params,
+}: {
+  params: Promise<{ slideId: string }>;
+}) {
   const { slideId } = await params;
   const isNewSlideRoute = slideId === "new";
-  const pageTitle = isNewSlideRoute ? "New Slide" : "Edit Slide";
+  const pageTitle = isNewSlideRoute ? "New Text Slide" : "Edit Slide";
 
   try {
     const [categories, slideRecord, groups] = await Promise.all([
@@ -58,6 +63,9 @@ export default async function EditSlidePage({ params }: { params: Promise<{ slid
         if (fieldKey === "slideId") {
           return "Auto-assigned";
         }
+        if (fieldKey === "type") {
+          return "text";
+        }
         return undefined;
       }
 
@@ -89,15 +97,107 @@ export default async function EditSlidePage({ params }: { params: Promise<{ slid
                 {category.fields.map((field) => (
                   <div key={`${category.key}-${field.key}`} className="configField">
                     <label htmlFor={`edit-slide-${category.key}-${field.key}`}>{field.label}</label>
-                    <input
-                      id={`edit-slide-${category.key}-${field.key}`}
-                      name={`${category.key}.${field.key}`}
-                      type={field.inputType}
-                      defaultValue={getFieldDefaultValue(category.key, field.key)}
-                      readOnly={field.key === "slideId"}
-                      disabled={field.key === "slideId"}
-                      required={field.isRequired && field.key !== "slideId"}
-                    />
+                    {(() => {
+                      const fieldDefaultValue = getFieldDefaultValue(category.key, field.key);
+                      const isLockedField = field.isReadOnly || field.key === "slideId";
+                      const hasCurrentValue =
+                        fieldDefaultValue !== undefined && fieldDefaultValue !== null && fieldDefaultValue !== "";
+                      const currentInOptions =
+                        hasCurrentValue && field.options.includes(String(fieldDefaultValue));
+
+                      if (isCustomComplexInputType(field.inputType)) {
+                        return (
+                          <CustomFieldInput
+                            id={`edit-slide-${category.key}-${field.key}`}
+                            name={`${category.key}.${field.key}`}
+                            inputType={field.inputType}
+                            defaultValue={fieldDefaultValue}
+                            readOnly={isLockedField}
+                          />
+                        );
+                      }
+
+                      if (field.inputType === "textarea" || field.inputType === "json" || field.inputType === "list") {
+                        return (
+                          <textarea
+                            id={`edit-slide-${category.key}-${field.key}`}
+                            name={`${category.key}.${field.key}`}
+                            defaultValue={fieldDefaultValue}
+                            readOnly={isLockedField}
+                            disabled={isLockedField}
+                            required={field.isRequired && !isLockedField}
+                          />
+                        );
+                      }
+
+                      if (field.inputType === "checkbox") {
+                        const checkboxChecked = String(fieldDefaultValue ?? "").toLowerCase() === "true";
+                        if (isLockedField) {
+                          return (
+                            <input
+                              id={`edit-slide-${category.key}-${field.key}`}
+                              type="checkbox"
+                              defaultChecked={checkboxChecked}
+                              disabled
+                              aria-readonly="true"
+                            />
+                          );
+                        }
+                        return (
+                          <>
+                            <input type="hidden" name={`${category.key}.${field.key}`} value="false" />
+                            <input
+                              id={`edit-slide-${category.key}-${field.key}`}
+                              name={`${category.key}.${field.key}`}
+                              type="checkbox"
+                              value="true"
+                              defaultChecked={checkboxChecked}
+                            />
+                          </>
+                        );
+                      }
+
+                      if (field.inputType === "select") {
+                        return (
+                          <select
+                            id={`edit-slide-${category.key}-${field.key}`}
+                            name={`${category.key}.${field.key}`}
+                            defaultValue={fieldDefaultValue ?? ""}
+                            disabled={isLockedField}
+                            required={field.isRequired && !isLockedField}
+                          >
+                            {!field.isRequired && <option value="">—</option>}
+                            {field.options.length === 0 && (
+                              <option value="">
+                                {field.selectSource
+                                  ? `Dynamic (${field.selectSource})`
+                                  : "No options configured"}
+                              </option>
+                            )}
+                            {hasCurrentValue && !currentInOptions && (
+                              <option value={String(fieldDefaultValue)}>{String(fieldDefaultValue)}</option>
+                            )}
+                            {field.options.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        );
+                      }
+
+                      return (
+                        <input
+                          id={`edit-slide-${category.key}-${field.key}`}
+                          name={`${category.key}.${field.key}`}
+                          type={field.inputType}
+                          defaultValue={fieldDefaultValue}
+                          readOnly={isLockedField}
+                          disabled={isLockedField}
+                          required={field.isRequired && !isLockedField}
+                        />
+                      );
+                    })()}
                   </div>
                 ))}
               </div>
@@ -140,7 +240,7 @@ export default async function EditSlidePage({ params }: { params: Promise<{ slid
             <form action={createSlideAction}>
               {groupSelector}
               {categoriesMarkup}
-              <button type="submit">Add Slide</button>
+              <button type="submit">Add Text Slide</button>
             </form>
           )}
         </section>

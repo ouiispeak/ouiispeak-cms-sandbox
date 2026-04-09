@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 
 export type ImportMode = "create" | "update";
-export type ImportComponent = "modules" | "lessons" | "groups" | "slides";
+export type ImportComponent =
+  | "modules"
+  | "lessons"
+  | "groups"
+  | "slides"
+  | "activity_slides"
+  | "title_slides"
+  | "lesson_ends";
 
 type TextReadableFile = {
   text: () => Promise<string>;
@@ -18,6 +25,18 @@ function toComponentLabel(component: ImportComponent): string {
 
   if (component === "slides") {
     return "Slide";
+  }
+
+  if (component === "activity_slides") {
+    return "Activity Slide";
+  }
+
+  if (component === "title_slides") {
+    return "Title Slide";
+  }
+
+  if (component === "lesson_ends") {
+    return "lesson_ends";
   }
 
   return "Group";
