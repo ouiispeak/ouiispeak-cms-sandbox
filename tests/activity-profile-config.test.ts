@@ -53,6 +53,56 @@ const SAMPLE_ACTIVITY_CATEGORY: UniversalConfigCategory = {
       isRequired: false,
     },
     {
+      key: "correctAnswer",
+      label: "Correct Answer",
+      inputType: "text",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "text field",
+      isRequired: false,
+    },
+    {
+      key: "promptText",
+      label: "Prompt Text",
+      inputType: "textarea",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "textarea field",
+      isRequired: false,
+    },
+    {
+      key: "statement",
+      label: "Statement",
+      inputType: "textarea",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "textarea field",
+      isRequired: false,
+    },
+    {
+      key: "wordBank",
+      label: "Word Bank",
+      inputType: "list",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "list field",
+      isRequired: false,
+    },
+    {
+      key: "buttons",
+      label: "Buttons",
+      inputType: "list",
+      options: [],
+      selectSource: null,
+      isReadOnly: false,
+      descriptor: "list field",
+      isRequired: false,
+    },
+    {
       key: "correctStressIndex",
       label: "Correct Stress Index",
       inputType: "number",
@@ -189,6 +239,32 @@ test("ACT-005 exposes recorder source fields and hides ACT-003/004 fields", () =
   assert.equal(fieldKeys.has("promptMode"), false);
   assert.equal(fieldKeys.has("intonationOptions"), false);
   assert.equal(fieldKeys.has("correctCurveId"), false);
+});
+
+test("ACT-009 exposes audio-choice fields and hides ACT-001-only lines", () => {
+  const filtered = filterActivitySlideCategoriesForProfile([SAMPLE_ACTIVITY_CATEGORY], "act-009");
+  const fieldKeys = new Set(filtered[0]?.fields.map((field) => field.key) ?? []);
+
+  assert.equal(fieldKeys.has("audioPrompt"), true);
+  assert.equal(fieldKeys.has("choiceElements"), true);
+  assert.equal(fieldKeys.has("correctAnswer"), true);
+  assert.equal(fieldKeys.has("lines"), false);
+});
+
+test("ACT-023 exposes buttons profile field and hides ACT-001-only lines", () => {
+  const filtered = filterActivitySlideCategoriesForProfile([SAMPLE_ACTIVITY_CATEGORY], "act-023");
+  const fieldKeys = new Set(filtered[0]?.fields.map((field) => field.key) ?? []);
+
+  assert.equal(fieldKeys.has("buttons"), true);
+  assert.equal(fieldKeys.has("lines"), false);
+});
+
+test("ACT-026 exposes audioPrompt profile field and hides ACT-001-only lines", () => {
+  const filtered = filterActivitySlideCategoriesForProfile([SAMPLE_ACTIVITY_CATEGORY], "act-026");
+  const fieldKeys = new Set(filtered[0]?.fields.map((field) => field.key) ?? []);
+
+  assert.equal(fieldKeys.has("audioPrompt"), true);
+  assert.equal(fieldKeys.has("lines"), false);
 });
 
 test("default activity profile hides ACT-specific interaction fields", () => {
