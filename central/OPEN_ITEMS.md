@@ -6,7 +6,7 @@ Constitution Reference: central/CONSTITUTION.md
 # OPEN_ITEMS
 
 Date: 2026-04-09
-Last Updated: 2026-04-10
+Last Updated: 2026-04-11
 Owner: CMS Platform (Sandbox Data Lane)
 Repository: ouiispeak-cms-sandbox
 
@@ -14,20 +14,10 @@ Repository: ouiispeak-cms-sandbox
 Track known unresolved items so decisions and required fixes cannot disappear between sessions.
 
 ## Open Items
-1. Retirement closeout owner-side final GO/NO-GO acceptance is pending (report already published at `central/CMS_CLOSEOUT_REPORT.md`).
+1. Original CMS backup reference (commit/tag/branch and storage location) is pending recording in repo docs.
    Owner: Raychel Johnson
    Target: 2026-04-11
-2. Original CMS backup reference (commit/tag/branch and storage location) is pending recording in repo docs.
-   Owner: Raychel Johnson
-   Target: 2026-04-11
-3. Post-cutover cleanup is pending: retire temporary orchestration artifacts and legacy bridge files (including `central/FACTORY_RESET_ORCHESTRATION_PLAN.md`) after final transfer signoff.
-   Owner: CMS Platform (Sandbox Data Lane)
-   Target: 2026-04-11
-4. Telemetry + L6 input cutover proof packet is pending: publish deterministic evidence that valid telemetry events are accepted end-to-end and L6-required fields are preserved ingest->export.
-   Owner: CMS Platform (Sandbox Data Lane)
-   Target: 2026-04-11
-   Current check (2026-04-10): LV2 grading/replay tests pass, LV2 handshake-E smoke passes, Tele handshake-D validator smoke passes, Tele WP4.3 read-model smoke passes.
-5. LV2 naming mismatch cleanup is intentionally deferred to post-cutover LV2 rehaul and must not block telemetry/L6 gate closure.
+2. LV2 naming mismatch cleanup is intentionally deferred to post-cutover LV2 rehaul and must not block telemetry/L6 gate closure.
    Owner: Raychel Johnson
    Target: Post-cutover
 
@@ -97,12 +87,15 @@ Status Rule: Every item below must be complete. If any item is incomplete, overa
 13. Publish final proof packet and closeout signoff.
     Exit Gate: One closeout artifact includes test output, drift-gate output, SQL verification output, parity output, and explicit GO/NO-GO signoff.
     Owner: CMS Platform (Sandbox Data Lane)
-    Status: Closed (2026-04-10) - closeout artifact published at `central/CMS_CLOSEOUT_REPORT.md` with explicit signoff state (engineering GO, retirement freeze NO-GO pending owner actions).
+    Status: Closed (2026-04-11) - closeout artifact published at `central/CMS_CLOSEOUT_REPORT.md` with owner-signed GO packet linked from `cutover-backups/20260410-235434/reapply-20260411-001839/r8-go-no-go-signoff.md`.
 
 ## Recently Closed
 1. `ACT-NAMING-001`: canonical slide-family update key is `slideId`; `slideUuid` forbidden.
 2. `CMP-NAMING-001`: canonical component token is `lesson_ends`; naming-layer rules locked.
 3. `lesson_end_field_values` constraint parity: `lesson_end_field_values_no_system_slide_id_check` explicit and present.
+4. Retirement closeout owner-side GO/NO-GO acceptance signed (`GO`) in `cutover-backups/20260410-235434/reapply-20260411-001839/r8-go-no-go-signoff.md`.
+5. Post-cutover cleanup completed: temporary orchestration artifact retired from active authority path (`central/FACTORY_RESET_ORCHESTRATION_PLAN.md` moved to `archive/central/FACTORY_RESET_ORCHESTRATION_PLAN.md`).
+6. Telemetry + L6 cutover proof packet published at `central/TELEMETRY_L6_CUTOVER_PROOF.md` with deterministic PASS evidence links.
 
 ## Reopen Rule
 If any contract, schema, naming, or requiredness drift is discovered, add a new item here before merging additional behavior changes.

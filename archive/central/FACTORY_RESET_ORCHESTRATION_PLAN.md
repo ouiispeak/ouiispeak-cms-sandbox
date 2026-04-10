@@ -1,7 +1,9 @@
-Authority Role: draft
-Artifact Type: factory-reset-orchestration-plan
-Canonical Source: central/FACTORY_RESET_ORCHESTRATION_PLAN.md
+Authority Role: archive
+Artifact Type: retired-orchestration-plan
+Canonical Source: archive/central/FACTORY_RESET_ORCHESTRATION_PLAN.md
 Constitution Reference: central/CONSTITUTION.md
+
+Retired From Active Authority Path: 2026-04-11
 
 # FACTORY_RESET_ORCHESTRATION_PLAN
 

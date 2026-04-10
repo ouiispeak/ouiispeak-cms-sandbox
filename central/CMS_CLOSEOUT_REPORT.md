@@ -6,7 +6,7 @@ Constitution Reference: central/CONSTITUTION.md
 # CMS Closeout Report
 
 Date: 2026-04-10
-Last Updated: 2026-04-10
+Last Updated: 2026-04-11
 Owner: CMS Platform (Sandbox Data Lane)
 Repository: ouiispeak-cms-sandbox
 
@@ -109,6 +109,14 @@ order by proname;
 Result:
 1. 14 atomic RPC functions present (`create` + `update` for modules, lessons, groups, slides, activity_slides, title_slides, lesson_ends).
 
+### 5) Telemetry + L6 cutover proof packet
+Source:
+1. `central/TELEMETRY_L6_CUTOVER_PROOF.md`
+
+Result:
+1. PASS evidence recorded for WS6 (`lv2_vitest_exit=0`, `lv2_handshake_e_exit=0`, `tele_handshake_d_exit=0`, `tele_wp43_exit=0`).
+2. Fresh player cross-check recorded for R6/R0.6 (`r6_r06_fresh_status=PASS`).
+
 ## Authority Doc Synchronization Status (#12)
 Status: complete
 
@@ -124,17 +132,16 @@ Verification basis:
 2. No contradiction findings remained in the final manual sweep.
 
 ## Explicit Signoff
-Timestamp (local): 2026-04-10 16:52:45 CEST (+0200)
-Timestamp (UTC): 2026-04-10 14:52:45 UTC
+Timestamp (local): 2026-04-11 00:34:00 CEST (+0200)
+Timestamp (UTC): 2026-04-10 22:34:00 UTC
 
 Engineering readiness (repo behavior gates): GO
 
-Retirement freeze readiness (operational closeout prerequisites): NO-GO
+Retirement freeze readiness (operational closeout prerequisites): GO
 
-Blocking reasons for retirement freeze NO-GO:
-1. Original CMS backup reference (commit/tag/branch + storage location) is not yet recorded.
-2. Retirement closeout GO/NO-GO publication by designated owner is still pending final owner-side completion.
+Owner-signed GO record:
+1. `cutover-backups/20260410-235434/reapply-20260411-001839/r8-go-no-go-signoff.md`
 
 ## Next Required Owner Actions
 1. Record original CMS backup reference in repo docs.
-2. Publish owner final retirement signoff update and clear open owner items in `central/OPEN_ITEMS.md`.
+2. Keep LV2 naming mismatch cleanup in deferred post-cutover rehaul lane (non-blocking).
