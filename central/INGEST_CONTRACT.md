@@ -6,6 +6,8 @@ Constitution Reference: central/CONSTITUTION.md
 # INGEST_CONTRACT
 
 Date: 2026-04-09
+Last Updated: 2026-04-10
+Owner: CMS Platform (Sandbox Data Lane)
 Repository: ouiispeak-cms-sandbox
 
 ## Purpose

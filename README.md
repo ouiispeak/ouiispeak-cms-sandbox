@@ -2,6 +2,8 @@ Authority Role: guide
 Artifact Type: repo-overview
 Canonical Source: central/CONSTITUTION.md
 Constitution Reference: central/CONSTITUTION.md
+Last Updated: 2026-04-10
+Owner: CMS Platform (Sandbox Data Lane)
 
 # CMS Barebones Factory Reset
 

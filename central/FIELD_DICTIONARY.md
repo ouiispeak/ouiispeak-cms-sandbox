@@ -6,14 +6,16 @@ Constitution Reference: central/CONSTITUTION.md
 # FIELD_DICTIONARY
 
 Date: 2026-04-09
+Last Updated: 2026-04-10
+Owner: CMS Platform (Sandbox Data Lane)
 Repository: ouiispeak-cms-sandbox
 Machine companion: central/FIELD_DICTIONARY.csv
 
 ## Deliverable Status
 1. Active fields covered from public.field_dictionary: 208
 2. Uncategorized active fields: 0
-3. Definitions populated from repo sources: 0
-4. Definitions requiring your source input: 208
+3. Definitions populated in machine companion: 208
+4. Definitions requiring source input: 0
 5. Lesson Player requiredness explicitly sourced in repo: 20
 6. LV2 requiredness explicitly sourced in repo: 178
 
@@ -26,7 +28,8 @@ Machine companion: central/FIELD_DICTIONARY.csv
 6. affects lineage tags (telemetry/lv2/player/ingest/supabase)
 
 ## Source Notes
-1. No canonical per-field definitions are currently populated in public.field_dictionary.definition; unresolved rows are marked NEEDS_USER_INPUT.
-2. The matrix does not invent missing states. When repo sources are silent, entries are marked not_specified_in_repo.
-3. Exit gate check: 100% active field coverage is met.
-4. Exit gate check: zero uncategorized active fields is met.
+1. Canonical machine companion definitions are populated for all active fields from staged user input.
+2. This promotion updated `central/FIELD_DICTIONARY.csv`; DB authority table `public.field_dictionary.definition` remains a separate sync step.
+3. The matrix does not invent missing states. When repo sources are silent, entries are marked not_specified_in_repo.
+4. Exit gate check: 100% active field coverage is met.
+5. Exit gate check: zero uncategorized active fields is met.

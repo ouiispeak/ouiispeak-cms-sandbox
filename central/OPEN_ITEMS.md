@@ -6,13 +6,20 @@ Constitution Reference: central/CONSTITUTION.md
 # OPEN_ITEMS
 
 Date: 2026-04-09
+Last Updated: 2026-04-10
+Owner: CMS Platform (Sandbox Data Lane)
 Repository: ouiispeak-cms-sandbox
 
 ## Purpose
 Track known unresolved items so decisions and required fixes cannot disappear between sessions.
 
 ## Open Items
-None.
+1. Retirement closeout and GO/NO-GO signoff report is pending authoring and publication.
+   Owner: Raychel Johnson
+   Target: 2026-04-11
+2. Original CMS backup reference (commit/tag/branch and storage location) is pending recording in repo docs.
+   Owner: Raychel Johnson
+   Target: 2026-04-11
 
 ## Recently Closed
 1. `ACT-NAMING-001`: canonical slide-family update key is `slideId`; `slideUuid` forbidden.

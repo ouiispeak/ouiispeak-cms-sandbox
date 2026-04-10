@@ -1,5 +1,7 @@
 {
   "date": "2026-04-07",
+  "last_updated": "2026-04-10",
+  "owner": "CMS Platform (Sandbox Data Lane)",
   "repository": "ouiispeak-cms-sandbox",
   "config_authority": {
     "primary": "supabase",
