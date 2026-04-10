@@ -1,10 +1,17 @@
-import { fetchAnonRows, parseUuid, type ValueMap } from "@/lib/componentCore";
+import {
+  fetchAnonRows,
+  parseUuid,
+  splitQualifiedFieldKey,
+  type FieldInputMap,
+  type ValueMap,
+} from "@/lib/componentCore";
 import { CANONICAL_COMPONENT_FIELD_MAP } from "@/lib/canonicalFieldMap";
 import { createHierarchyComponentEngine } from "@/lib/hierarchyComponentEngine";
 import {
   validateActivitySlideFormDataPreflight,
   validateActivitySlideImportPayloadPreflight,
 } from "@/lib/activitySlidePreflight";
+import { normalizeActivityPropsJson } from "@/lib/activityPayloadNormalization";
 import { loadActivitySlideConfigCategories } from "@/lib/universalConfigs";
 
 const ACTIVITY_SLIDE_FIELD_MAP = CANONICAL_COMPONENT_FIELD_MAP.activity_slides;
@@ -61,6 +68,48 @@ export type ActivitySlideDetailRow = {
 
 function parseGroupIdValue(value: unknown, contextLabel: string): string {
   return parseUuid(value, `${contextLabel} must include a valid uuid "groupId".`);
+}
+
+function getFieldMapEntryByName(
+  values: FieldInputMap,
+  fieldName: string
+): [qualifiedKey: string, fieldValue: string | null] | null {
+  for (const [qualifiedKey, fieldValue] of values.entries()) {
+    if (splitQualifiedFieldKey(qualifiedKey).fieldName === fieldName) {
+      return [qualifiedKey, fieldValue];
+    }
+  }
+
+  return null;
+}
+
+function normalizeActivityPropsJsonInValueMap(values: FieldInputMap): void {
+  const activityIdEntry = getFieldMapEntryByName(values, "activityId");
+  const activityId = activityIdEntry?.[1] ?? null;
+
+  const propsJsonEntry = getFieldMapEntryByName(values, "propsJson");
+  if (!propsJsonEntry) {
+    return;
+  }
+
+  const [propsJsonQualifiedKey, propsJsonRaw] = propsJsonEntry;
+  if (typeof propsJsonRaw !== "string" || propsJsonRaw.trim().length === 0) {
+    return;
+  }
+
+  let parsedPropsJson: unknown;
+  try {
+    parsedPropsJson = JSON.parse(propsJsonRaw);
+  } catch {
+    return;
+  }
+
+  if (!parsedPropsJson || typeof parsedPropsJson !== "object" || Array.isArray(parsedPropsJson)) {
+    return;
+  }
+
+  const normalizedPropsJson = normalizeActivityPropsJson(activityId, parsedPropsJson as Record<string, unknown>);
+  values.set(propsJsonQualifiedKey, JSON.stringify(normalizedPropsJson));
 }
 
 const activitySlideEngine = createHierarchyComponentEngine<
@@ -124,6 +173,9 @@ const activitySlideEngine = createHierarchyComponentEngine<
     onConflictColumns: "activity_slide_id,component_name,category_name,field_name",
     loadErrorLabel: "Failed to load activity slide field values",
     saveErrorLabel: "Failed to save activity slide field values",
+  },
+  applySystemAssignedFields: ({ values }) => {
+    normalizeActivityPropsJsonInValueMap(values);
   },
   mapDetail: (coreRow: ActivitySlideCoreRow, values: ValueMap): ActivitySlideDetailRow => ({
     ...coreRow,

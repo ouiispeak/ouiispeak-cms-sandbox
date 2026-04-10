@@ -2,7 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { listActiveActivityShapeLockFieldKeys } from "../lib/activityShapeLock";
+import { ACTIVE_ACTIVITY_SHAPE_LOCK_MAP, listActiveActivityShapeLockFieldKeys } from "../lib/activityShapeLock";
+import { loadRequirednessMatrixRows } from "../lib/requirednessMatrix";
 
 const REPO_ROOT = process.cwd();
 const RUNTIME_DIRS = ["app", "lib"] as const;
@@ -12,6 +13,7 @@ const FORBIDDEN_LEGACY_KEYS = [
   /\bexternalId\b/,
   /\bmoduleExternalId\b/,
   /\blessonExternalId\b/,
+  /\bslideUuid\b/,
   /\blevel#\b/,
 ];
 
@@ -65,6 +67,43 @@ function findMatches(filePath: string, patterns: RegExp[]): string[] {
   return hits;
 }
 
+function parseActivationRuleRows(sql: string): Array<{
+  fieldKey: string;
+  componentName: string;
+  isPresent: boolean;
+  isRequired: boolean;
+}> {
+  const rows: Array<{
+    fieldKey: string;
+    componentName: string;
+    isPresent: boolean;
+    isRequired: boolean;
+  }> = [];
+
+  const tupleRegex = /\('([^']+)',\s*'([^']+)',\s*(true|false),\s*(true|false)\)/g;
+  let match: RegExpExecArray | null = tupleRegex.exec(sql);
+  while (match) {
+    rows.push({
+      fieldKey: match[1] ?? "",
+      componentName: match[2] ?? "",
+      isPresent: match[3] === "true",
+      isRequired: match[4] === "true",
+    });
+    match = tupleRegex.exec(sql);
+  }
+
+  return rows;
+}
+
+function parseMarkdownSummaryNumber(source: string, labelRegex: RegExp): number {
+  const match = source.match(labelRegex);
+  assert.ok(match, `Missing summary metric for pattern: ${labelRegex}`);
+  const raw = match?.[1] ?? "";
+  const parsed = Number.parseInt(raw, 10);
+  assert.equal(Number.isFinite(parsed), true, `Invalid numeric summary value for pattern: ${labelRegex}`);
+  return parsed;
+}
+
 test("runtime contract files reject legacy and scoped key patterns", () => {
   const files = [
     ...RUNTIME_DIRS.flatMap((dir) => listSourceFiles(dir)),
@@ -112,6 +151,35 @@ test("constitution encodes naming layer zero-exception policy", () => {
   assert.equal(rules.has("Contract/component tokens use plural snake_case."), true);
   assert.equal(rules.has("Route params and JSON entity IDs use singular camelCase + Id."), true);
   assert.equal(rules.has("DB FK columns and row-identity columns use singular snake_case + _id."), true);
+});
+
+test("constitution locks slideId identity and forbids slideUuid", () => {
+  const constitutionPath = path.join(REPO_ROOT, "central/CONSTITUTION.md");
+  const constitution = JSON.parse(fs.readFileSync(constitutionPath, "utf8")) as {
+    hard_facts?: Record<string, string>;
+    naming_decisions?: Record<string, unknown>;
+  };
+
+  const hardFacts = constitution.hard_facts ?? {};
+  assert.equal(
+    hardFacts["HF-IDENTITY-001"],
+    "slideId is the only legal slide-family identity key in CMS sandbox contracts, ingest/export payloads, and runtime surfaces."
+  );
+  assert.equal(hardFacts["HF-IDENTITY-001_forbidden"], "slideUuid is forbidden.");
+
+  const namingDecisions = constitution.naming_decisions ?? {};
+  const actNaming = namingDecisions["ACT-NAMING-001"] as
+    | {
+        status?: string;
+        final_choice?: string;
+        forbidden_legacy_key?: string;
+      }
+    | undefined;
+
+  assert.ok(actNaming, "Missing ACT-NAMING-001 decision.");
+  assert.equal(actNaming.status, "closed");
+  assert.equal(actNaming.final_choice, "slideId is the canonical update identity key.");
+  assert.equal(actNaming.forbidden_legacy_key, "slideUuid");
 });
 
 test("constitution encodes field-addition law with required authority files", () => {
@@ -478,3 +546,234 @@ test("active ACT shape-lock keys are present in activity_slides activation seed"
     `activity_slides activation seed is missing shape-lock keys: ${missingKeys.join(", ")}`
   );
 });
+
+test("requiredness matrix ingest required fields align with activation required flags for non-activity components", () => {
+  const activationSeed = fs.readFileSync(
+    path.join(REPO_ROOT, "supabase/manual/012_component_activation_seed.sql"),
+    "utf8"
+  );
+  const activationRows = parseActivationRuleRows(activationSeed);
+  const activationByComponentField = new Map<string, { isPresent: boolean; isRequired: boolean }>();
+  for (const row of activationRows) {
+    activationByComponentField.set(`${row.componentName}.${row.fieldKey}`, {
+      isPresent: row.isPresent,
+      isRequired: row.isRequired,
+    });
+  }
+
+  const matrixRows = loadRequirednessMatrixRows().filter(
+    (row) =>
+      row.decision_status === "locked" &&
+      row.operation === "category_payload" &&
+      (!row.act_id || row.act_id.trim().length === 0) &&
+      row.component_name !== "activity_slides"
+  );
+  const requiredRows = matrixRows.filter((row) => row.required_at_ingest === "true");
+  const matrixRequiredByComponentField = new Set(requiredRows.map((row) => `${row.component_name}.${row.field_key}`));
+
+  const missing: string[] = [];
+  for (const row of requiredRows) {
+    const key = `${row.component_name}.${row.field_key}`;
+    const activation = activationByComponentField.get(key);
+    if (!activation) {
+      missing.push(`${key} (missing in activation seed)`);
+      continue;
+    }
+    if (!activation.isPresent) {
+      missing.push(`${key} (activation is_present=false)`);
+    }
+  }
+
+  const extraActivationRequired: string[] = [];
+  for (const row of activationRows) {
+    if (row.componentName === "activity_slides") {
+      continue;
+    }
+    if (!row.isRequired) {
+      continue;
+    }
+    const key = `${row.componentName}.${row.fieldKey}`;
+    if (!matrixRequiredByComponentField.has(key)) {
+      extraActivationRequired.push(`${key} (activation required, matrix required_at_ingest!=true)`);
+    }
+  }
+
+  assert.deepEqual(
+    missing,
+    [],
+    `Matrix/activation presence drift found for required_at_ingest fields:\n${missing.join("\n")}`
+  );
+  assert.deepEqual(
+    extraActivationRequired,
+    [],
+    `Activation-required drift found against matrix required_at_ingest:\n${extraActivationRequired.join("\n")}`
+  );
+});
+
+test("activity ingest validator is wired to shape-lock map and preflight boundaries", () => {
+  const preflightSource = fs.readFileSync(path.join(REPO_ROOT, "lib/activitySlidePreflight.ts"), "utf8");
+  const activitySlidesSource = fs.readFileSync(path.join(REPO_ROOT, "lib/activitySlides.ts"), "utf8");
+
+  assert.match(preflightSource, /ACTIVE_ACTIVITY_SHAPE_LOCK_MAP/);
+  assert.match(preflightSource, /for \(const requiredKey of shapeLockSpec\.requiredAll\)/);
+  assert.match(preflightSource, /for \(const oneOfGroup of shapeLockSpec\.requiredOneOf \?\? \[\]\)/);
+
+  assert.match(activitySlidesSource, /validateActivitySlideFormDataPreflight\(formData, "create"\)/);
+  assert.match(activitySlidesSource, /validateActivitySlideFormDataPreflight\(formData, "update"\)/);
+  assert.match(activitySlidesSource, /validateActivitySlideImportPayloadPreflight\(payload, "create"\)/);
+  assert.match(activitySlidesSource, /validateActivitySlideImportPayloadPreflight\(payload, "update"\)/);
+});
+
+test("ACTIVITY_PROFILES status matrix matches active/inactive ACT domain", () => {
+  const profilesDoc = fs.readFileSync(path.join(REPO_ROOT, "central/ACTIVITY_PROFILES.md"), "utf8");
+  const rows = profilesDoc
+    .split("\n")
+    .filter((line) => /^\|\s*ACT-\d{3}\s*\|/i.test(line))
+    .map((line) => line.split("|").map((part) => part.trim()))
+    .filter((parts) => parts.length >= 4)
+    .map((parts) => ({
+      actId: parts[1] ?? "",
+      status: (parts[2] ?? "").toLowerCase(),
+    }));
+
+  const statusByAct = new Map<string, string>(rows.map((row) => [row.actId, row.status]));
+  const activeActIds = Object.keys(ACTIVE_ACTIVITY_SHAPE_LOCK_MAP).sort();
+
+  for (const actId of activeActIds) {
+    assert.equal(
+      statusByAct.get(actId),
+      "active",
+      `ACTIVITY_PROFILES drift: ${actId} should be marked active in ACT matrix table.`
+    );
+  }
+
+  for (const inactiveActId of ["ACT-006", "ACT-007", "ACT-008"]) {
+    assert.equal(
+      statusByAct.get(inactiveActId),
+      "inactive",
+      `ACTIVITY_PROFILES drift: ${inactiveActId} should be marked inactive in ACT matrix table.`
+    );
+  }
+});
+
+test("FIELD_DICTIONARY summary metrics stay aligned with machine companion", () => {
+  const dictionaryDoc = fs.readFileSync(path.join(REPO_ROOT, "central/FIELD_DICTIONARY.md"), "utf8");
+  const rows = loadCsvRows(path.join(REPO_ROOT, "central/FIELD_DICTIONARY.csv"));
+
+  const activeCount = rows.length;
+  const uncategorizedCount = rows.filter((row) => !String(row.category_name ?? "").trim()).length;
+  const populatedDefinitionCount = rows.filter((row) => String(row.definition ?? "").trim().length > 0).length;
+  const missingDefinitionCount = rows.filter((row) => String(row.definition ?? "").trim().length === 0).length;
+  const lessonSourcedCount = rows.filter(
+    (row) => !String(row.requiredness_lesson_player_supabase ?? "").includes("not_specified_in_repo")
+  ).length;
+  const lv2SourcedCount = rows.filter((row) => !String(row.requiredness_lv2 ?? "").includes("not_specified_in_repo"))
+    .length;
+
+  assert.equal(
+    parseMarkdownSummaryNumber(dictionaryDoc, /Active fields covered from public\.field_dictionary:\s*(\d+)/),
+    activeCount
+  );
+  assert.equal(parseMarkdownSummaryNumber(dictionaryDoc, /Uncategorized active fields:\s*(\d+)/), uncategorizedCount);
+  assert.equal(
+    parseMarkdownSummaryNumber(dictionaryDoc, /Definitions populated in machine companion:\s*(\d+)/),
+    populatedDefinitionCount
+  );
+  assert.equal(
+    parseMarkdownSummaryNumber(dictionaryDoc, /Definitions requiring source input:\s*(\d+)/),
+    missingDefinitionCount
+  );
+  assert.equal(
+    parseMarkdownSummaryNumber(dictionaryDoc, /Lesson Player requiredness explicitly sourced in repo:\s*(\d+)/),
+    lessonSourcedCount
+  );
+  assert.equal(
+    parseMarkdownSummaryNumber(dictionaryDoc, /LV2 requiredness explicitly sourced in repo:\s*(\d+)/),
+    lv2SourcedCount
+  );
+});
+
+test("INGEST_CONTRACT reflects canonical config source and rejection envelope behavior", () => {
+  const ingestContract = fs.readFileSync(path.join(REPO_ROOT, "central/INGEST_CONTRACT.md"), "utf8");
+
+  assert.match(ingestContract, /public\.config_component_fields/);
+  assert.doesNotMatch(ingestContract, /public\.component_config_fields/);
+
+  assert.match(ingestContract, /Deterministic Rejection Envelope \(JSON clients\)/);
+  assert.match(
+    ingestContract,
+    /`code`, `component`, `operation`, `activityId`, `slideId`, `field`, `message`, `contractVersion`, `timestamp`/
+  );
+  assert.match(ingestContract, /generic import codes \(`IMPORT_\*`\)/);
+  assert.match(ingestContract, /ACT-specific rejection codes \(`ACTIVITY_\*`\)/);
+  assert.match(ingestContract, /Hard Fact \(HF-IDENTITY-001\)/);
+  assert.match(ingestContract, /`slideUuid` is forbidden/);
+});
+
+test("ACTIVITY_PROFILES structured payload policy tracks code-derived collision guard", () => {
+  const profilesDoc = fs.readFileSync(path.join(REPO_ROOT, "central/ACTIVITY_PROFILES.md"), "utf8");
+  assert.match(profilesDoc, /deriveActivityStructuredPayloadFieldKeys\(\)/);
+});
+
+type CsvRow = Record<string, string>;
+
+function loadCsvRows(csvPath: string): CsvRow[] {
+  const csvText = fs.readFileSync(csvPath, "utf8");
+  const rows: string[][] = [];
+  let currentRow: string[] = [];
+  let currentField = "";
+  let inQuotes = false;
+  const text = csvText.startsWith("\uFEFF") ? csvText.slice(1) : csvText;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    const nextChar = text[index + 1];
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        currentField += '"';
+        index += 1;
+        continue;
+      }
+      inQuotes = !inQuotes;
+      continue;
+    }
+
+    if (!inQuotes && char === ",") {
+      currentRow.push(currentField);
+      currentField = "";
+      continue;
+    }
+
+    if (!inQuotes && (char === "\n" || char === "\r")) {
+      if (char === "\r" && nextChar === "\n") {
+        index += 1;
+      }
+      currentRow.push(currentField);
+      currentField = "";
+      if (currentRow.length > 1 || currentRow[0]?.trim().length) {
+        rows.push(currentRow);
+      }
+      currentRow = [];
+      continue;
+    }
+
+    currentField += char;
+  }
+
+  if (currentField.length > 0 || currentRow.length > 0) {
+    currentRow.push(currentField);
+    rows.push(currentRow);
+  }
+
+  assert.ok(rows.length >= 2, `CSV file ${path.relative(REPO_ROOT, csvPath)} is missing rows.`);
+  const headers = rows[0] ?? [];
+  return rows.slice(1).map((values) => {
+    const row: CsvRow = {};
+    for (let index = 0; index < headers.length; index += 1) {
+      const header = headers[index] ?? `col_${index}`;
+      row[header] = values[index] ?? "";
+    }
+    return row;
+  });
+}

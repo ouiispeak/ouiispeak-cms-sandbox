@@ -16,7 +16,7 @@ Machine companion: central/FIELD_DICTIONARY.csv
 2. Uncategorized active fields: 0
 3. Definitions populated in machine companion: 208
 4. Definitions requiring source input: 0
-5. Lesson Player requiredness explicitly sourced in repo: 20
+5. Lesson Player requiredness explicitly sourced in repo: 36
 6. LV2 requiredness explicitly sourced in repo: 178
 
 ## Columns In Machine Companion
@@ -26,6 +26,8 @@ Machine companion: central/FIELD_DICTIONARY.csv
 4. requiredness for lesson_player + supabase
 5. requiredness for lv2
 6. affects lineage tags (telemetry/lv2/player/ingest/supabase)
+7. usage rationale (runtime/ingest intent summary)
+8. evidence paths (canonical source file references for traceability)
 
 ## Source Notes
 1. Canonical machine companion definitions are populated for all active fields from staged user input.

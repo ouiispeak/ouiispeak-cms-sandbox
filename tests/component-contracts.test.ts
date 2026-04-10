@@ -30,6 +30,86 @@ test("required-field gate rejects missing required values", () => {
   }, /requires non-empty module fields: title/i);
 });
 
+test("required-field gate can bind to matrix-required set and ignore top-level-only keys", () => {
+  const categories = [
+    {
+      key: "Identity & Lifecycle",
+      label: "Identity & Lifecycle",
+      fields: [
+        {
+          key: "moduleId",
+          label: "Module Id",
+          inputType: "text" as const,
+          options: [],
+          selectSource: null,
+          isReadOnly: false,
+          descriptor: "text field",
+          isRequired: false,
+        },
+        {
+          key: "title",
+          label: "Title",
+          inputType: "text" as const,
+          options: [],
+          selectSource: null,
+          isReadOnly: false,
+          descriptor: "text field",
+          isRequired: false,
+        },
+      ],
+    },
+  ];
+
+  const values: FieldInputMap = new Map();
+
+  assert.throws(() => {
+    assertRequiredFieldValues(values, categories, new Set(["id"]), "Create/import", "lesson", {
+      requiredFieldNames: new Set(["moduleId", "title"]),
+      topLevelOnlyFieldNames: new Set(["moduleId"]),
+    });
+  }, /requires non-empty lesson fields: title/i);
+});
+
+test("required-field gate enforces one-of groups deterministically", () => {
+  const categories = [
+    {
+      key: "Activities & Interaction",
+      label: "Activities & Interaction",
+      fields: [
+        {
+          key: "promptText",
+          label: "Prompt Text",
+          inputType: "text" as const,
+          options: [],
+          selectSource: null,
+          isReadOnly: false,
+          descriptor: "text field",
+          isRequired: false,
+        },
+        {
+          key: "targetText",
+          label: "Target Text",
+          inputType: "text" as const,
+          options: [],
+          selectSource: null,
+          isReadOnly: false,
+          descriptor: "text field",
+          isRequired: false,
+        },
+      ],
+    },
+  ];
+
+  const values: FieldInputMap = new Map();
+
+  assert.throws(() => {
+    assertRequiredFieldValues(values, categories, new Set(), "Create/import", "activity slide", {
+      requiredFieldNames: new Set(),
+      requiredOneOfGroups: [["promptText", "targetText"]],
+    });
+  }, /requires at least one of activity slide field groups: \[promptText \| targetText\]/i);
+});
+
 test("system-controlled id is blocked in imported category payloads", () => {
   const allowedFields = new Set(["Identity & Lifecycle.moduleId", "Identity & Lifecycle.title"]);
   const entry = {

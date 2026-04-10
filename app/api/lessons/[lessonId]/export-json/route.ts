@@ -2,6 +2,7 @@ import { loadLessonById, type LessonDetailRow } from "@/lib/lessons";
 import { loadLessonConfigCategories, type UniversalConfigCategory } from "@/lib/universalConfigs";
 import { exportValueFromStoredValue, type ExportTemplateValue } from "@/lib/exportTemplateValues";
 import { getTopLevelOnlyFieldKeys } from "@/lib/canonicalFieldMap";
+import { assertExportRuntimeGate } from "@/lib/exportRuntimeGate";
 
 export const dynamic = "force-dynamic";
 const LESSON_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("lessons");
@@ -81,6 +82,7 @@ export async function GET(
       moduleId: lessonRecord.module_id,
       ...template,
     };
+    assertExportRuntimeGate("lessons", categories, payload, "Lesson export");
 
     return new Response(JSON.stringify(payload, null, 2), {
       status: 200,

@@ -145,6 +145,17 @@ function asDialogueTurn(value: unknown, index: number): DialogueTurn {
     };
   }
   const row = value as Record<string, unknown>;
+  let audioFile = typeof row.audioFile === "string" ? row.audioFile : "";
+  if (!audioFile && row.audio && typeof row.audio === "object" && !Array.isArray(row.audio)) {
+    const audioRow = row.audio as Record<string, unknown>;
+    if (audioRow.speech && typeof audioRow.speech === "object" && !Array.isArray(audioRow.speech)) {
+      const speechRow = audioRow.speech as Record<string, unknown>;
+      if (speechRow.mode === "file" && typeof speechRow.fileUrl === "string") {
+        audioFile = speechRow.fileUrl;
+      }
+    }
+  }
+
   const responses = Array.isArray(row.correctResponses)
     ? row.correctResponses.filter((item): item is string => typeof item === "string")
     : [];
@@ -152,7 +163,7 @@ function asDialogueTurn(value: unknown, index: number): DialogueTurn {
     id: typeof row.id === "string" && row.id.trim() ? row.id : `turn-${index + 1}`,
     avatarLine: typeof row.avatarLine === "string" ? row.avatarLine : "",
     avatarAction: typeof row.avatarAction === "string" ? row.avatarAction : "",
-    audioFile: typeof row.audioFile === "string" ? row.audioFile : "",
+    audioFile,
     correctResponses: responses,
   };
 }
@@ -238,6 +249,41 @@ function parseDialogues(value: string | undefined): DialogueTurn[] {
     return [];
   }
   return parsed.map((row, index) => asDialogueTurn(row, index));
+}
+
+function toSerializedDialogueTurns(dialogues: DialogueTurn[]): string {
+  const payload = dialogues.map((turn) => {
+    const trimmedAudioFile = turn.audioFile.trim();
+    const normalizedResponses = turn.correctResponses
+      .filter((item) => typeof item === "string")
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+
+    if (!trimmedAudioFile) {
+      return {
+        id: turn.id,
+        avatarLine: turn.avatarLine,
+        avatarAction: turn.avatarAction,
+        correctResponses: normalizedResponses,
+      };
+    }
+
+    return {
+      id: turn.id,
+      avatarLine: turn.avatarLine,
+      avatarAction: turn.avatarAction,
+      audioFile: trimmedAudioFile,
+      audio: {
+        speech: {
+          mode: "file" as const,
+          fileUrl: trimmedAudioFile,
+        },
+      },
+      correctResponses: normalizedResponses,
+    };
+  });
+
+  return JSON.stringify(payload);
 }
 
 function parseStringArray(value: string | undefined): string[] {
@@ -552,7 +598,7 @@ export default function CustomFieldInput({
       case "match_pairs_mapper":
         return JSON.stringify(pairs);
       case "avatar_dialogues_mapper":
-        return JSON.stringify(dialogues);
+        return toSerializedDialogueTurns(dialogues);
       case "media_picker":
         return imageUrl;
       default:

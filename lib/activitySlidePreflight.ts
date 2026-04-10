@@ -1,47 +1,13 @@
 import { isObjectRecord, parseImportEntries } from "@/lib/componentCore";
 import { ACTIVE_ACTIVITY_SHAPE_LOCK_MAP } from "@/lib/activityShapeLock";
+import {
+  deriveActivityStructuredPayloadFieldKeys,
+  normalizeActivityPropsJson,
+} from "@/lib/activityPayloadNormalization";
 
 type ActivitySlidePreflightMode = "create" | "update";
 
-const STRUCTURED_OVERRIDE_FIELD_KEYS = [
-  "lines",
-  "targetText",
-  "body",
-  "choiceElements",
-  "correctAnswer",
-  "promptText",
-  "statement",
-  "correctOddIndex",
-  "matchPairs",
-  "categoryLabels",
-  "wordBank",
-  "sentenceTokens",
-  "correctOrderWords",
-  "tenseBins",
-  "sentenceCards",
-  "sentenceWithGaps",
-  "blanks",
-  "incorrectSentence",
-  "acceptedCorrections",
-  "errorIndex",
-  "targetKeywords",
-  "keywordThreshold",
-  "minWordCount",
-  "maxWordCount",
-  "avatarDialogues",
-  "word",
-  "letterUnits",
-  "audioClips",
-  "correctOrderClips",
-  "audio",
-  "buttons",
-  "promptMode",
-  "intonationOptions",
-  "correctCurveId",
-  "audioPrompt",
-  "syllableBreakdown",
-  "correctStressIndex",
-] as const;
+const STRUCTURED_OVERRIDE_FIELD_KEYS = deriveActivityStructuredPayloadFieldKeys();
 
 const STATUS_VALUES = new Set(["active", "inactive"]);
 const ACT_003_PROMPT_MODES = new Set(["same_different", "select_word"]);
@@ -152,6 +118,284 @@ function validateLinesShape(linesValue: unknown, contextLabel: string): void {
       }
 
       validateSpeechPayload(cell.speech, `${contextLabel} lines row ${rowIndex + 1}, element ${cellIndex + 1}`);
+    }
+  }
+}
+
+function collapseWhitespace(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function toComparableValue(value: string): string {
+  return collapseWhitespace(value).toLowerCase();
+}
+
+function asOneBasedInteger(value: unknown): number | null {
+  if (typeof value === "number" && Number.isInteger(value) && value >= 1) {
+    return value;
+  }
+
+  const trimmed = asTrimmedString(value);
+  if (!trimmed || !/^\d+$/.test(trimmed)) {
+    return null;
+  }
+
+  const parsed = Number.parseInt(trimmed, 10);
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    return null;
+  }
+
+  return parsed;
+}
+
+function collectChoiceLabels(
+  choiceElementsValue: unknown,
+  contextLabel: string,
+  activityId: string
+): string[] {
+  if (!Array.isArray(choiceElementsValue) || choiceElementsValue.length < 2) {
+    throw new Error(`${contextLabel} ${activityId} requires propsJson.choiceElements with at least two options.`);
+  }
+
+  const labels: string[] = [];
+  for (const [choiceIndex, element] of choiceElementsValue.entries()) {
+    if (!isObjectRecord(element)) {
+      throw new Error(`${contextLabel} ${activityId} requires each choiceElements item to be an object.`);
+    }
+
+    const label = asTrimmedString(element.label);
+    if (!label) {
+      throw new Error(
+        `${contextLabel} ${activityId} requires each choiceElements item to include non-empty label (item ${choiceIndex + 1}).`
+      );
+    }
+
+    labels.push(label);
+  }
+
+  return labels;
+}
+
+function validateCorrectAnswerAgainstChoiceLabels(
+  correctAnswerValue: unknown,
+  labels: string[],
+  contextLabel: string,
+  activityId: string
+): void {
+  const answer = asTrimmedString(correctAnswerValue);
+  if (!answer) {
+    throw new Error(`${contextLabel} ${activityId} requires non-empty propsJson.correctAnswer.`);
+  }
+
+  const comparableLabels = new Set(labels.map((label) => toComparableValue(label)));
+  if (!comparableLabels.has(toComparableValue(answer))) {
+    throw new Error(`${contextLabel} ${activityId} requires correctAnswer to match a choiceElements label or index.`);
+  }
+}
+
+function toStringArray(value: unknown, fieldLabel: string): string[] {
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error(`${fieldLabel} must be a non-empty array.`);
+  }
+
+  const output = value
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => collapseWhitespace(item))
+    .filter((item) => item.length > 0);
+  if (output.length !== value.length) {
+    throw new Error(`${fieldLabel} must contain only non-empty strings.`);
+  }
+
+  return output;
+}
+
+function validateAct015TokenShape(propsJson: Record<string, unknown>, contextLabel: string): void {
+  const tokens = toStringArray(propsJson.sentenceTokens, `${contextLabel} ACT-015 propsJson.sentenceTokens`);
+  const correctOrder = toStringArray(propsJson.correctOrderWords, `${contextLabel} ACT-015 propsJson.correctOrderWords`);
+
+  if (tokens.length !== correctOrder.length) {
+    throw new Error(`${contextLabel} ACT-015 requires sentenceTokens and correctOrderWords to have equal lengths.`);
+  }
+
+  const sortedTokens = [...tokens].sort((a, b) => a.localeCompare(b));
+  const sortedCorrectOrder = [...correctOrder].sort((a, b) => a.localeCompare(b));
+  for (let index = 0; index < sortedTokens.length; index += 1) {
+    if (sortedTokens[index] !== sortedCorrectOrder[index]) {
+      throw new Error(`${contextLabel} ACT-015 requires sentenceTokens and correctOrderWords to contain the same tokens.`);
+    }
+  }
+}
+
+function countSentenceTokens(value: unknown): number | null {
+  const text = asTrimmedString(value);
+  if (!text) {
+    return null;
+  }
+
+  return text.split(/\s+/).filter(Boolean).length;
+}
+
+function validateAct017GapShape(propsJson: Record<string, unknown>, contextLabel: string): void {
+  if (!Array.isArray(propsJson.blanks) || propsJson.blanks.length === 0) {
+    throw new Error(`${contextLabel} ACT-017 requires propsJson.blanks with at least one row.`);
+  }
+
+  const tokenCount = countSentenceTokens(propsJson.sentenceWithGaps);
+  const seenIndexes = new Set<number>();
+
+  for (const [index, blank] of propsJson.blanks.entries()) {
+    if (!isObjectRecord(blank)) {
+      throw new Error(`${contextLabel} ACT-017 requires each blanks item to be an object.`);
+    }
+
+    const gapIndex = asOneBasedInteger(blank.correctGapIndex);
+    if (!gapIndex) {
+      throw new Error(`${contextLabel} ACT-017 requires blanks item ${index + 1} to include a 1-based correctGapIndex.`);
+    }
+    if (seenIndexes.has(gapIndex)) {
+      throw new Error(`${contextLabel} ACT-017 requires unique correctGapIndex values across blanks.`);
+    }
+    seenIndexes.add(gapIndex);
+
+    if (tokenCount && gapIndex > tokenCount) {
+      throw new Error(`${contextLabel} ACT-017 correctGapIndex must be within sentenceWithGaps token bounds.`);
+    }
+  }
+}
+
+function collectWordBankValues(wordBankValue: unknown): Set<string> {
+  if (!Array.isArray(wordBankValue)) {
+    return new Set<string>();
+  }
+
+  const values = new Set<string>();
+  for (const entry of wordBankValue) {
+    if (typeof entry === "string") {
+      const normalized = toComparableValue(entry);
+      if (normalized) {
+        values.add(normalized);
+      }
+      continue;
+    }
+
+    if (!isObjectRecord(entry)) {
+      continue;
+    }
+
+    const word = asTrimmedString(entry.word);
+    if (word) {
+      values.add(toComparableValue(word));
+    }
+  }
+
+  return values;
+}
+
+function validateAct018GapShape(propsJson: Record<string, unknown>, contextLabel: string): void {
+  if (!Array.isArray(propsJson.sentenceWithGaps) || propsJson.sentenceWithGaps.length === 0) {
+    throw new Error(`${contextLabel} ACT-018 requires propsJson.sentenceWithGaps with at least one row.`);
+  }
+
+  const wordBankValues = collectWordBankValues(propsJson.wordBank);
+
+  for (const [sentenceIndex, item] of propsJson.sentenceWithGaps.entries()) {
+    if (!isObjectRecord(item)) {
+      throw new Error(`${contextLabel} ACT-018 requires each sentenceWithGaps item to be an object.`);
+    }
+
+    const sentence = asTrimmedString(item.sentence);
+    if (!sentence) {
+      throw new Error(`${contextLabel} ACT-018 requires sentenceWithGaps item ${sentenceIndex + 1} to include sentence.`);
+    }
+
+    if (!Array.isArray(item.gaps) || item.gaps.length === 0) {
+      throw new Error(`${contextLabel} ACT-018 requires sentenceWithGaps item ${sentenceIndex + 1} to include gaps array.`);
+    }
+
+    const tokenCount = sentence.split(/\s+/).filter(Boolean).length;
+    const seenPositions = new Set<number>();
+    for (const [gapIndex, gap] of item.gaps.entries()) {
+      if (!isObjectRecord(gap)) {
+        throw new Error(`${contextLabel} ACT-018 requires each gap to be an object.`);
+      }
+
+      const position = asOneBasedInteger(gap.position);
+      if (!position) {
+        throw new Error(
+          `${contextLabel} ACT-018 requires each gap to include a 1-based position (sentence ${sentenceIndex + 1}, gap ${gapIndex + 1}).`
+        );
+      }
+      if (seenPositions.has(position)) {
+        throw new Error(`${contextLabel} ACT-018 requires unique gap positions per sentence item.`);
+      }
+      seenPositions.add(position);
+      if (tokenCount > 0 && position > tokenCount) {
+        throw new Error(`${contextLabel} ACT-018 gap position must be within sentence token bounds.`);
+      }
+
+      const acceptedAnswers = Array.isArray(gap.accepted_answers)
+        ? gap.accepted_answers
+        : Array.isArray(gap.acceptedAnswers)
+          ? gap.acceptedAnswers
+          : null;
+      if (!acceptedAnswers || acceptedAnswers.length === 0) {
+        throw new Error(
+          `${contextLabel} ACT-018 requires each gap to include accepted_answers (sentence ${sentenceIndex + 1}, gap ${gapIndex + 1}).`
+        );
+      }
+
+      for (const answer of acceptedAnswers) {
+        const normalizedAnswer = asTrimmedString(answer);
+        if (!normalizedAnswer) {
+          throw new Error(`${contextLabel} ACT-018 accepted_answers must contain only non-empty strings.`);
+        }
+
+        if (wordBankValues.size > 0 && !wordBankValues.has(toComparableValue(normalizedAnswer))) {
+          throw new Error(`${contextLabel} ACT-018 accepted_answers must reference values present in wordBank.`);
+        }
+      }
+    }
+  }
+}
+
+function validateAct023DialogueShape(propsJson: Record<string, unknown>, contextLabel: string): void {
+  if (!Array.isArray(propsJson.avatarDialogues) || propsJson.avatarDialogues.length === 0) {
+    throw new Error(`${contextLabel} ACT-023 requires propsJson.avatarDialogues with at least one turn.`);
+  }
+
+  for (const [turnIndex, turn] of propsJson.avatarDialogues.entries()) {
+    if (!isObjectRecord(turn)) {
+      throw new Error(`${contextLabel} ACT-023 requires each avatarDialogues turn to be an object.`);
+    }
+
+    if (!asTrimmedString(turn.avatarLine)) {
+      throw new Error(`${contextLabel} ACT-023 requires each turn to include non-empty avatarLine.`);
+    }
+
+    if (!Array.isArray(turn.correctResponses) || turn.correctResponses.length === 0) {
+      throw new Error(`${contextLabel} ACT-023 requires each turn to include at least one correctResponses entry.`);
+    }
+
+    const normalizedResponses = turn.correctResponses
+      .filter((item): item is string => typeof item === "string")
+      .map((item) => collapseWhitespace(item))
+      .filter((item) => item.length > 0);
+    if (normalizedResponses.length === 0) {
+      throw new Error(`${contextLabel} ACT-023 requires each turn to include non-empty correctResponses values.`);
+    }
+
+    let hasAudio = false;
+    if (asTrimmedString(turn.audioFile)) {
+      hasAudio = true;
+    }
+
+    if (isObjectRecord(turn.audio)) {
+      validateSpeechPayload(turn.audio.speech, `${contextLabel} ACT-023 turn ${turnIndex + 1} audio`);
+      hasAudio = true;
+    }
+
+    if (!hasAudio) {
+      throw new Error(`${contextLabel} ACT-023 requires each turn to include audioFile or audio.speech.`);
     }
   }
 }
@@ -324,6 +568,36 @@ function validateActSpecificShape(
     if (!hasLines && !hasTextSource) {
       throw new Error(`${contextLabel} ACT-005 requires non-empty propsJson.lines or propsJson.targetText/body.`);
     }
+    return;
+  }
+
+  if (activityId === "ACT-009" || activityId === "ACT-010" || activityId === "ACT-021") {
+    const labels = collectChoiceLabels(propsJson.choiceElements, contextLabel, activityId);
+    validateCorrectAnswerAgainstChoiceLabels(propsJson.correctAnswer, labels, contextLabel, activityId);
+
+    if (activityId === "ACT-009" && !hasPlayableAudio(propsJson)) {
+      throw new Error(`${contextLabel} ACT-009 requires playable audio via propsJson.audioId or propsJson.audio.speech.`);
+    }
+    return;
+  }
+
+  if (activityId === "ACT-015") {
+    validateAct015TokenShape(propsJson, contextLabel);
+    return;
+  }
+
+  if (activityId === "ACT-017") {
+    validateAct017GapShape(propsJson, contextLabel);
+    return;
+  }
+
+  if (activityId === "ACT-018") {
+    validateAct018GapShape(propsJson, contextLabel);
+    return;
+  }
+
+  if (activityId === "ACT-023") {
+    validateAct023DialogueShape(propsJson, contextLabel);
   }
 }
 
@@ -377,7 +651,9 @@ function validateActivitySlideFieldMap(
     return;
   }
 
-  const propsJson = parseObjectLikeJson(fieldMap.get("propsJson"), `${contextLabel} propsJson`);
+  const activityId = asTrimmedString(fieldMap.get("activityId"));
+  const propsJsonRaw = parseObjectLikeJson(fieldMap.get("propsJson"), `${contextLabel} propsJson`);
+  const propsJson = propsJsonRaw ? normalizeActivityPropsJson(activityId, propsJsonRaw) : null;
   const runtimeFromTopLevel = parseObjectLikeJson(
     fieldMap.get("runtimeContractV1"),
     `${contextLabel} runtimeContractV1`
@@ -408,7 +684,6 @@ function validateActivitySlideFieldMap(
 
   validatePropsJsonCollision(fieldMap, propsJson, contextLabel);
 
-  const activityId = asTrimmedString(fieldMap.get("activityId"));
   validateActSpecificShape(activityId, propsJson, contextLabel);
 
   // Runtime must also be present inside propsJson for transparent pipe.

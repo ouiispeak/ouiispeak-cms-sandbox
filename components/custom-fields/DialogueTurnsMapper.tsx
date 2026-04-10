@@ -7,6 +7,14 @@ export type DialogueTurnValue = {
   avatarLine: string;
   avatarAction: string;
   audioFile: string;
+  audio?: {
+    speech?: {
+      mode?: "tts" | "file";
+      text?: string;
+      fileUrl?: string;
+      lang?: "en" | "fr";
+    };
+  };
   correctResponses: string[];
 };
 

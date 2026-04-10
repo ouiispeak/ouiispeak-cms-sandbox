@@ -8,6 +8,8 @@ import { importSlidesFromJsonPayload } from "../lib/slides";
 import { importActivitySlidesFromJsonPayload } from "../lib/activitySlides";
 import { importTitleSlidesFromJsonPayload } from "../lib/titleSlides";
 import { importLessonEndsFromJsonPayload } from "../lib/lessonEnds";
+import { buildActivityDefaultsById } from "../lib/activityRuntimeDefaults";
+import { normalizeActivityPropsJson } from "../lib/activityPayloadNormalization";
 import { GET as exportModuleJson } from "../app/api/modules/[moduleId]/export-json/route";
 import { GET as exportLessonJson } from "../app/api/lessons/[lessonId]/export-json/route";
 import { GET as exportGroupJson } from "../app/api/groups/[groupId]/export-json/route";
@@ -467,6 +469,216 @@ async function runDeterministicExportTwice(
   return first;
 }
 
+const ACTIVE_ACT_IDS = [
+  "ACT-001",
+  "ACT-002",
+  "ACT-003",
+  "ACT-004",
+  "ACT-005",
+  "ACT-009",
+  "ACT-010",
+  "ACT-011",
+  "ACT-012",
+  "ACT-013",
+  "ACT-014",
+  "ACT-015",
+  "ACT-016",
+  "ACT-017",
+  "ACT-018",
+  "ACT-019",
+  "ACT-020",
+  "ACT-021",
+  "ACT-022",
+  "ACT-023",
+  "ACT-024",
+  "ACT-025",
+  "ACT-026",
+] as const;
+
+type ActiveActId = (typeof ACTIVE_ACT_IDS)[number];
+
+function buildSamplePropsJson(actId: ActiveActId, runtimeContract: Record<string, unknown>): Record<string, unknown> {
+  switch (actId) {
+    case "ACT-001":
+      return {
+        runtimeContractV1: runtimeContract,
+        lines: [
+          [
+            {
+              label: "I can map fields.",
+              speech: { mode: "tts", text: "I can map fields." },
+            },
+          ],
+        ],
+      };
+    case "ACT-002":
+      return {
+        runtimeContractV1: runtimeContract,
+        syllableBreakdown: "com-pu-ter",
+        correctStressIndex: 2,
+      };
+    case "ACT-003":
+      return {
+        runtimeContractV1: runtimeContract,
+        promptMode: "same_different",
+        choiceElements: [
+          { label: "same", speech: { mode: "tts", text: "same" } },
+          { label: "different", speech: { mode: "tts", text: "different" } },
+        ],
+      };
+    case "ACT-004":
+      return {
+        runtimeContractV1: runtimeContract,
+        intonationOptions: ["question", "descending"],
+        correctCurveId: "question",
+        audioPrompt: {
+          speech: { mode: "tts", text: "Choose the contour." },
+        },
+      };
+    case "ACT-005":
+      return {
+        runtimeContractV1: runtimeContract,
+        targetText: "I can hear the difference.",
+      };
+    case "ACT-009":
+      return {
+        runtimeContractV1: runtimeContract,
+        choiceElements: [{ label: "A" }, { label: "B" }],
+        correctAnswer: "A",
+        audioPrompt: {
+          speech: { mode: "tts", text: "Pick the right answer." },
+        },
+      };
+    case "ACT-010":
+      return {
+        runtimeContractV1: runtimeContract,
+        choiceElements: [{ label: "walk" }, { label: "walks" }],
+        correctAnswer: "2",
+        promptText: "Select the correct form.",
+      };
+    case "ACT-011":
+      return {
+        runtimeContractV1: runtimeContract,
+        statement: "This sentence is correct.",
+        correctAnswer: "yes",
+      };
+    case "ACT-012":
+      return {
+        runtimeContractV1: runtimeContract,
+        choiceElements: [{ label: "cat" }, { label: "cats" }, { label: "book" }],
+        correctOddIndex: 3,
+      };
+    case "ACT-013":
+      return {
+        runtimeContractV1: runtimeContract,
+        matchPairs: [
+          { left: "hello", right: "bonjour" },
+          { left: "bye", right: "au revoir" },
+        ],
+      };
+    case "ACT-014":
+      return {
+        runtimeContractV1: runtimeContract,
+        categoryLabels: ["Nouns", "Verbs"],
+        wordBank: ["cat", "run", "teacher", "walk"],
+      };
+    case "ACT-015":
+      return {
+        runtimeContractV1: runtimeContract,
+        sentenceTokens: ["I", "can", "map", "this"],
+        correctOrderWords: ["I", "can", "map", "this"],
+      };
+    case "ACT-016":
+      return {
+        runtimeContractV1: runtimeContract,
+        tenseBins: [
+          { id: "present", label: "Present" },
+          { id: "past", label: "Past" },
+        ],
+        sentenceCards: [
+          { sentence: "I walk to school.", correct_tense: "present" },
+          { sentence: "I walked to school.", correct_tense: "past" },
+        ],
+      };
+    case "ACT-017":
+      return {
+        runtimeContractV1: runtimeContract,
+        sentenceWithGaps: "I walk to school every day.",
+        blanks: [{ correctGapIndex: 2, acceptedAlternatives: ["walk", "go"] }],
+      };
+    case "ACT-018":
+      return {
+        runtimeContractV1: runtimeContract,
+        wordBank: ["have", "had", "will have", "eat"],
+        sentenceWithGaps: [
+          {
+            sentence: "I have a cat.",
+            gaps: [
+              {
+                position: 2,
+                accepted_answers: ["have", "had", "will have"],
+              },
+            ],
+          },
+        ],
+      };
+    case "ACT-019":
+      return {
+        runtimeContractV1: runtimeContract,
+        incorrectSentence: "I has a cat.",
+        errorIndex: 2,
+        acceptedCorrections: ["have"],
+      };
+    case "ACT-020":
+      return {
+        runtimeContractV1: runtimeContract,
+        promptText: "Say the sentence aloud.",
+        targetText: "I can speak clearly.",
+      };
+    case "ACT-021":
+      return {
+        runtimeContractV1: runtimeContract,
+        choiceElements: [{ label: "cat" }, { label: "cut" }],
+        correctAnswer: 1,
+      };
+    case "ACT-022":
+      return {
+        runtimeContractV1: runtimeContract,
+        promptText: "Say a sentence with this keyword.",
+        targetKeywords: ["schedule", "meeting"],
+      };
+    case "ACT-023":
+      return {
+        runtimeContractV1: runtimeContract,
+        avatarDialogues: [
+          {
+            avatarLine: "How are you today?",
+            audioFile: "https://cdn.example.com/audio/act-023-line-1.mp3",
+            correctResponses: ["I am fine", "I'm fine"],
+          },
+        ],
+      };
+    case "ACT-024":
+      return {
+        runtimeContractV1: runtimeContract,
+        word: "cat",
+        letterUnits: ["c", "a", "t"],
+      };
+    case "ACT-025":
+      return {
+        runtimeContractV1: runtimeContract,
+        audioClips: ["clip-1", "clip-2", "clip-3"],
+        correctOrderClips: ["clip-2", "clip-1", "clip-3"],
+      };
+    case "ACT-026":
+      return {
+        runtimeContractV1: runtimeContract,
+        promptText: "Record the phrase.",
+        targetText: "I can map the runtime contract.",
+      };
+  }
+}
+
 test("module import/export parity is deterministic", async () => {
   const harness: MockHarness = createMockHarness();
   harness.install();
@@ -628,11 +840,146 @@ test("activity slide import/export parity is deterministic (ACT-009)", async () 
     assert.equal((exported["Identity & Lifecycle"] as Record<string, unknown>).activityId, "ACT-009");
     assert.equal((exported["Identity & Lifecycle"] as Record<string, unknown>).orderIndex, 7);
     assert.equal((exported["Instructions & Flow"] as Record<string, unknown>).instructions, payload["Instructions & Flow"].instructions);
-    assert.deepEqual((exported["Activities & Interaction"] as Record<string, unknown>).propsJson, propsJson);
+    const exportedPropsJson = (exported["Activities & Interaction"] as Record<string, unknown>)
+      .propsJson as Record<string, unknown>;
+    assert.ok(exportedPropsJson);
+    assert.deepEqual(exportedPropsJson.runtimeContractV1, propsJson.runtimeContractV1);
+    assert.deepEqual(exportedPropsJson.choiceElements, propsJson.choiceElements);
+    assert.equal(exportedPropsJson.correctAnswer, propsJson.correctAnswer);
+    assert.deepEqual(exportedPropsJson.audioPrompt, propsJson.audioPrompt);
+    assert.deepEqual(exportedPropsJson.audio, {
+      speech: { mode: "tts", text: "Choisis la bonne reponse" },
+    });
     assert.deepEqual(
       (exported["Operations, Provenance & Governance"] as Record<string, unknown>).runtimeContractV1,
       runtimeContract
     );
+  } finally {
+    harness.restore();
+  }
+});
+
+test("activity slide import/export canonicalizes ACT-004 aliases and synonyms", async () => {
+  const harness: MockHarness = createMockHarness();
+  harness.install();
+  try {
+    const runtimeContract = {
+      contractVersion: "v1",
+      interaction: {
+        activity_row_tool: "ChipSelector",
+        command_row_controls: ["play"],
+        status: "active",
+      },
+    };
+
+    const payload = {
+      groupId: GROUP_ID,
+      "Identity & Lifecycle": {
+        type: "activity",
+        activityId: "ACT-004",
+        orderIndex: 9,
+        title: "ACT-004 canonicalization",
+      },
+      "Activities & Interaction": {
+        propsJson: {
+          runtimeContractV1: runtimeContract,
+          intonationOptions: ["Question", "descending"],
+          correctCurveId: "question",
+          audioPrompt: {
+            speech: { mode: "tts", text: "Choose contour" },
+          },
+        },
+      },
+      "Operations, Provenance & Governance": {
+        runtimeContractV1: runtimeContract,
+      },
+    };
+
+    const importedCount = await importActivitySlidesFromJsonPayload(payload);
+    assert.equal(importedCount, 1);
+    const activitySlideId = harness.getCreatedId("activity_slides");
+    const exported = await runDeterministicExportTwice(() =>
+      exportActivitySlideJson(new Request("http://localhost"), {
+        params: Promise.resolve({ activitySlideId }),
+      })
+    );
+
+    const exportedPropsJson = (exported["Activities & Interaction"] as Record<string, unknown>)
+      .propsJson as Record<string, unknown>;
+    assert.ok(exportedPropsJson);
+    assert.deepEqual(exportedPropsJson.intonationOptions, ["rising", "falling"]);
+    assert.equal(exportedPropsJson.correctCurveId, "rising");
+    assert.deepEqual(exportedPropsJson.audio, {
+      speech: { mode: "tts", text: "Choose contour" },
+    });
+  } finally {
+    harness.restore();
+  }
+});
+
+test("activity slide import/export parity is deterministic (ACT-018 canonical gap objects)", async () => {
+  const harness: MockHarness = createMockHarness();
+  harness.install();
+  try {
+    const runtimeContract = {
+      contractVersion: "v1",
+      interaction: {
+        activity_row_tool: "WordBankInput",
+        command_row_controls: [],
+        status: "active",
+      },
+    };
+
+    const propsJson = {
+      runtimeContractV1: runtimeContract,
+      wordBank: ["have", "had", "will have", "eat"],
+      sentenceWithGaps: [
+        {
+          sentence: "I have a cat.",
+          gaps: [
+            {
+              position: 2,
+              accepted_answers: ["have", "had", "will have"],
+            },
+          ],
+        },
+      ],
+    };
+
+    const payload = {
+      groupId: GROUP_ID,
+      "Identity & Lifecycle": {
+        type: "activity",
+        activityId: "ACT-018",
+        orderIndex: 16,
+        title: "ACT-018 parity",
+      },
+      "Instructions & Flow": {
+        instructions: "Fill the gap with the best word.",
+      },
+      "Activities & Interaction": {
+        propsJson,
+      },
+      "Operations, Provenance & Governance": {
+        runtimeContractV1: runtimeContract,
+      },
+    };
+
+    const importedCount = await importActivitySlidesFromJsonPayload(payload);
+    assert.equal(importedCount, 1);
+    const activitySlideId = harness.getCreatedId("activity_slides");
+    const exported = await runDeterministicExportTwice(() =>
+      exportActivitySlideJson(new Request("http://localhost"), {
+        params: Promise.resolve({ activitySlideId }),
+      })
+    );
+
+    const exportedPropsJson = (exported["Activities & Interaction"] as Record<string, unknown>)
+      .propsJson as Record<string, unknown>;
+    assert.ok(exportedPropsJson);
+    assert.deepEqual(exportedPropsJson.runtimeContractV1, runtimeContract);
+    assert.deepEqual(exportedPropsJson.wordBank, propsJson.wordBank);
+    assert.deepEqual(exportedPropsJson.sentenceWithGaps, propsJson.sentenceWithGaps);
   } finally {
     harness.restore();
   }
@@ -690,6 +1037,76 @@ test("lesson_ends import/export parity is deterministic", async () => {
     assert.equal((exported["Identity & Lifecycle"] as Record<string, unknown>).title, "Lesson end parity");
     assert.equal((exported["Content & Media"] as Record<string, unknown>).lessonEndMessage, "Great job!");
     assert.deepEqual((exported["Content & Media"] as Record<string, unknown>).lessonEndActions, { primary: "continue" });
+  } finally {
+    harness.restore();
+  }
+});
+
+test("activity slide import/export parity is deterministic across active ACT lanes", async () => {
+  const harness: MockHarness = createMockHarness();
+  harness.install();
+  const defaultsById = buildActivityDefaultsById();
+
+  try {
+    let orderIndex = 1;
+    for (const actId of ACTIVE_ACT_IDS) {
+      const defaults = defaultsById[actId];
+      assert.ok(defaults, `Missing runtime defaults for ${actId}.`);
+
+      const runtimeContract = {
+        contractVersion: "v1",
+        interaction: {
+          activity_row_tool: defaults.activityRowTool,
+          command_row_controls: defaults.commandRowControls,
+          status: "active",
+        },
+      };
+
+      const propsJson = buildSamplePropsJson(actId, runtimeContract);
+      const payload = {
+        groupId: GROUP_ID,
+        "Identity & Lifecycle": {
+          type: "activity",
+          activityId: actId,
+          orderIndex: orderIndex,
+          title: `${actId} parity`,
+        },
+        "Instructions & Flow": {
+          instructions: `Run parity for ${actId}.`,
+        },
+        "Activities & Interaction": {
+          propsJson,
+        },
+        "Operations, Provenance & Governance": {
+          runtimeContractV1: runtimeContract,
+        },
+      };
+
+      const importedCount = await importActivitySlidesFromJsonPayload(payload);
+      assert.equal(importedCount, 1, `Import count mismatch for ${actId}.`);
+
+      const activitySlideId = harness.getCreatedId("activity_slides");
+      const exported = await runDeterministicExportTwice(() =>
+        exportActivitySlideJson(new Request("http://localhost"), {
+          params: Promise.resolve({ activitySlideId }),
+        })
+      );
+
+      assert.equal((exported["Identity & Lifecycle"] as Record<string, unknown>).activityId, actId);
+      assert.equal((exported["Identity & Lifecycle"] as Record<string, unknown>).orderIndex, orderIndex);
+
+      const exportedPropsJson = (exported["Activities & Interaction"] as Record<string, unknown>)
+        .propsJson as Record<string, unknown>;
+      assert.ok(exportedPropsJson, `Missing exported propsJson for ${actId}.`);
+
+      const expectedPropsJson = normalizeActivityPropsJson(
+        actId,
+        structuredClone(propsJson) as Record<string, unknown>
+      );
+      assert.deepEqual(exportedPropsJson, expectedPropsJson, `propsJson parity mismatch for ${actId}.`);
+
+      orderIndex += 1;
+    }
   } finally {
     harness.restore();
   }

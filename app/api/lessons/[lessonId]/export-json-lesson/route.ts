@@ -15,6 +15,7 @@ import {
 } from "@/lib/universalConfigs";
 import { exportValueFromStoredValue, type ExportTemplateValue } from "@/lib/exportTemplateValues";
 import { getTopLevelOnlyFieldKeys } from "@/lib/canonicalFieldMap";
+import { assertExportRuntimeGate } from "@/lib/exportRuntimeGate";
 
 export const dynamic = "force-dynamic";
 const LESSON_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("lessons");
@@ -270,25 +271,58 @@ export async function GET(
       activitySlidesByGroupId.set(groupRecord.id, nestedActivitySlideRecords);
     }
 
-    const payload = {
+    const lessonPayload = {
       lessonId: lessonRecord.id,
       moduleId: lessonRecord.module_id,
       ...buildLessonPayload(lessonRecord, lessonCategories),
-      groups: nestedGroupRecords.map((groupRecord) => ({
+    };
+    assertExportRuntimeGate("lessons", lessonCategories, lessonPayload, "Nested lesson export (lesson)");
+
+    const groupPayloads = nestedGroupRecords.map((groupRecord) => {
+      const groupPayload = {
         groupId: groupRecord.id,
         lessonId: groupRecord.lesson_id,
         ...buildGroupPayload(groupRecord, groupCategories),
-        slides: (slidesByGroupId.get(groupRecord.id) ?? []).map((slideRecord) => ({
+      };
+      assertExportRuntimeGate("groups", groupCategories, groupPayload, "Nested lesson export (group)");
+
+      const slidePayloads = (slidesByGroupId.get(groupRecord.id) ?? []).map((slideRecord) => {
+        const slidePayload = {
           slideId: slideRecord.id,
           groupId: slideRecord.group_id,
           ...buildSlidePayload(slideRecord, slideCategories),
-        })),
-        activitySlides: (activitySlidesByGroupId.get(groupRecord.id) ?? []).map((activitySlideRecord) => ({
+        };
+        assertExportRuntimeGate("slides", slideCategories, slidePayload, "Nested lesson export (slide)");
+        return slidePayload;
+      });
+
+      const activitySlidePayloads = (activitySlidesByGroupId.get(groupRecord.id) ?? []).map(
+        (activitySlideRecord) => {
+          const activitySlidePayload = {
           slideId: activitySlideRecord.id,
           groupId: activitySlideRecord.group_id,
           ...buildActivitySlidePayload(activitySlideRecord, activitySlideCategories),
-        })),
-      })),
+          };
+          assertExportRuntimeGate(
+            "activity_slides",
+            activitySlideCategories,
+            activitySlidePayload,
+            "Nested lesson export (activity slide)"
+          );
+          return activitySlidePayload;
+        }
+      );
+
+      return {
+        ...groupPayload,
+        slides: slidePayloads,
+        activitySlides: activitySlidePayloads,
+      };
+    });
+
+    const payload = {
+      ...lessonPayload,
+      groups: groupPayloads,
     };
 
     return new Response(JSON.stringify(payload, null, 2), {

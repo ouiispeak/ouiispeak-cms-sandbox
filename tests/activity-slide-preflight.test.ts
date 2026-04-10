@@ -199,6 +199,60 @@ test("activity preflight accepts valid ACT-009 payload using shape-lock rules", 
   assert.doesNotThrow(() => validateActivitySlideImportPayloadPreflight(payload, "create"));
 });
 
+test("activity preflight accepts ACT-004 payload using audioPrompt alias and canonicalizes intonation synonyms", () => {
+  const payload = [
+    {
+      groupId: "376913db-4f97-46f5-b5fa-b854b849f436",
+      "Identity & Lifecycle": {
+        activityId: "ACT-004",
+        type: "activity",
+      },
+      "Activities & Interaction": {
+        propsJson: {
+          runtimeContractV1: validRuntimeContract("ChipSelector"),
+          intonationOptions: ["Question", "descending"],
+          correctCurveId: "question",
+          audioPrompt: {
+            speech: { mode: "tts", text: "Select the contour." },
+          },
+        },
+      },
+      "Operations, Provenance & Governance": {
+        runtimeContractV1: validRuntimeContract("ChipSelector"),
+      },
+    },
+  ];
+
+  assert.doesNotThrow(() => validateActivitySlideImportPayloadPreflight(payload, "create"));
+});
+
+test("activity preflight accepts ACT-009 payload with 1-based numeric correctAnswer", () => {
+  const payload = [
+    {
+      groupId: "376913db-4f97-46f5-b5fa-b854b849f436",
+      "Identity & Lifecycle": {
+        activityId: "ACT-009",
+        type: "activity",
+      },
+      "Activities & Interaction": {
+        propsJson: {
+          runtimeContractV1: validRuntimeContract("AudioChoiceSelector"),
+          choiceElements: [{ label: "A" }, { label: "B" }],
+          correctAnswer: 2,
+          audioPrompt: {
+            speech: { mode: "tts", text: "Select the right option" },
+          },
+        },
+      },
+      "Operations, Provenance & Governance": {
+        runtimeContractV1: validRuntimeContract("AudioChoiceSelector"),
+      },
+    },
+  ];
+
+  assert.doesNotThrow(() => validateActivitySlideImportPayloadPreflight(payload, "create"));
+});
+
 test("activity preflight rejects ACT-017 payload missing sentenceWithGaps", () => {
   const payload = [
     {
@@ -299,4 +353,228 @@ test("activity preflight accepts ACT-026 payload with promptText and targetText"
   ];
 
   assert.doesNotThrow(() => validateActivitySlideImportPayloadPreflight(payload, "create"));
+});
+
+test("activity preflight rejects ACT-015 payload with sentence token/order mismatch", () => {
+  const payload = [
+    {
+      groupId: "376913db-4f97-46f5-b5fa-b854b849f436",
+      "Identity & Lifecycle": {
+        activityId: "ACT-015",
+        type: "activity",
+      },
+      "Activities & Interaction": {
+        propsJson: {
+          runtimeContractV1: validRuntimeContract("ChipSequenceBuilder"),
+          sentenceTokens: ["I", "am", "ready"],
+          correctOrderWords: ["ready", "I"],
+        },
+      },
+      "Operations, Provenance & Governance": {
+        runtimeContractV1: validRuntimeContract("ChipSequenceBuilder"),
+      },
+    },
+  ];
+
+  assert.throws(
+    () => validateActivitySlideImportPayloadPreflight(payload, "create"),
+    /sentenceTokens and correctOrderWords to have equal lengths/
+  );
+});
+
+test("activity preflight rejects ACT-017 payload with out-of-range blank index", () => {
+  const payload = [
+    {
+      groupId: "376913db-4f97-46f5-b5fa-b854b849f436",
+      "Identity & Lifecycle": {
+        activityId: "ACT-017",
+        type: "activity",
+      },
+      "Activities & Interaction": {
+        propsJson: {
+          runtimeContractV1: validRuntimeContract("InlineGapTextInput"),
+          sentenceWithGaps: "She eats an apple",
+          blanks: [{ correctGapIndex: 6, acceptedAlternatives: ["eats"] }],
+        },
+      },
+      "Operations, Provenance & Governance": {
+        runtimeContractV1: validRuntimeContract("InlineGapTextInput"),
+      },
+    },
+  ];
+
+  assert.throws(
+    () => validateActivitySlideImportPayloadPreflight(payload, "create"),
+    /correctGapIndex must be within sentenceWithGaps token bounds/
+  );
+});
+
+test("activity preflight rejects ACT-018 payload with accepted_answers outside wordBank", () => {
+  const payload = [
+    {
+      groupId: "376913db-4f97-46f5-b5fa-b854b849f436",
+      "Identity & Lifecycle": {
+        activityId: "ACT-018",
+        type: "activity",
+      },
+      "Activities & Interaction": {
+        propsJson: {
+          runtimeContractV1: validRuntimeContract("WordBankInput"),
+          wordBank: ["apple", "banana"],
+          sentenceWithGaps: [
+            {
+              sentence: "She eats an apple",
+              gaps: [
+                {
+                  position: 4,
+                  accepted_answers: ["pear"],
+                },
+              ],
+            },
+          ],
+        },
+      },
+      "Operations, Provenance & Governance": {
+        runtimeContractV1: validRuntimeContract("WordBankInput"),
+      },
+    },
+  ];
+
+  assert.throws(
+    () => validateActivitySlideImportPayloadPreflight(payload, "create"),
+    /accepted_answers must reference values present in wordBank/
+  );
+});
+
+test("activity preflight accepts ACT-018 payload with canonical gap objects", () => {
+  const payload = [
+    {
+      groupId: "376913db-4f97-46f5-b5fa-b854b849f436",
+      "Identity & Lifecycle": {
+        activityId: "ACT-018",
+        type: "activity",
+      },
+      "Activities & Interaction": {
+        propsJson: {
+          runtimeContractV1: validRuntimeContract("WordBankInput"),
+          wordBank: ["have", "had", "will have", "eat"],
+          sentenceWithGaps: [
+            {
+              sentence: "I have a cat.",
+              gaps: [
+                {
+                  position: 2,
+                  accepted_answers: ["have", "had", "will have"],
+                },
+              ],
+            },
+          ],
+        },
+      },
+      "Operations, Provenance & Governance": {
+        runtimeContractV1: validRuntimeContract("WordBankInput"),
+      },
+    },
+  ];
+
+  assert.doesNotThrow(() => validateActivitySlideImportPayloadPreflight(payload, "create"));
+});
+
+test("activity preflight rejects ACT-023 payload with empty turn responses", () => {
+  const payload = [
+    {
+      groupId: "376913db-4f97-46f5-b5fa-b854b849f436",
+      "Identity & Lifecycle": {
+        activityId: "ACT-023",
+        type: "activity",
+      },
+      "Activities & Interaction": {
+        propsJson: {
+          runtimeContractV1: validRuntimeContract("AvatarDialoguePlayer"),
+          avatarDialogues: [
+            {
+              id: "turn-1",
+              avatarLine: "Hello",
+              audio: {
+                speech: { mode: "tts", text: "Hello" },
+              },
+              correctResponses: [],
+            },
+          ],
+        },
+      },
+      "Operations, Provenance & Governance": {
+        runtimeContractV1: validRuntimeContract("AvatarDialoguePlayer"),
+      },
+    },
+  ];
+
+  assert.throws(
+    () => validateActivitySlideImportPayloadPreflight(payload, "create"),
+    /requires each turn to include at least one correctResponses entry/
+  );
+});
+
+test("activity preflight rejects ACT-023 payload missing avatarLine", () => {
+  const payload = [
+    {
+      groupId: "376913db-4f97-46f5-b5fa-b854b849f436",
+      "Identity & Lifecycle": {
+        activityId: "ACT-023",
+        type: "activity",
+      },
+      "Activities & Interaction": {
+        propsJson: {
+          runtimeContractV1: validRuntimeContract("AvatarDialoguePlayer"),
+          avatarDialogues: [
+            {
+              id: "turn-1",
+              audioFile: "https://example.com/hello.mp3",
+              correctResponses: ["hello"],
+            },
+          ],
+        },
+      },
+      "Operations, Provenance & Governance": {
+        runtimeContractV1: validRuntimeContract("AvatarDialoguePlayer"),
+      },
+    },
+  ];
+
+  assert.throws(
+    () => validateActivitySlideImportPayloadPreflight(payload, "create"),
+    /ACT-023 requires each turn to include non-empty avatarLine/
+  );
+});
+
+test("activity preflight rejects ACT-023 payload missing turn audio", () => {
+  const payload = [
+    {
+      groupId: "376913db-4f97-46f5-b5fa-b854b849f436",
+      "Identity & Lifecycle": {
+        activityId: "ACT-023",
+        type: "activity",
+      },
+      "Activities & Interaction": {
+        propsJson: {
+          runtimeContractV1: validRuntimeContract("AvatarDialoguePlayer"),
+          avatarDialogues: [
+            {
+              id: "turn-1",
+              avatarLine: "Hello there",
+              correctResponses: ["hello there"],
+            },
+          ],
+        },
+      },
+      "Operations, Provenance & Governance": {
+        runtimeContractV1: validRuntimeContract("AvatarDialoguePlayer"),
+      },
+    },
+  ];
+
+  assert.throws(
+    () => validateActivitySlideImportPayloadPreflight(payload, "create"),
+    /ACT-023 requires each turn to include audioFile or audio\.speech/
+  );
 });

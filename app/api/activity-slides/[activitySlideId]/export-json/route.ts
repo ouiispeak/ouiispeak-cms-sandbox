@@ -3,6 +3,8 @@ import { loadActivitySlideConfigCategories, type UniversalConfigCategory } from 
 import { exportValueFromStoredValue, type ExportTemplateValue } from "@/lib/exportTemplateValues";
 import { getTopLevelOnlyFieldKeys } from "@/lib/canonicalFieldMap";
 import { filterActivitySlideCategoriesForProfile, resolveConcreteActivityProfileFromActivityId } from "@/lib/activityProfiles";
+import { normalizeActivityPropsJson } from "@/lib/activityPayloadNormalization";
+import { assertExportRuntimeGate } from "@/lib/exportRuntimeGate";
 
 export const dynamic = "force-dynamic";
 const ACTIVITY_SLIDE_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("activity_slides");
@@ -49,6 +51,31 @@ function buildActivitySlideTemplate(
   return template;
 }
 
+function normalizeTemplatePropsJson(
+  template: ActivitySlideTemplate,
+  activityId: string | undefined
+): ActivitySlideTemplate {
+  const normalizedTemplate: ActivitySlideTemplate = { ...template };
+
+  for (const [categoryKey, categoryPayload] of Object.entries(template)) {
+    if (!Object.prototype.hasOwnProperty.call(categoryPayload, "propsJson")) {
+      continue;
+    }
+
+    const rawPropsJson = categoryPayload.propsJson;
+    if (!rawPropsJson || typeof rawPropsJson !== "object" || Array.isArray(rawPropsJson)) {
+      continue;
+    }
+
+    normalizedTemplate[categoryKey] = {
+      ...categoryPayload,
+      propsJson: normalizeActivityPropsJson(activityId, rawPropsJson as Record<string, unknown>),
+    };
+  }
+
+  return normalizedTemplate;
+}
+
 function resolveActivityIdFromRecord(activitySlideRecord: ActivitySlideDetailRow): string | undefined {
   return (
     activitySlideRecord.values["Identity & Lifecycle"]?.activityId ??
@@ -74,12 +101,18 @@ export async function GET(
       await loadActivitySlideConfigCategories(),
       profile
     );
+    const activityId = resolveActivityIdFromRecord(activitySlideRecord);
+    const template = normalizeTemplatePropsJson(
+      buildActivitySlideTemplate(activitySlideRecord, categories),
+      activityId
+    );
 
     const payload = {
       slideId: activitySlideRecord.id,
       groupId: activitySlideRecord.group_id,
-      ...buildActivitySlideTemplate(activitySlideRecord, categories),
+      ...template,
     };
+    assertExportRuntimeGate("activity_slides", categories, payload, "Activity slide export");
 
     return new Response(JSON.stringify(payload, null, 2), {
       status: 200,

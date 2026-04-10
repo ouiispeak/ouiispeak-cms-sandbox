@@ -6,6 +6,7 @@ import {
   resolveConcreteActivityProfile,
   resolveConcreteActivityProfileFromActivityId,
 } from "@/lib/activityProfiles";
+import { ACTIVITY_PROFILE_DEFAULTS } from "@/lib/activityRuntimeDefaults";
 import type { UniversalConfigCategory } from "@/lib/universalConfigs";
 
 const SAMPLE_ACTIVITY_CATEGORY: UniversalConfigCategory = {
@@ -370,6 +371,14 @@ test("ACT-004 exposes intonation curve fields and hides lines/ACT-003 fields", (
   assert.equal(fieldKeys.has("promptMode"), false);
 });
 
+test("ACT-004 retains audioPrompt authoring field for ingest alias normalization", () => {
+  const filtered = filterActivitySlideCategoriesForProfile([SAMPLE_ACTIVITY_CATEGORY], "act-004");
+  const fieldKeys = new Set(filtered[0]?.fields.map((field) => field.key) ?? []);
+
+  assert.equal(fieldKeys.has("audioPrompt"), true);
+  assert.equal(fieldKeys.has("audio"), false);
+});
+
 test("ACT-005 exposes recorder source fields and hides ACT-003/004 fields", () => {
   const filtered = filterActivitySlideCategoriesForProfile([SAMPLE_ACTIVITY_CATEGORY], "act-005");
   const fieldKeys = new Set(filtered[0]?.fields.map((field) => field.key) ?? []);
@@ -428,4 +437,11 @@ test("default activity profile hides ACT-specific interaction fields", () => {
   assert.equal(fieldKeys.has("intonationOptions"), false);
   assert.equal(fieldKeys.has("correctCurveId"), false);
   assert.equal(fieldKeys.has("runtimeContractV1"), true);
+});
+
+test("activity runtime defaults stay canonical for command controls", () => {
+  assert.deepEqual(ACTIVITY_PROFILE_DEFAULTS["act-001"].commandRowControls, ["play"]);
+  assert.deepEqual(ACTIVITY_PROFILE_DEFAULTS["act-002"].commandRowControls, ["play", "pause"]);
+  assert.deepEqual(ACTIVITY_PROFILE_DEFAULTS["act-024"].commandRowControls, []);
+  assert.deepEqual(ACTIVITY_PROFILE_DEFAULTS["act-026"].commandRowControls, []);
 });

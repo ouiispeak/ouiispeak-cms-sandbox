@@ -129,7 +129,7 @@ export default function AudioPromptField({
       }}
     >
       <p style={{ margin: 0, fontSize: 12, color: "#666" }}>
-        Audio question prompt. Label is for CMS authors only.
+        Audio question prompt. Label is for CMS authors only; ingest normalizes speech payloads to canonical audio shape.
       </p>
 
       <label htmlFor={`${idPrefix}-label`}>Label (guide text for approvers)</label>

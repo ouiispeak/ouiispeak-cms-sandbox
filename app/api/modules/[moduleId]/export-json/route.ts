@@ -2,6 +2,7 @@ import { loadModuleById, type ModuleDetailRow } from "@/lib/modules";
 import { loadModuleConfigCategories, type UniversalConfigCategory } from "@/lib/universalConfigs";
 import { exportValueFromStoredValue, type ExportTemplateValue } from "@/lib/exportTemplateValues";
 import { getTopLevelOnlyFieldKeys } from "@/lib/canonicalFieldMap";
+import { assertExportRuntimeGate } from "@/lib/exportRuntimeGate";
 
 export const dynamic = "force-dynamic";
 const MODULE_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("modules");
@@ -83,6 +84,7 @@ export async function GET(
       moduleId: moduleRecord.id,
       ...template,
     };
+    assertExportRuntimeGate("modules", categories, payload, "Module export");
 
     return new Response(JSON.stringify(payload, null, 2), {
       status: 200,

@@ -12,6 +12,7 @@ import {
   parseImportEntries,
   parseUuid,
   parseUuidFromPathValue,
+  splitQualifiedFieldKey,
   rowsToValueMap,
   toDynamicFieldValuePayloadRows,
   type DynamicFieldValuePayloadRow,
@@ -21,11 +22,28 @@ import {
   upsertDynamicFieldRows,
 } from "@/lib/componentCore";
 import type { UniversalConfigCategory, UniversalConfigField } from "@/lib/universalConfigs";
+import {
+  buildCategoryPayloadDbInvariantRuleFromRequirednessMatrix,
+  buildCategoryPayloadRequirednessRuleFromRequirednessMatrix,
+} from "@/lib/requirednessMatrix";
 
 type DynamicValueRow = {
   category_name: string;
   field_name: string;
   field_value: string | null;
+};
+
+type SlugValueRow = {
+  field_value: string | null;
+};
+
+type ParentScopeRow = {
+  id: string;
+  [key: string]: unknown;
+};
+
+type ForeignKeyValueRow = {
+  [key: string]: unknown;
 };
 
 export type SystemAssignedFieldMode = "create" | "update" | "import_create" | "import_update";
@@ -122,6 +140,12 @@ type ParsedImportUpdateRow = {
   id: string;
   parentValue: string | undefined;
   values: FieldInputMap;
+};
+
+type PostWriteInvariantRuleOptions = {
+  requiredFieldNames: Set<string>;
+  requiredOneOfGroups: string[][];
+  topLevelOnlyFieldNames: Set<string>;
 };
 
 function getFirstFormValue(formData: FormData, keys: string[]): FormDataEntryValue | null {
@@ -308,6 +332,53 @@ function fieldInputMapFromDynamicRows(rows: DynamicValueRow[]): FieldInputMap {
 }
 
 const ENFORCED_TARGET_LANGUAGE = "english";
+const ENFORCED_SOURCE_VERSION = "v1";
+
+function normalizeSlugPart(input: string): string {
+  return input
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-{2,}/g, "-");
+}
+
+function parseVersionCounter(rawValue: string | null | undefined): number {
+  if (rawValue === undefined || rawValue === null) {
+    return 0;
+  }
+
+  const trimmed = rawValue.trim();
+  if (!/^\d+$/.test(trimmed)) {
+    return 0;
+  }
+
+  const parsed = Number.parseInt(trimmed, 10);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return 0;
+  }
+
+  return parsed;
+}
+
+function getFieldValueByFieldName(values: FieldInputMap, fieldName: string): string | null | undefined {
+  for (const [qualifiedKey, value] of values.entries()) {
+    if (splitQualifiedFieldKey(qualifiedKey).fieldName === fieldName) {
+      return value;
+    }
+  }
+
+  return undefined;
+}
+
+function isMissingRequiredFieldValue(value: string | null | undefined): boolean {
+  if (value === undefined || value === null) {
+    return true;
+  }
+
+  return value.trim().length === 0;
+}
 
 function setFieldValueIfActiveInCategories(
   values: FieldInputMap,
@@ -323,6 +394,14 @@ function setFieldValueIfActiveInCategories(
     values.set(`${category.key}.${fieldName}`, fieldValue);
     return;
   }
+}
+
+function hasActiveField(categories: UniversalConfigCategory[], fieldName: string): boolean {
+  return categories.some((category) => category.fields.some((field) => field.key === fieldName));
+}
+
+function shouldEnforcePostWriteDbValidation(categories: UniversalConfigCategory[]): boolean {
+  return hasActiveField(categories, "slug");
 }
 
 function applyGlobalSystemAssignedValues(
@@ -343,12 +422,275 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
   const topLevelOnlyFieldNames = new Set<string>(
     config.parentSpec ? config.parentSpec.entryKeys : []
   );
+  const matrixBoundCategoryRequirednessRule =
+    config.componentName === "activity_slides"
+      ? null
+      : buildCategoryPayloadRequirednessRuleFromRequirednessMatrix(config.componentName);
+  const matrixBoundCategoryDbInvariantRule =
+    buildCategoryPayloadDbInvariantRuleFromRequirednessMatrix(config.componentName);
+
+  function matrixRequirednessOptionsForCategories(
+    categories: UniversalConfigCategory[]
+  ):
+    | {
+        requiredFieldNames: Set<string>;
+        requiredOneOfGroups: string[][];
+        topLevelOnlyFieldNames: Set<string>;
+      }
+    | undefined {
+    if (!matrixBoundCategoryRequirednessRule) {
+      return undefined;
+    }
+
+    const activeFieldNames = new Set<string>();
+    for (const category of categories) {
+      for (const field of category.fields) {
+        activeFieldNames.add(field.key);
+      }
+    }
+
+    const requiredFieldNames = new Set(
+      matrixBoundCategoryRequirednessRule.requiredAll.filter((fieldName) => activeFieldNames.has(fieldName))
+    );
+    const requiredOneOfGroups = (matrixBoundCategoryRequirednessRule.requiredOneOf ?? [])
+      .map((group) => group.filter((fieldName) => activeFieldNames.has(fieldName)))
+      .filter((group) => group.length > 0);
+
+    return { requiredFieldNames, requiredOneOfGroups, topLevelOnlyFieldNames };
+  }
+
+  function matrixDbInvariantOptionsForCategories(
+    categories: UniversalConfigCategory[]
+  ): PostWriteInvariantRuleOptions {
+    const activeFieldNames = new Set<string>();
+    for (const category of categories) {
+      for (const field of category.fields) {
+        activeFieldNames.add(field.key);
+      }
+    }
+
+    const requiredFieldNames = new Set(
+      matrixBoundCategoryDbInvariantRule.requiredAll.filter((fieldName) => activeFieldNames.has(fieldName))
+    );
+    const requiredOneOfGroups = (matrixBoundCategoryDbInvariantRule.requiredOneOf ?? [])
+      .map((group) => group.filter((fieldName) => activeFieldNames.has(fieldName)))
+      .filter((group) => group.length > 0);
+
+    return { requiredFieldNames, requiredOneOfGroups, topLevelOnlyFieldNames };
+  }
 
   async function applySystemAssignedValues(context: SystemAssignedFieldContext): Promise<void> {
     applyGlobalSystemAssignedValues(context.values, context.categories);
+
+    if (hasActiveField(context.categories, "sourceVersion")) {
+      setFieldValueIfActiveInCategories(
+        context.values,
+        context.categories,
+        "sourceVersion",
+        ENFORCED_SOURCE_VERSION
+      );
+    }
+
+    if (hasActiveField(context.categories, "version")) {
+      let nextVersion = 1;
+      if (context.mode === "update" || context.mode === "import_update") {
+        const existingVersion = await getExistingFieldValueByName(context, "version");
+        nextVersion = parseVersionCounter(existingVersion) + 1;
+        if (nextVersion < 1) {
+          nextVersion = 1;
+        }
+      }
+
+      setFieldValueIfActiveInCategories(context.values, context.categories, "version", String(nextVersion));
+    }
+
+    if (hasActiveField(context.categories, "slug")) {
+      await applySlugPolicy(context);
+    }
+
     if (config.applySystemAssignedFields) {
       await config.applySystemAssignedFields(context);
     }
+  }
+
+  function existingValuesStateKey(id: string): string {
+    return `${config.componentName}:existing:${id}`;
+  }
+
+  async function getExistingValuesForId(context: SystemAssignedFieldContext): Promise<FieldInputMap | null> {
+    if (!context.id) {
+      return null;
+    }
+
+    const cacheKey = existingValuesStateKey(context.id);
+    const cached = context.operationState.get(cacheKey);
+    if (cached && cached instanceof Map) {
+      return cached as FieldInputMap;
+    }
+
+    const existingRows = await loadValueRowsById(context.id);
+    const mapped = fieldInputMapFromDynamicRows(existingRows);
+    context.operationState.set(cacheKey, mapped);
+    return mapped;
+  }
+
+  async function getExistingFieldValueByName(
+    context: SystemAssignedFieldContext,
+    fieldName: string
+  ): Promise<string | null | undefined> {
+    const existingValues = await getExistingValuesForId(context);
+    if (!existingValues) {
+      return undefined;
+    }
+
+    return getFieldValueByFieldName(existingValues, fieldName);
+  }
+
+  async function resolveParentScopeValue(context: SystemAssignedFieldContext): Promise<string | null> {
+    if (!config.parentSpec) {
+      return null;
+    }
+
+    if (typeof context.parentValue === "string" && context.parentValue.trim().length > 0) {
+      return context.parentValue;
+    }
+
+    if (!context.id) {
+      return null;
+    }
+
+    const rows = await fetchAnonRows<ParentScopeRow>(
+      `${config.tableName}?select=id,${config.parentSpec.coreColumn}&id=eq.${encodeURIComponent(context.id)}&limit=1`,
+      `Failed to load ${config.componentLabel} parent scope`
+    );
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    const parentValue = row[config.parentSpec.coreColumn];
+    return typeof parentValue === "string" && parentValue.trim().length > 0 ? parentValue : null;
+  }
+
+  function slugScopeStateKey(parentScope: string | null): string {
+    return `${config.componentName}:slug-scope:${parentScope ?? "__global__"}`;
+  }
+
+  async function loadSlugCountsForScope(
+    parentScope: string | null,
+    context: SystemAssignedFieldContext
+  ): Promise<Map<string, number>> {
+    const cacheKey = slugScopeStateKey(parentScope);
+    const cached = context.operationState.get(cacheKey);
+    if (cached && cached instanceof Map) {
+      return cached as Map<string, number>;
+    }
+
+    const { tableName, foreignKeyColumn } = config.dynamicValues;
+    let resourcePath = `${tableName}?select=${foreignKeyColumn},field_value&component_name=eq.${encodeURIComponent(
+      config.componentName
+    )}&field_name=eq.slug`;
+
+    if (config.parentSpec && parentScope !== null) {
+      resourcePath += `&${config.tableName}.${config.parentSpec.coreColumn}=eq.${encodeURIComponent(parentScope)}`;
+      resourcePath = `${tableName}?select=${foreignKeyColumn},field_value,${config.tableName}!inner(${config.parentSpec.coreColumn})&component_name=eq.${encodeURIComponent(
+        config.componentName
+      )}&field_name=eq.slug&${config.tableName}.${config.parentSpec.coreColumn}=eq.${encodeURIComponent(parentScope)}`;
+    }
+
+    const rows = await fetchAnonRows<SlugValueRow>(
+      resourcePath,
+      `Failed to load ${config.componentLabel} slug scope`
+    );
+
+    const counts = new Map<string, number>();
+    for (const row of rows) {
+      const rawSlug = row.field_value;
+      if (typeof rawSlug !== "string") {
+        continue;
+      }
+
+      const normalized = normalizeSlugPart(rawSlug);
+      if (normalized.length === 0) {
+        continue;
+      }
+
+      counts.set(normalized, (counts.get(normalized) ?? 0) + 1);
+    }
+
+    context.operationState.set(cacheKey, counts);
+    return counts;
+  }
+
+  function deriveSlugBase(values: FieldInputMap): string {
+    const title = getFieldValueByFieldName(values, "title");
+    if (typeof title === "string" && title.trim().length > 0) {
+      return title;
+    }
+
+    const body = getFieldValueByFieldName(values, "body");
+    if (typeof body === "string" && body.trim().length > 0) {
+      return body.slice(0, 64);
+    }
+
+    return config.componentName.replace(/_/g, "-");
+  }
+
+  function reserveUniqueSlug(
+    counts: Map<string, number>,
+    baseInput: string,
+    existingSlug: string | null | undefined
+  ): string {
+    const normalizedBase = normalizeSlugPart(baseInput);
+    const base = normalizedBase.length > 0 ? normalizedBase : config.componentName.replace(/_/g, "-");
+    const existingNormalized =
+      typeof existingSlug === "string" && existingSlug.trim().length > 0
+        ? normalizeSlugPart(existingSlug)
+        : null;
+
+    if (existingNormalized) {
+      const currentCount = counts.get(existingNormalized) ?? 0;
+      if (currentCount > 0) {
+        counts.set(existingNormalized, currentCount - 1);
+      }
+    }
+
+    let candidate = base;
+    let suffix = 2;
+    while ((counts.get(candidate) ?? 0) > 0) {
+      candidate = `${base}-${suffix}`;
+      suffix += 1;
+    }
+
+    counts.set(candidate, (counts.get(candidate) ?? 0) + 1);
+    return candidate;
+  }
+
+  async function applySlugPolicy(context: SystemAssignedFieldContext): Promise<void> {
+    const providedSlug = getFieldValueByFieldName(context.values, "slug");
+    const providedSlugTrimmed =
+      typeof providedSlug === "string" ? normalizeSlugPart(providedSlug) : "";
+    const hasExplicitSlug = providedSlugTrimmed.length > 0;
+
+    const existingSlug = await getExistingFieldValueByName(context, "slug");
+    const parentScope = await resolveParentScopeValue(context);
+    const slugCounts = await loadSlugCountsForScope(parentScope, context);
+
+    let slugBase = providedSlugTrimmed;
+    if (!hasExplicitSlug) {
+      if (
+        (context.mode === "update" || context.mode === "import_update") &&
+        typeof existingSlug === "string" &&
+        normalizeSlugPart(existingSlug).length > 0
+      ) {
+        slugBase = normalizeSlugPart(existingSlug);
+      } else {
+        slugBase = deriveSlugBase(context.values);
+      }
+    }
+
+    const uniqueSlug = reserveUniqueSlug(slugCounts, slugBase, existingSlug);
+    setFieldValueIfActiveInCategories(context.values, context.categories, "slug", uniqueSlug);
   }
 
   async function loadCategoriesAndAllowedFields(): Promise<{
@@ -389,6 +731,188 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
       toDynamicValueRowsWithScope(id, values, config.componentName, foreignKeyColumn),
       saveErrorLabel
     );
+  }
+
+  async function loadCoreRowById(id: string): Promise<ParentScopeRow | null> {
+    const selectColumns = ["id"];
+    if (config.parentSpec) {
+      selectColumns.push(config.parentSpec.coreColumn);
+    }
+
+    const rows = await fetchAnonRows<ParentScopeRow>(
+      `${config.tableName}?select=${selectColumns.join(",")}&id=eq.${encodeURIComponent(id)}&limit=1`,
+      `Failed to load ${config.componentLabel}`
+    );
+
+    return rows[0] ?? null;
+  }
+
+  function postWriteOptionsNeedDynamicValueValidation(options: PostWriteInvariantRuleOptions): boolean {
+    for (const fieldName of options.requiredFieldNames.values()) {
+      if (!options.topLevelOnlyFieldNames.has(fieldName)) {
+        return true;
+      }
+    }
+
+    for (const group of options.requiredOneOfGroups) {
+      if (group.some((fieldName) => !options.topLevelOnlyFieldNames.has(fieldName))) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  async function resolveCreatedIdBySlugAndParentValue(
+    values: FieldInputMap,
+    expectedParentValue: string | undefined
+  ): Promise<string> {
+    const slug = getFieldValueByFieldName(values, "slug");
+    if (isMissingRequiredFieldValue(slug)) {
+      throw new Error(
+        `Post-write DB validation failed for ${config.componentLabel}: missing generated "slug" required to resolve created row.`
+      );
+    }
+
+    const slugValue = slug as string;
+    const { tableName, foreignKeyColumn } = config.dynamicValues;
+    let resourcePath = `${tableName}?select=${foreignKeyColumn}&component_name=eq.${encodeURIComponent(
+      config.componentName
+    )}&field_name=eq.slug&field_value=eq.${encodeURIComponent(slugValue)}`;
+
+    if (config.parentSpec && typeof expectedParentValue === "string" && expectedParentValue.trim().length > 0) {
+      resourcePath = `${tableName}?select=${foreignKeyColumn},${config.tableName}!inner(${config.parentSpec.coreColumn})&component_name=eq.${encodeURIComponent(
+        config.componentName
+      )}&field_name=eq.slug&field_value=eq.${encodeURIComponent(slugValue)}&${config.tableName}.${config.parentSpec.coreColumn}=eq.${encodeURIComponent(
+        expectedParentValue
+      )}`;
+    }
+
+    const rows = await fetchAnonRows<ForeignKeyValueRow>(
+      resourcePath,
+      `Failed to resolve created ${config.componentLabel} row by slug`
+    );
+
+    if (rows.length !== 1) {
+      throw new Error(
+        `Post-write DB validation failed for ${config.componentLabel}: expected exactly one created row for slug "${slugValue}", got ${rows.length}.`
+      );
+    }
+
+    const resolved = rows[0]?.[foreignKeyColumn];
+    if (typeof resolved !== "string" || resolved.trim().length === 0) {
+      throw new Error(
+        `Post-write DB validation failed for ${config.componentLabel}: created row resolution returned invalid id.`
+      );
+    }
+
+    return resolved;
+  }
+
+  async function verifyPostWriteDbInvariantsForId(
+    id: string,
+    expectedParentValue: string | undefined,
+    options: PostWriteInvariantRuleOptions,
+    contextLabel: string
+  ): Promise<void> {
+    const coreRow = await loadCoreRowById(id);
+    if (!coreRow) {
+      throw new Error(`${contextLabel}: post-write DB validation failed; ${config.componentLabel} "${id}" not found.`);
+    }
+
+    let persistedParentValue: string | undefined;
+    if (config.parentSpec) {
+      const rawParent = coreRow[config.parentSpec.coreColumn];
+      persistedParentValue =
+        typeof rawParent === "string" && rawParent.trim().length > 0 ? rawParent : undefined;
+    }
+
+    const hasIdentityRequirement = options.requiredFieldNames.has(config.updateIdentityEntryKey);
+    if (hasIdentityRequirement && (typeof coreRow.id !== "string" || coreRow.id.trim().length === 0)) {
+      throw new Error(
+        `${contextLabel}: post-write DB validation failed; required identity field "${config.updateIdentityEntryKey}" is missing.`
+      );
+    }
+
+    if (
+      config.parentSpec &&
+      options.requiredFieldNames.has(config.parentSpec.entryKeys[0]) &&
+      isMissingRequiredFieldValue(persistedParentValue ?? null)
+    ) {
+      throw new Error(
+        `${contextLabel}: post-write DB validation failed; required parent field "${config.parentSpec.entryKeys[0]}" is missing.`
+      );
+    }
+
+    if (
+      config.parentSpec &&
+      typeof expectedParentValue === "string" &&
+      expectedParentValue.trim().length > 0 &&
+      persistedParentValue !== undefined &&
+      persistedParentValue !== expectedParentValue
+    ) {
+      throw new Error(
+        `${contextLabel}: post-write DB validation failed; persisted parent value "${persistedParentValue}" did not match expected "${expectedParentValue}".`
+      );
+    }
+
+    if (!postWriteOptionsNeedDynamicValueValidation(options)) {
+      return;
+    }
+
+    const persistedRows = await loadValueRowsById(id);
+    const persistedValues = fieldInputMapFromDynamicRows(persistedRows);
+
+    const missingDynamicFields: string[] = [];
+    for (const fieldName of options.requiredFieldNames.values()) {
+      if (options.topLevelOnlyFieldNames.has(fieldName)) {
+        continue;
+      }
+
+      const value = getFieldValueByFieldName(persistedValues, fieldName);
+      if (isMissingRequiredFieldValue(value)) {
+        missingDynamicFields.push(fieldName);
+      }
+    }
+
+    if (missingDynamicFields.length > 0) {
+      throw new Error(
+        `${contextLabel}: post-write DB validation failed; missing required persisted ${config.componentLabel} fields: ${missingDynamicFields.join(
+          ", "
+        )}.`
+      );
+    }
+
+    const missingOneOfGroups: string[][] = [];
+    for (const group of options.requiredOneOfGroups) {
+      const hasAny = group.some((fieldName) => {
+        if (options.topLevelOnlyFieldNames.has(fieldName)) {
+          if (fieldName === config.updateIdentityEntryKey) {
+            return typeof coreRow.id === "string" && coreRow.id.trim().length > 0;
+          }
+
+          if (config.parentSpec && fieldName === config.parentSpec.entryKeys[0]) {
+            return !isMissingRequiredFieldValue(persistedParentValue ?? null);
+          }
+
+          return false;
+        }
+
+        const value = getFieldValueByFieldName(persistedValues, fieldName);
+        return !isMissingRequiredFieldValue(value);
+      });
+
+      if (!hasAny) {
+        missingOneOfGroups.push(group);
+      }
+    }
+
+    if (missingOneOfGroups.length > 0) {
+      const groupsText = missingOneOfGroups.map((group) => `[${group.join(" | ")}]`).join(", ");
+      throw new Error(
+        `${contextLabel}: post-write DB validation failed; missing required one-of persisted ${config.componentLabel} groups: ${groupsText}.`
+      );
+    }
   }
 
   function parseImportCreateRow(
@@ -460,12 +984,21 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
         categories,
         config.systemControlledFieldNames,
         "Create/import",
-        config.componentLabel
+        config.componentLabel,
+        { topLevelOnlyFieldNames }
       );
 
       const coreInsert = buildCoreInsertRow(values, config.coreFields, config.parentSpec, parentValue);
       const id = await createCoreRow(config.tableName, coreInsert, config.entityLabel);
       await upsertValueRows(id, values);
+      if (shouldEnforcePostWriteDbValidation(categories)) {
+        await verifyPostWriteDbInvariantsForId(
+          id,
+          parentValue,
+          matrixDbInvariantOptionsForCategories(categories),
+          "Create/save"
+        );
+      }
       return id;
     },
 
@@ -500,12 +1033,21 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
         categories,
         config.systemControlledFieldNames,
         "Update/save",
-        config.componentLabel
+        config.componentLabel,
+        { topLevelOnlyFieldNames }
       );
 
       const corePatch = buildCorePatchRow(values, config.coreFields, config.parentSpec, parentValue);
       await updateCoreRow(config.tableName, config.idColumn, id, corePatch, config.entityLabel);
       await upsertValueRows(id, values);
+      if (shouldEnforcePostWriteDbValidation(categories)) {
+        await verifyPostWriteDbInvariantsForId(
+          id,
+          parentValue,
+          matrixDbInvariantOptionsForCategories(categories),
+          "Update/save"
+        );
+      }
     },
 
     async importCreateFromJsonPayload(payload: unknown): Promise<number> {
@@ -513,6 +1055,7 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
 
       const entries = parseImportEntries(payload);
       const rpcRows: unknown[] = [];
+      const parsedCreateRows: ParsedImportCreateRow[] = [];
       const operationState = new Map<string, unknown>();
 
       for (const [entryIndex, entry] of entries.entries()) {
@@ -530,7 +1073,8 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
             configData.categories,
             config.systemControlledFieldNames,
             "Create/import",
-            config.componentLabel
+            config.componentLabel,
+            matrixRequirednessOptionsForCategories(configData.categories) ?? { topLevelOnlyFieldNames }
           );
 
           const coreInsert = buildCoreInsertRow(
@@ -548,13 +1092,31 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
               valueRows,
             })
           );
+          parsedCreateRows.push(parsed);
         } catch (error) {
           const message = error instanceof Error ? error.message : "Create import validation failed.";
           throw new Error(`Create import entry ${entryIndex + 1}: ${message}`);
         }
       }
 
-      return callAtomicImportRpc(config.rpc.createFunctionName, rpcRows);
+      const count = await callAtomicImportRpc(config.rpc.createFunctionName, rpcRows);
+      const dbInvariantOptions = matrixDbInvariantOptionsForCategories(configData.categories);
+      if (
+        shouldEnforcePostWriteDbValidation(configData.categories) &&
+        postWriteOptionsNeedDynamicValueValidation(dbInvariantOptions)
+      ) {
+        for (const [rowIndex, row] of parsedCreateRows.entries()) {
+          const resolvedId = await resolveCreatedIdBySlugAndParentValue(row.values, row.parentValue);
+          await verifyPostWriteDbInvariantsForId(
+            resolvedId,
+            row.parentValue,
+            dbInvariantOptions,
+            `Create/import entry ${rowIndex + 1}`
+          );
+        }
+      }
+
+      return count;
     },
 
     async importUpdateFromJsonPayload(payload: unknown): Promise<number> {
@@ -582,7 +1144,8 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
             configData.categories,
             config.systemControlledFieldNames,
             "Update/import",
-            config.componentLabel
+            config.componentLabel,
+            matrixRequirednessOptionsForCategories(configData.categories) ?? { topLevelOnlyFieldNames }
           );
 
           const corePatch = buildCorePatchRow(
@@ -607,7 +1170,23 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
         }
       }
 
-      return callAtomicImportRpc(config.rpc.updateFunctionName, rpcRows);
+      const count = await callAtomicImportRpc(config.rpc.updateFunctionName, rpcRows);
+      const dbInvariantOptions = matrixDbInvariantOptionsForCategories(configData.categories);
+      if (
+        shouldEnforcePostWriteDbValidation(configData.categories) &&
+        postWriteOptionsNeedDynamicValueValidation(dbInvariantOptions)
+      ) {
+        for (const [rowIndex, row] of parsedRows.entries()) {
+          await verifyPostWriteDbInvariantsForId(
+            row.id,
+            row.parentValue,
+            dbInvariantOptions,
+            `Update/import entry ${rowIndex + 1}`
+          );
+        }
+      }
+
+      return count;
     },
 
     async loadList(): Promise<ListRow[]> {

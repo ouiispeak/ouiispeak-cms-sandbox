@@ -2,6 +2,7 @@ import { loadSlideById, type SlideDetailRow } from "@/lib/slides";
 import { loadSlideConfigCategories, type UniversalConfigCategory } from "@/lib/universalConfigs";
 import { exportValueFromStoredValue, type ExportTemplateValue } from "@/lib/exportTemplateValues";
 import { getTopLevelOnlyFieldKeys } from "@/lib/canonicalFieldMap";
+import { assertExportRuntimeGate } from "@/lib/exportRuntimeGate";
 
 export const dynamic = "force-dynamic";
 const SLIDE_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("slides");
@@ -68,6 +69,7 @@ export async function GET(
       groupId: slideRecord.group_id,
       ...buildSlideTemplate(slideRecord, categories),
     };
+    assertExportRuntimeGate("slides", categories, payload, "Slide export");
 
     return new Response(JSON.stringify(payload, null, 2), {
       status: 200,

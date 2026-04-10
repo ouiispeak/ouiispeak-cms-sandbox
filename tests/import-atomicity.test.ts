@@ -326,8 +326,8 @@ test("slide create import uses one atomic RPC call for multi-entry payload", asy
 
   try {
     const count = await importSlidesFromJsonPayload([
-      { groupId: GROUP_1_UUID, "Identity & Lifecycle": {} },
-      { groupId: GROUP_2_UUID, "Identity & Lifecycle": {} },
+      { groupId: GROUP_1_UUID, "Identity & Lifecycle": { type: "text" } },
+      { groupId: GROUP_2_UUID, "Identity & Lifecycle": { type: "text" } },
     ]);
 
     assert.equal(count, 2);
@@ -407,8 +407,8 @@ test("slide update import uses one atomic RPC call for multi-entry payload", asy
 
   try {
     const count = await importSlideUpdatesFromJsonPayload([
-      { slideId: SLIDE_1_UUID, groupId: GROUP_2_UUID, "Identity & Lifecycle": {} },
-      { slideId: SLIDE_2_UUID, "Identity & Lifecycle": {} },
+      { slideId: SLIDE_1_UUID, groupId: GROUP_2_UUID, "Identity & Lifecycle": { type: "text" } },
+      { slideId: SLIDE_2_UUID, "Identity & Lifecycle": { type: "text" } },
     ]);
 
     assert.equal(count, 2);

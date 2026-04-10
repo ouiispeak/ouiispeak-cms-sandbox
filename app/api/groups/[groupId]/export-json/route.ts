@@ -2,6 +2,7 @@ import { loadGroupById, type GroupDetailRow } from "@/lib/groups";
 import { loadGroupConfigCategories, type UniversalConfigCategory } from "@/lib/universalConfigs";
 import { exportValueFromStoredValue, type ExportTemplateValue } from "@/lib/exportTemplateValues";
 import { getTopLevelOnlyFieldKeys } from "@/lib/canonicalFieldMap";
+import { assertExportRuntimeGate } from "@/lib/exportRuntimeGate";
 
 export const dynamic = "force-dynamic";
 const GROUP_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("groups");
@@ -81,6 +82,7 @@ export async function GET(
       lessonId: groupRecord.lesson_id,
       ...buildGroupTemplate(groupRecord, categories),
     };
+    assertExportRuntimeGate("groups", categories, payload, "Group export");
 
     return new Response(JSON.stringify(payload, null, 2), {
       status: 200,

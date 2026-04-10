@@ -287,27 +287,48 @@ export function assertRequiredFieldValues(
   categories: UniversalConfigCategory[],
   systemControlledFieldNames: Set<string>,
   contextLabel: string,
-  componentLabel: string
-): void {
-  const requiredFieldNames = new Set<string>();
-
-  for (const category of categories) {
-    for (const field of category.fields) {
-      if (!field.isRequired) {
-        continue;
-      }
-
-      if (systemControlledFieldNames.has(field.key)) {
-        continue;
-      }
-
-      requiredFieldNames.add(field.key);
-    }
+  componentLabel: string,
+  options?: {
+    requiredFieldNames?: Set<string>;
+    requiredOneOfGroups?: string[][];
+    topLevelOnlyFieldNames?: Set<string>;
   }
+): void {
+  const topLevelOnlyFieldNames = options?.topLevelOnlyFieldNames ?? new Set<string>();
+  const requiredOneOfGroups = options?.requiredOneOfGroups ?? [];
+  const requiredFieldNames =
+    options?.requiredFieldNames ??
+    (() => {
+      const derived = new Set<string>();
+      for (const category of categories) {
+        for (const field of category.fields) {
+          if (!field.isRequired) {
+            continue;
+          }
+
+          if (systemControlledFieldNames.has(field.key)) {
+            continue;
+          }
+
+          if (topLevelOnlyFieldNames.has(field.key)) {
+            continue;
+          }
+
+          derived.add(field.key);
+        }
+      }
+      return derived;
+    })();
 
   const missingFieldNames: string[] = [];
 
   for (const fieldName of requiredFieldNames.values()) {
+    if (systemControlledFieldNames.has(fieldName)) {
+      continue;
+    }
+    if (topLevelOnlyFieldNames.has(fieldName)) {
+      continue;
+    }
     const value = getFieldValueByName(values, fieldName);
     if (isMissingRequiredFieldValue(value)) {
       missingFieldNames.push(fieldName);
@@ -317,6 +338,33 @@ export function assertRequiredFieldValues(
   if (missingFieldNames.length > 0) {
     throw new Error(
       `${contextLabel} requires non-empty ${componentLabel} fields: ${missingFieldNames.join(", ")}.`
+    );
+  }
+
+  const missingOneOfGroups: string[][] = [];
+  for (const group of requiredOneOfGroups) {
+    const candidateGroup = group.filter(
+      (fieldName) => !systemControlledFieldNames.has(fieldName) && !topLevelOnlyFieldNames.has(fieldName)
+    );
+    if (candidateGroup.length === 0) {
+      continue;
+    }
+
+    const hasAny = candidateGroup.some((fieldName) => {
+      const value = getFieldValueByName(values, fieldName);
+      return !isMissingRequiredFieldValue(value);
+    });
+    if (!hasAny) {
+      missingOneOfGroups.push(candidateGroup);
+    }
+  }
+
+  if (missingOneOfGroups.length > 0) {
+    const groupsText = missingOneOfGroups
+      .map((group) => `[${group.join(" | ")}]`)
+      .join(", ");
+    throw new Error(
+      `${contextLabel} requires at least one of ${componentLabel} field groups: ${groupsText}.`
     );
   }
 }
