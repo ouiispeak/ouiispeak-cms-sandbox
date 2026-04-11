@@ -141,7 +141,7 @@ Retirement freeze readiness (operational closeout prerequisites): GO
 
 Owner-signed GO record:
 1. `cutover-backups/20260410-235434/reapply-20260411-001839/r8-go-no-go-signoff.md`
+2. Original CMS backup reference: `central/ORIGINAL_CMS_BACKUP_REFERENCE.md`
 
 ## Next Required Owner Actions
-1. Record original CMS backup reference in repo docs.
-2. Keep LV2 naming mismatch cleanup in deferred post-cutover rehaul lane (non-blocking).
+1. Keep LV2 naming mismatch cleanup in deferred post-cutover rehaul lane (non-blocking).

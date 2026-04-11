@@ -14,10 +14,7 @@ Repository: ouiispeak-cms-sandbox
 Track known unresolved items so decisions and required fixes cannot disappear between sessions.
 
 ## Open Items
-1. Original CMS backup reference (commit/tag/branch and storage location) is pending recording in repo docs.
-   Owner: Raychel Johnson
-   Target: 2026-04-11
-2. LV2 naming mismatch cleanup is intentionally deferred to post-cutover LV2 rehaul and must not block telemetry/L6 gate closure.
+1. LV2 naming mismatch cleanup is intentionally deferred to post-cutover LV2 rehaul and must not block telemetry/L6 gate closure.
    Owner: Raychel Johnson
    Target: Post-cutover
 
@@ -96,6 +93,7 @@ Status Rule: Every item below must be complete. If any item is incomplete, overa
 4. Retirement closeout owner-side GO/NO-GO acceptance signed (`GO`) in `cutover-backups/20260410-235434/reapply-20260411-001839/r8-go-no-go-signoff.md`.
 5. Post-cutover cleanup completed: temporary orchestration artifact retired from active authority path (`central/FACTORY_RESET_ORCHESTRATION_PLAN.md` moved to `archive/central/FACTORY_RESET_ORCHESTRATION_PLAN.md`).
 6. Telemetry + L6 cutover proof packet published at `central/TELEMETRY_L6_CUTOVER_PROOF.md` with deterministic PASS evidence links.
+7. Original CMS backup reference recorded and closed at `central/ORIGINAL_CMS_BACKUP_REFERENCE.md` with immutable bundle checksum and storage path.
 
 ## Reopen Rule
 If any contract, schema, naming, or requiredness drift is discovered, add a new item here before merging additional behavior changes.
