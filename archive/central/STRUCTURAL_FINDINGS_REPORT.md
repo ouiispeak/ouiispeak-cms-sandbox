@@ -1,6 +1,6 @@
 Authority Role: audit
 Artifact Type: structural-findings-report
-Canonical Source: central/STRUCTURAL_FINDINGS_REPORT.md
+Canonical Source: archive/central/STRUCTURAL_FINDINGS_REPORT.md
 Constitution Reference: central/CONSTITUTION.md
 
 # Structural Findings Report

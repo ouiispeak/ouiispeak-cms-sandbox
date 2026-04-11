@@ -1,6 +1,6 @@
 Authority Role: canonical
 Artifact Type: telemetry-l6-cutover-proof
-Canonical Source: central/TELEMETRY_L6_CUTOVER_PROOF.md
+Canonical Source: archive/central/TELEMETRY_L6_CUTOVER_PROOF.md
 Constitution Reference: central/CONSTITUTION.md
 
 # Telemetry + L6 Cutover Proof Packet

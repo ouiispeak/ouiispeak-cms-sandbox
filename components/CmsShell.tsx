@@ -22,7 +22,7 @@ export default function CmsShell({ children }: CmsShellProps) {
   return (
     <div className="shell">
       <aside className="nav">
-        <h1>CMS Factory Reset</h1>
+        <h1>OuiiSpeak CMS Sandbox</h1>
         <ul>
           {links.map((item) => (
             <li key={item.href}>

@@ -37,7 +37,7 @@ Rules:
   - Dedicated lib: `Developer/ouiispeak-cms-sandbox/lib/activitySlides.ts`
   - Dedicated API routes: `Developer/ouiispeak-cms-sandbox/app/api/activity-slides/`
 - Lesson player mock provider reads activity slides from **`slides` + `slide_field_values`**
-  - Source: `ouiispeak/src/lib/lesson-provider/mock127-provider.ts` lines 370–385
+  - Source: `ouiispeak/src/lib/lesson-provider/player-provider.ts` lines 370–385
 
 These two paths do not connect. A slide written by the CMS sandbox into `activity_slides` cannot be read by the player's mock provider without a provider update.
 
@@ -47,7 +47,7 @@ These two paths do not connect. A slide written by the CMS sandbox into `activit
 - Lower integration cost for C0 testing, but defers the `activity_slides` architecture question.
 
 **Option B — Commit to `activity_slides` and update the provider:**
-- Requires updating `ouiispeak/src/lib/lesson-provider/mock127-provider.ts` to read from `activity_slides` + `activity_slide_field_values`.
+- Requires updating `ouiispeak/src/lib/lesson-provider/player-provider.ts` to read from `activity_slides` + `activity_slide_field_values`.
 - More work before C0, but aligns the final data architecture now.
 - Correct long-term choice if `activity_slides` is the intended permanent table.
 
@@ -180,7 +180,7 @@ Tighten `activitySlideSchema` in `ouiispeak/src/contracts/lesson/lesson-contract
 - [ ] **[Schema fix]** Update `activitySlideSchema` in `ouiispeak/src/contracts/lesson/lesson-contract.v1.ts` per the fix above.
 - [ ] Lock `contractVersion` to `"v1"` for this lane.
 - [ ] Add strict validation for all `interaction` subfields.
-- [ ] If Option B selected: update `ouiispeak/src/lib/lesson-provider/mock127-provider.ts` to read from `activity_slides` + `activity_slide_field_values`.
+- [ ] If Option B selected: update `ouiispeak/src/lib/lesson-provider/player-provider.ts` to read from `activity_slides` + `activity_slide_field_values`.
 - [ ] Add renderability tests (see test suite below).
 - [ ] **No import, no DB write, no render** proceeds unless all of the above are done.
 

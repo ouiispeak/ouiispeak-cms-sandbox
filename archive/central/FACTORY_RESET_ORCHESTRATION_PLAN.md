@@ -28,9 +28,9 @@ Protect telemetry integrity and L6 input contract correctness as hard cutover ga
    - `/Users/raycheljohnson/Desktop/ouiispeak-cms/lib/data/slides.ts:530`
 2. Canonical player DB loader still reads `lessons + lesson_groups + slides` with legacy slide columns:
    - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/loadLessonFromDb.ts:44`
-3. Mock127 provider already reads split ACT tables (`activity_slides` + `activity_slide_field_values`) together with other boundary tables:
-   - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lesson-provider/mock127-provider.ts:552`
-   - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lesson-provider/mock127-provider.ts:594`
+3. Player-Isolated provider already reads split ACT tables (`activity_slides` + `activity_slide_field_values`) together with other boundary tables:
+   - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lesson-provider/player-provider.ts:552`
+   - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lesson-provider/player-provider.ts:594`
 4. Legacy producer migrations in repo are additive to `slides` columns; no dedicated `activity_slides` migration chain is present there:
    - `/Users/raycheljohnson/Desktop/ouiispeak-cms/supabase/migrations/20260314_add_activity_model_columns.sql:5`
 
@@ -78,9 +78,9 @@ Protect telemetry integrity and L6 input contract correctness as hard cutover ga
 ### Route Family Split
 1. Canonical player lane (`/lecons/[module]/[lesson]`) resolves through `resolveLessonFromSlug -> loadLesson -> getLessonBySlug -> loadLessonFromDb`, and reads legacy `slides` columns:
    - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/loadLessonFromDb.ts:44`
-2. Lab/mock127 lane (`/lab/lesson/[id]`) resolves through `getMock127LessonContractByLessonId` and reads isolated ACT tables:
-   - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lesson-provider/mock127-provider.ts:562`
-   - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lesson-provider/mock127-provider.ts:595`
+2. Lab/player-isolated lane (`/lesson/[id]`) resolves through `getPlayer-IsolatedLessonContractByLessonId` and reads isolated ACT tables:
+   - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lesson-provider/player-provider.ts:562`
+   - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lesson-provider/player-provider.ts:595`
 3. Canonical lane remains slug-sensitive for module/lesson resolution:
    - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lessons/findLessonBySlug.ts:29`
    - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lessons/findLessonBySlug.ts:47`
@@ -97,20 +97,20 @@ Protect telemetry integrity and L6 input contract correctness as hard cutover ga
    - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/loadLessonFromDb.ts:27`
    - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/loadLessonFromDb.ts:151`
    - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/components/slides/ActivitySlide.tsx:79`
-4. `high` `proven` (conditional on contaminated data): mock127 lane fails closed when non-text `slide_field_values` contamination is present.
-   - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lesson-provider/mock127-provider.ts:397`
-   - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lesson-provider/mock127-provider.ts:428`
+4. `high` `proven` (conditional on contaminated data): player-isolated lane fails closed when non-text `slide_field_values` contamination is present.
+   - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lesson-provider/player-provider.ts:397`
+   - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lesson-provider/player-provider.ts:428`
 5. `high` `proven`: mock/local endpoints are hardcoded in some player read surfaces and can fail outside local-lane environments.
-   - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lesson-provider/mock127-provider.ts:7`
+   - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/lib/lesson-provider/player-provider.ts:7`
    - `/Users/raycheljohnson/isolated/ouiispeak-player-isolated/src/app/(app)/lecons/page.tsx:11`
 
 ### Confidence Notes (Revised Audit Clarifications)
 1. Canonical player data dependency is explicitly `lessons -> lesson_groups -> slides`; this is already reflected in the break matrix and remains the primary blocking delta.
 2. Runtime-contract mismatch is intentionally graded `medium likely` (not deterministic blocking): canonical loader can surface top-level `runtimeContractV1` when present, so failure depends on post-cutover payload shape.
-3. Mock127 contamination failure is `high proven` but conditional on contaminated data; clean-lane data keeps this path stable.
+3. Player-Isolated contamination failure is `high proven` but conditional on contaminated data; clean-lane data keeps this path stable.
 
 ### Consumer Unknowns Requiring Proof Before Cutover
-1. Whether `/lab/lesson/[id]` is cutover-critical or explicitly dev-only for go-live decisions.
+1. Whether `/lesson/[id]` is cutover-critical or explicitly dev-only for go-live decisions.
 2. Whether canonical nested relation queries require explicit `.range()` protection under production Supabase row-limit policy.
 3. Whether UUID strictness is fully enforced at DB boundary for all player-facing API write paths.
 
@@ -184,7 +184,7 @@ Goal: freeze exact producer/consumer query and write surfaces before any cutover
 
 Deliverables:
 1. Legacy producer write-surface inventory (table, columns, function, route)
-2. Player read-surface inventory by route family (`db` loader path vs mock127 path)
+2. Player read-surface inventory by route family (`db` loader path vs player-isolated path)
 3. File+line evidence appendix for every surface
 
 Exit Gate:
@@ -246,7 +246,7 @@ Current assignment snapshot:
 | B6 | high | Title/Lesson-end creation can still traverse group-scoped insertion flows in legacy lane | Target boundary model is split + lane-specific tables | LEGACY-LANE | 6 | Legacy lane is retired for content writes post-cutover |
 | B7 | medium | RPC transaction functions called in app code but SQL bodies not source-controlled in legacy repo | Cutover rollback confidence depends on known DB execution semantics | OPERATOR + LEGACY-LANE | 7 | Catalog export includes active RPC signatures + trigger inventory archived with cutover snapshot |
 | B8 | medium | Canonical nested relation reads may depend on default row limits | Production row limits can truncate unresolved relations | PLAYER-LANE | 8 | Row-limit behavior tested and bounded (explicit range/pagination where required) |
-| B9 | low | `/lab/lesson/[id]` scope relative to production is not explicitly fixed | Ambiguous runtime obligations at cutover | OPERATOR + PLAYER-LANE | 9 | Written decision: lab route is prod-critical or dev-only |
+| B9 | low | `/lesson/[id]` scope relative to production is not explicitly fixed | Ambiguous runtime obligations at cutover | OPERATOR + PLAYER-LANE | 9 | Written decision: lab route is prod-critical or dev-only |
 
 ### WS2-B — Ordered Dependency Edges
 1. B1 and B2 are hard blockers and must both close before GO.
@@ -324,7 +324,7 @@ npx tsx --test tests/drift-gates.test.ts
 # Player speaking/Whisper lanes (exact command list owned by PLAYER-LANE packet)
 cd /Users/raycheljohnson/isolated/ouiispeak-player-isolated
 npm run -s check:types
-npx vitest run src/lib/lesson-provider/mock127-provider.test.ts src/lib/telemetry/emitTelemetry.payload.test.ts
+npx vitest run src/lib/lesson-provider/player-isolated-provider.test.ts src/lib/telemetry/emitTelemetry.payload.test.ts
 ```
 
 ### WS6 — Telemetry + L6 Input Integrity Gate
@@ -669,14 +669,14 @@ Checkpoint R5 PASS Criteria:
 ```bash
 cd /Users/raycheljohnson/isolated/ouiispeak-player-isolated
 npm run -s check:types
-npx vitest run src/lib/lesson-provider/mock127-provider.test.ts src/lib/telemetry/emitTelemetry.payload.test.ts
+npx vitest run src/lib/lesson-provider/player-isolated-provider.test.ts src/lib/telemetry/emitTelemetry.payload.test.ts
 curl -fsS "http://127.0.0.1:3000/lecons" >/tmp/player-lecons.html
-curl -fsS "http://127.0.0.1:3000/lab/lesson/<lessonId>" >/tmp/player-lab-lesson.html
+curl -fsS "http://127.0.0.1:3000/lesson/<lessonId>" >/tmp/player-lab-lesson.html
 ```
 
 Checkpoint R6 PASS Criteria:
 1. `/lecons/[module]/[lesson]` resolves lesson with ACT content from split tables.
-2. `/lab/lesson/[id]` remains healthy on split schema.
+2. `/lesson/[id]` remains healthy on split schema.
 3. Player route smoke artifacts are archived in `cutover-backups/<ts>/player/`.
 
 #### R7. Verification Suite (Hard Gate)

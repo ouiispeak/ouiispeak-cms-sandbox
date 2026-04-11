@@ -478,8 +478,7 @@
       "open_items_log": {
         "canonical_source": "central/OPEN_ITEMS.md",
         "allowed_non_canonical_artifacts": [
-          "README.md",
-          "central/STRUCTURAL_FINDINGS_REPORT.md"
+          "README.md"
         ]
       },
       "operations_runbook": {
@@ -798,7 +797,6 @@
     ],
     "must_update_documents": [
       "README.md",
-      "docs/FACTORY_RESET_SCOPE.md",
       "docs/LOCAL_SUPABASE_MANUAL_SETUP.md",
       "central/CONSTITUTION.md",
       "central/ORDER_OF_OPERATIONS.md",

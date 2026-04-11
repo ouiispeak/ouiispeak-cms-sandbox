@@ -185,3 +185,6 @@ Update `.env.local` from:
 ```bash
 supabase status -o env
 ```
+Also set lesson-player link-out vars for CMS edit-page handoff:
+- `LESSON_PLAYER_BASE_URL` (server)
+- `NEXT_PUBLIC_LESSON_PLAYER_BASE_URL` (fallback)

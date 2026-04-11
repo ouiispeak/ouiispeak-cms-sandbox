@@ -1,6 +1,6 @@
 Authority Role: canonical
 Artifact Type: backup-reference
-Canonical Source: central/ORIGINAL_CMS_BACKUP_REFERENCE.md
+Canonical Source: archive/central/ORIGINAL_CMS_BACKUP_REFERENCE.md
 Constitution Reference: central/CONSTITUTION.md
 
 # Original CMS Backup Reference

@@ -29,7 +29,7 @@ export default async function EditLessonPage({ params }: { params: Promise<{ les
     process.env.NEXT_PUBLIC_LESSON_PLAYER_BASE_URL ??
     "http://localhost:3001";
   const normalizedLessonPlayerBaseUrl = lessonPlayerBaseUrl.replace(/\/+$/, "");
-  const lessonPlayerUrl = `${normalizedLessonPlayerBaseUrl}/lab/lesson/${encodeURIComponent(lessonId)}`;
+  const lessonPlayerUrl = `${normalizedLessonPlayerBaseUrl}/lesson/${encodeURIComponent(lessonId)}`;
 
   try {
     const [categories, lessonRecord, modules] = await Promise.all([

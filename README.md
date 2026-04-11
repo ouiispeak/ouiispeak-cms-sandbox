@@ -5,7 +5,7 @@ Constitution Reference: central/CONSTITUTION.md
 Last Updated: 2026-04-10
 Owner: CMS Platform (Sandbox Data Lane)
 
-# CMS Barebones Factory Reset
+# OuiiSpeak CMS Sandbox
 
 Minimal local sandbox for the CMS hierarchy:
 

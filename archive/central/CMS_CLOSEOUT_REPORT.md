@@ -1,6 +1,6 @@
 Authority Role: canonical
 Artifact Type: cms-closeout-report
-Canonical Source: central/CMS_CLOSEOUT_REPORT.md
+Canonical Source: archive/central/CMS_CLOSEOUT_REPORT.md
 Constitution Reference: central/CONSTITUTION.md
 
 # CMS Closeout Report
