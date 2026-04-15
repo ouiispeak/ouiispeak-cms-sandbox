@@ -112,6 +112,12 @@ type DynamicValueSpec = {
   saveErrorLabel: string;
 };
 
+type PostWriteDynamicInvariantContext = {
+  id: string;
+  persistedValues: FieldInputMap;
+  contextLabel: string;
+};
+
 type EngineConfig<CoreRow extends { id: string }, DetailRow> = {
   componentName: string;
   componentLabel: string;
@@ -129,6 +135,9 @@ type EngineConfig<CoreRow extends { id: string }, DetailRow> = {
   dynamicValues: DynamicValueSpec;
   mapDetail: (coreRow: CoreRow, values: ValueMap) => DetailRow;
   applySystemAssignedFields?: (context: SystemAssignedFieldContext) => Promise<void> | void;
+  verifyPostWriteDynamicInvariants?: (
+    context: PostWriteDynamicInvariantContext
+  ) => Promise<void> | void;
 };
 
 type ParsedImportCreateRow = {
@@ -419,9 +428,10 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
     config.updateIdentityEntryKey,
     ...(config.parentSpec ? config.parentSpec.entryKeys : []),
   ]);
-  const topLevelOnlyFieldNames = new Set<string>(
-    config.parentSpec ? config.parentSpec.entryKeys : []
-  );
+  const topLevelOnlyFieldNames = new Set<string>([
+    config.updateIdentityEntryKey,
+    ...(config.parentSpec ? config.parentSpec.entryKeys : []),
+  ]);
   const matrixBoundCategoryRequirednessRule =
     config.componentName === "activity_slides"
       ? null
@@ -856,62 +866,75 @@ export function createHierarchyComponentEngine<CoreRow extends { id: string }, L
       );
     }
 
-    if (!postWriteOptionsNeedDynamicValueValidation(options)) {
+    const shouldRunDefaultDynamicValidation = postWriteOptionsNeedDynamicValueValidation(options);
+    const shouldRunCustomDynamicValidation = Boolean(config.verifyPostWriteDynamicInvariants);
+
+    if (!shouldRunDefaultDynamicValidation && !shouldRunCustomDynamicValidation) {
       return;
     }
 
     const persistedRows = await loadValueRowsById(id);
     const persistedValues = fieldInputMapFromDynamicRows(persistedRows);
 
-    const missingDynamicFields: string[] = [];
-    for (const fieldName of options.requiredFieldNames.values()) {
-      if (options.topLevelOnlyFieldNames.has(fieldName)) {
-        continue;
-      }
-
-      const value = getFieldValueByFieldName(persistedValues, fieldName);
-      if (isMissingRequiredFieldValue(value)) {
-        missingDynamicFields.push(fieldName);
-      }
-    }
-
-    if (missingDynamicFields.length > 0) {
-      throw new Error(
-        `${contextLabel}: post-write DB validation failed; missing required persisted ${config.componentLabel} fields: ${missingDynamicFields.join(
-          ", "
-        )}.`
-      );
-    }
-
-    const missingOneOfGroups: string[][] = [];
-    for (const group of options.requiredOneOfGroups) {
-      const hasAny = group.some((fieldName) => {
+    if (shouldRunDefaultDynamicValidation) {
+      const missingDynamicFields: string[] = [];
+      for (const fieldName of options.requiredFieldNames.values()) {
         if (options.topLevelOnlyFieldNames.has(fieldName)) {
-          if (fieldName === config.updateIdentityEntryKey) {
-            return typeof coreRow.id === "string" && coreRow.id.trim().length > 0;
-          }
-
-          if (config.parentSpec && fieldName === config.parentSpec.entryKeys[0]) {
-            return !isMissingRequiredFieldValue(persistedParentValue ?? null);
-          }
-
-          return false;
+          continue;
         }
 
         const value = getFieldValueByFieldName(persistedValues, fieldName);
-        return !isMissingRequiredFieldValue(value);
-      });
+        if (isMissingRequiredFieldValue(value)) {
+          missingDynamicFields.push(fieldName);
+        }
+      }
 
-      if (!hasAny) {
-        missingOneOfGroups.push(group);
+      if (missingDynamicFields.length > 0) {
+        throw new Error(
+          `${contextLabel}: post-write DB validation failed; missing required persisted ${config.componentLabel} fields: ${missingDynamicFields.join(
+            ", "
+          )}.`
+        );
+      }
+
+      const missingOneOfGroups: string[][] = [];
+      for (const group of options.requiredOneOfGroups) {
+        const hasAny = group.some((fieldName) => {
+          if (options.topLevelOnlyFieldNames.has(fieldName)) {
+            if (fieldName === config.updateIdentityEntryKey) {
+              return typeof coreRow.id === "string" && coreRow.id.trim().length > 0;
+            }
+
+            if (config.parentSpec && fieldName === config.parentSpec.entryKeys[0]) {
+              return !isMissingRequiredFieldValue(persistedParentValue ?? null);
+            }
+
+            return false;
+          }
+
+          const value = getFieldValueByFieldName(persistedValues, fieldName);
+          return !isMissingRequiredFieldValue(value);
+        });
+
+        if (!hasAny) {
+          missingOneOfGroups.push(group);
+        }
+      }
+
+      if (missingOneOfGroups.length > 0) {
+        const groupsText = missingOneOfGroups.map((group) => `[${group.join(" | ")}]`).join(", ");
+        throw new Error(
+          `${contextLabel}: post-write DB validation failed; missing required one-of persisted ${config.componentLabel} groups: ${groupsText}.`
+        );
       }
     }
 
-    if (missingOneOfGroups.length > 0) {
-      const groupsText = missingOneOfGroups.map((group) => `[${group.join(" | ")}]`).join(", ");
-      throw new Error(
-        `${contextLabel}: post-write DB validation failed; missing required one-of persisted ${config.componentLabel} groups: ${groupsText}.`
-      );
+    if (config.verifyPostWriteDynamicInvariants) {
+      await config.verifyPostWriteDynamicInvariants({
+        id,
+        persistedValues,
+        contextLabel,
+      });
     }
   }
 

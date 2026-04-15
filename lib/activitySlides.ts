@@ -10,6 +10,7 @@ import { createHierarchyComponentEngine } from "@/lib/hierarchyComponentEngine";
 import {
   validateActivitySlideFormDataPreflight,
   validateActivitySlideImportPayloadPreflight,
+  validateActivitySlidePersistedValuesPostWrite,
 } from "@/lib/activitySlidePreflight";
 import { normalizeActivityPropsJson } from "@/lib/activityPayloadNormalization";
 import { loadActivitySlideConfigCategories } from "@/lib/universalConfigs";
@@ -176,6 +177,12 @@ const activitySlideEngine = createHierarchyComponentEngine<
   },
   applySystemAssignedFields: ({ values }) => {
     normalizeActivityPropsJsonInValueMap(values);
+  },
+  verifyPostWriteDynamicInvariants: ({ id, persistedValues, contextLabel }) => {
+    validateActivitySlidePersistedValuesPostWrite(
+      persistedValues,
+      `${contextLabel}: ${id} persisted ACT payload`
+    );
   },
   mapDetail: (coreRow: ActivitySlideCoreRow, values: ValueMap): ActivitySlideDetailRow => ({
     ...coreRow,

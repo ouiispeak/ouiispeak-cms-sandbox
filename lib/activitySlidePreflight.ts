@@ -1,4 +1,4 @@
-import { isObjectRecord, parseImportEntries } from "@/lib/componentCore";
+import { isObjectRecord, parseImportEntries, splitQualifiedFieldKey, type FieldInputMap } from "@/lib/componentCore";
 import { ACTIVE_ACTIVITY_SHAPE_LOCK_MAP } from "@/lib/activityShapeLock";
 import {
   deriveActivityStructuredPayloadFieldKeys,
@@ -753,4 +753,17 @@ export function validateActivitySlideFormDataPreflight(
   const contextLabel = `Activity slide ${mode} request`;
   const fieldMap = extractFieldMapFromFormData(formData);
   validateActivitySlideFieldMap(fieldMap, mode, contextLabel);
+}
+
+export function validateActivitySlidePersistedValuesPostWrite(
+  persistedValues: FieldInputMap,
+  contextLabel: string
+): void {
+  const fieldMap = new Map<string, unknown>();
+  for (const [qualifiedKey, fieldValue] of persistedValues.entries()) {
+    const { fieldName } = splitQualifiedFieldKey(qualifiedKey);
+    fieldMap.set(fieldName, fieldValue);
+  }
+
+  validateActivitySlideFieldMap(fieldMap, "create", contextLabel);
 }

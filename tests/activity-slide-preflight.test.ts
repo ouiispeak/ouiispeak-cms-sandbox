@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   validateActivitySlideFormDataPreflight,
   validateActivitySlideImportPayloadPreflight,
+  validateActivitySlidePersistedValuesPostWrite,
 } from "../lib/activitySlidePreflight";
 
 function validRuntimeContract(toolName: string): Record<string, unknown> {
@@ -15,6 +16,40 @@ function validRuntimeContract(toolName: string): Record<string, unknown> {
     },
   };
 }
+
+test("activity post-write validation accepts ACT payload persisted in propsJson lane", () => {
+  const persistedValues = new Map<string, string | null>([
+    ["Identity & Lifecycle.activityId", "ACT-010"],
+    ["Identity & Lifecycle.type", "activity"],
+    ["Activities & Interaction.propsJson", JSON.stringify({
+      runtimeContractV1: validRuntimeContract("AudioChoiceSelector"),
+      promptText: "Pick the right noun.",
+      choiceElements: [{ label: "glass" }, { label: "cup" }],
+      correctAnswer: "glass",
+    })],
+  ]);
+
+  assert.doesNotThrow(() =>
+    validateActivitySlidePersistedValuesPostWrite(persistedValues, "Activity slide post-write")
+  );
+});
+
+test("activity post-write validation rejects persisted payload missing propsJson.runtimeContractV1", () => {
+  const persistedValues = new Map<string, string | null>([
+    ["Identity & Lifecycle.activityId", "ACT-010"],
+    ["Identity & Lifecycle.type", "activity"],
+    ["Activities & Interaction.propsJson", JSON.stringify({
+      promptText: "Pick the right noun.",
+      choiceElements: [{ label: "glass" }, { label: "cup" }],
+      correctAnswer: "glass",
+    })],
+  ]);
+
+  assert.throws(
+    () => validateActivitySlidePersistedValuesPostWrite(persistedValues, "Activity slide post-write"),
+    /requires non-empty runtimeContractV1/
+  );
+});
 
 test("activity preflight rejects propsJson/top-level duplicate structured fields", () => {
   const payload = [
