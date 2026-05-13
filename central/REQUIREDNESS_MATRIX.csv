@@ -2,6 +2,7 @@ field_key,component_name,act_id,operation,required_from_lv2,required_at_ingest,r
 acceptedCorrections,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.acceptedCorrections (no requireField/runtime dependency),locked
 acceptedCorrections,activity_slides,ACT-019,propsJson,true,true,true,true,false,lv2,lib/activityShapeLock.ts,ACT-019.requiredAll,locked
 activityId,activity_slides,,category_payload,true,true,true,true,false,lv2,player-contract requireField + contract path,runtime_required:activity_slides.activityId via player-contract,locked
+activityIntent,activity_slides,,category_payload,false,false,false,false,true,cms,lib/activitySlides.ts,system_assigned_from_activityId:activity_slides.activityIntent,locked
 aiInstructions,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.aiInstructions (no requireField/runtime dependency),locked
 allowRetry,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.allowRetry (no requireField/runtime dependency),locked
 allowSkip,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.allowSkip (no requireField/runtime dependency),locked
@@ -26,6 +27,8 @@ body,activity_slides,ACT-005,propsJson,conditional_one_of,conditional_one_of,con
 buttons,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.buttons (no requireField/runtime dependency),locked
 categoryLabels,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.categoryLabels (no requireField/runtime dependency),locked
 categoryLabels,activity_slides,ACT-014,propsJson,true,true,true,true,false,lv2,lib/activityShapeLock.ts,ACT-014.requiredAll,locked
+canonicalNodeKey,activity_slides,,category_payload,true,true,true,true,false,lv2,supabase/manual/012_component_activation_seed.sql + supabase/manual/015_act_001_slide_setup.sql,activity_slides.required_fields include canonicalNodeKey,locked
+canonicalSliceKey,activity_slides,,category_payload,true,true,true,true,false,lv2,supabase/manual/012_component_activation_seed.sql + supabase/manual/015_act_001_slide_setup.sql,activity_slides.required_fields include canonicalSliceKey,locked
 cefrLevel,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.cefrLevel (no requireField/runtime dependency),locked
 cefrMax,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.cefrMax (no requireField/runtime dependency),locked
 cefrMin,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.cefrMin (no requireField/runtime dependency),locked
@@ -92,6 +95,7 @@ learningObjectives,activity_slides,,category_payload,false,false,false,false,fal
 lessonId,activity_slides,,category_payload,false,false,false,false,true,db,player-contract requireField + contract path,runtime_not_required:activity_slides.lessonId (no requireField/runtime dependency),locked
 letterUnits,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.letterUnits (no requireField/runtime dependency),locked
 letterUnits,activity_slides,ACT-024,propsJson,true,true,true,true,false,lv2,lib/activityShapeLock.ts,ACT-024.requiredAll,locked
+level,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.level (no requireField/runtime dependency),locked
 levelMax,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.levelMax (no requireField/runtime dependency),locked
 levelMin,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.levelMin (no requireField/runtime dependency),locked
 lines,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.lines (no requireField/runtime dependency),locked
@@ -118,7 +122,6 @@ passingScoreType,activity_slides,,category_payload,false,false,false,false,false
 passingScoreValue,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.passingScoreValue (no requireField/runtime dependency),locked
 passRequiredForNext,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.passRequiredForNext (no requireField/runtime dependency),locked
 prerequisiteEdges,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.prerequisiteEdges (no requireField/runtime dependency),locked
-prerequisiteModules,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.prerequisiteModules (no requireField/runtime dependency),locked
 prerequisiteNodes,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.prerequisiteNodes (no requireField/runtime dependency),locked
 prerequisites,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.prerequisites (no requireField/runtime dependency),locked
 prerequisiteSlices,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.prerequisiteSlices (no requireField/runtime dependency),locked
@@ -192,8 +195,8 @@ sentenceTokens,activity_slides,ACT-015,propsJson,true,true,true,true,false,lv2,l
 sentenceWithGaps,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.sentenceWithGaps (no requireField/runtime dependency),locked
 sentenceWithGaps,activity_slides,ACT-017,propsJson,true,true,true,true,false,lv2,lib/activityShapeLock.ts + lib/activitySlidePreflight.ts,ACT-017.requiredAll + full-sentence token bounds for blanks.correctGapIndex,locked
 sentenceWithGaps,activity_slides,ACT-018,propsJson,true,true,true,true,false,lv2,lib/activityShapeLock.ts + lib/activitySlidePreflight.ts,ACT-018.requiredAll + sentence gaps bounds + accepted_answers-in-wordBank validation,locked
-shortSummaryTeacherActivity,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.shortSummaryTeacherActivity (no requireField/runtime dependency),locked
-shortSummaryTeacherSlide,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.shortSummaryTeacherSlide (no requireField/runtime dependency),locked
+shortSummaryActivityTeacher,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.shortSummaryActivityTeacher (no requireField/runtime dependency),locked
+shortSummarySlideTeacher,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.shortSummarySlideTeacher (no requireField/runtime dependency),locked
 signatureMetaphors,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.signatureMetaphors (no requireField/runtime dependency),locked
 simplificationGuidelines,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.simplificationGuidelines (no requireField/runtime dependency),locked
 skipPolicy,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.skipPolicy (no requireField/runtime dependency),locked
@@ -214,7 +217,6 @@ targetedSlices,activity_slides,,category_payload,false,false,false,false,false,l
 targetKeywords,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.targetKeywords (no requireField/runtime dependency),locked
 targetKeywords,activity_slides,ACT-022,propsJson,true,true,true,true,false,lv2,lib/activityShapeLock.ts,ACT-022.requiredAll,locked
 targetLanguage,activity_slides,,category_payload,true,true,true,false,true,cms,player-contract requireField + contract path,runtime_not_required:activity_slides.targetLanguage (no requireField/runtime dependency),locked
-targetNodeKeys,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.targetNodeKeys (no requireField/runtime dependency),locked
 targetText,activity_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:activity_slides.targetText (no requireField/runtime dependency),locked
 targetText,activity_slides,ACT-005,propsJson,conditional_one_of,conditional_one_of,conditional_one_of,conditional_one_of,false,lv2,lib/activityShapeLock.ts,ACT-005.requiredOneOf=[lines|targetText|body],locked
 targetText,activity_slides,ACT-020,propsJson,true,true,true,true,false,lv2,lib/activityShapeLock.ts,ACT-020.requiredAll,locked
@@ -322,7 +324,7 @@ remediationPaths,groups,,category_payload,false,false,false,false,false,lv2,play
 requiredScore,groups,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.requiredScore (no requireField/runtime dependency),locked
 retryPolicy,groups,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.retryPolicy (no requireField/runtime dependency),locked
 reviewRequired,groups,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.reviewRequired (no requireField/runtime dependency),locked
-shortSummaryTeacherGroup,groups,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.shortSummaryTeacherGroup (no requireField/runtime dependency),locked
+shortSummaryGroupTeacher,groups,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.shortSummaryGroupTeacher (no requireField/runtime dependency),locked
 signatureMetaphors,groups,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.signatureMetaphors (no requireField/runtime dependency),locked
 simplificationGuidelines,groups,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.simplificationGuidelines (no requireField/runtime dependency),locked
 skipPolicy,groups,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.skipPolicy (no requireField/runtime dependency),locked
@@ -336,7 +338,6 @@ targetedEdges,groups,,category_payload,true,true,true,false,false,lv2,player-con
 targetedNodes,groups,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.targetedNodes (no requireField/runtime dependency),locked
 targetedSlices,groups,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.targetedSlices (no requireField/runtime dependency),locked
 targetLanguage,groups,,category_payload,true,true,true,false,true,cms,player-contract requireField + contract path,runtime_not_required:groups.targetLanguage (no requireField/runtime dependency),locked
-targetNodeKeys,groups,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.targetNodeKeys (no requireField/runtime dependency),locked
 teacherNotes,groups,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.teacherNotes (no requireField/runtime dependency),locked
 teacherOverview,groups,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.teacherOverview (no requireField/runtime dependency),locked
 telemetryTags,groups,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.telemetryTags (no requireField/runtime dependency),locked
@@ -346,14 +347,11 @@ topicCategory,groups,,category_payload,false,false,false,false,false,lv2,player-
 version,groups,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.version (no requireField/runtime dependency),locked
 visibility,groups,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.visibility (no requireField/runtime dependency),locked
 vocabularyTheme,groups,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:groups.vocabularyTheme (no requireField/runtime dependency),locked
-activityId,lesson_ends,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lesson_ends.activityId (no requireField/runtime dependency),locked
 audioId,lesson_ends,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lesson_ends.audioId (no requireField/runtime dependency),locked
 buttons,lesson_ends,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lesson_ends.buttons (no requireField/runtime dependency),locked
 defaultLang,lesson_ends,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lesson_ends.defaultLang (no requireField/runtime dependency),locked
 diffLog,lesson_ends,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lesson_ends.diffLog (no requireField/runtime dependency),locked
 extraPracticeNotes,lesson_ends,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lesson_ends.extraPracticeNotes (no requireField/runtime dependency),locked
-groupId,lesson_ends,,category_payload,false,false,true,false,true,db,player-contract requireField + contract path,runtime_not_required:lesson_ends.groupId (no requireField/runtime dependency),locked
-groupName,lesson_ends,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lesson_ends.groupName (no requireField/runtime dependency),locked
 ingestPayload,lesson_ends,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lesson_ends.ingestPayload (no requireField/runtime dependency),locked
 ingestSource,lesson_ends,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lesson_ends.ingestSource (no requireField/runtime dependency),locked
 lastUpdatedAt,lesson_ends,,category_payload,true,true,true,false,true,cms,player-contract requireField + contract path,runtime_not_required:lesson_ends.lastUpdatedAt (no requireField/runtime dependency),locked
@@ -363,7 +361,7 @@ lessonEndMessage,lesson_ends,,category_payload,true,true,true,false,false,lv2,pl
 lessonId,lesson_ends,,category_payload,true,true,true,true,true,db,player-contract requireField + contract path,runtime_required:lesson_ends.lessonId via player-contract,locked
 metadata,lesson_ends,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lesson_ends.metadata (no requireField/runtime dependency),locked
 moduleId,lesson_ends,,category_payload,true,true,true,true,true,db,player-contract requireField + contract path,runtime_required:lesson_ends.moduleId via player-contract,locked
-orderIndex,lesson_ends,,category_payload,true,true,true,true,true,cms,player-contract requireField + contract path,runtime_required:lesson_ends.orderIndex via player-contract,locked
+orderIndex,lesson_ends,,category_payload,false,false,false,false,false,lv2,orderIndex deactivated for lesson_ends payload,runtime_not_required:lesson_ends.orderIndex (deactivated),locked
 ownerTeam,lesson_ends,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lesson_ends.ownerTeam (no requireField/runtime dependency),locked
 recommendedNextStep,lesson_ends,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lesson_ends.recommendedNextStep (no requireField/runtime dependency),locked
 slideId,lesson_ends,,category_payload,true,true,true,false,true,db,player-contract requireField + contract path,runtime_not_required:lesson_ends.slideId (no requireField/runtime dependency),locked
@@ -451,7 +449,7 @@ reviewRequired,lessons,,category_payload,false,false,false,false,false,lv2,playe
 scaffoldingPlan,lessons,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lessons.scaffoldingPlan (no requireField/runtime dependency),locked
 shortSummaryLessonAdmin,lessons,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lessons.shortSummaryLessonAdmin (no requireField/runtime dependency),locked
 shortSummaryLessonStudent,lessons,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lessons.shortSummaryLessonStudent (no requireField/runtime dependency),locked
-shortSummaryTeacherLesson,lessons,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lessons.shortSummaryTeacherLesson (no requireField/runtime dependency),locked
+shortSummaryLessonTeacher,lessons,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lessons.shortSummaryLessonTeacher (no requireField/runtime dependency),locked
 signatureMetaphors,lessons,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lessons.signatureMetaphors (no requireField/runtime dependency),locked
 simplificationGuidelines,lessons,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lessons.simplificationGuidelines (no requireField/runtime dependency),locked
 skipPolicy,lessons,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lessons.skipPolicy (no requireField/runtime dependency),locked
@@ -465,7 +463,6 @@ targetedEdges,lessons,,category_payload,true,true,true,false,false,lv2,player-co
 targetedNodes,lessons,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lessons.targetedNodes (no requireField/runtime dependency),locked
 targetedSlices,lessons,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lessons.targetedSlices (no requireField/runtime dependency),locked
 targetLanguage,lessons,,category_payload,true,true,true,false,true,cms,player-contract requireField + contract path,runtime_not_required:lessons.targetLanguage (no requireField/runtime dependency),locked
-targetNodeKeys,lessons,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lessons.targetNodeKeys (no requireField/runtime dependency),locked
 teacherNotes,lessons,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lessons.teacherNotes (no requireField/runtime dependency),locked
 teacherOverview,lessons,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lessons.teacherOverview (no requireField/runtime dependency),locked
 telemetryTags,lessons,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:lessons.telemetryTags (no requireField/runtime dependency),locked
@@ -534,7 +531,7 @@ remediationPaths,modules,,category_payload,false,false,false,false,false,lv2,pla
 requiredLessons,modules,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:modules.requiredLessons (no requireField/runtime dependency),locked
 reviewRequired,modules,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:modules.reviewRequired (no requireField/runtime dependency),locked
 sequenceType,modules,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:modules.sequenceType (no requireField/runtime dependency),locked
-shortSummaryTeacherModule,modules,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:modules.shortSummaryTeacherModule (no requireField/runtime dependency),locked
+shortSummaryModuleTeacher,modules,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:modules.shortSummaryModuleTeacher (no requireField/runtime dependency),locked
 simplificationGuidelines,modules,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:modules.simplificationGuidelines (no requireField/runtime dependency),locked
 slug,modules,,category_payload,true,true,true,true,false,lv2,player-contract requireField + contract path,runtime_required:modules.slug via player-contract,locked
 sourceVersion,modules,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:modules.sourceVersion (no requireField/runtime dependency),locked
@@ -589,7 +586,7 @@ orderIndex,slides,,category_payload,true,true,true,true,false,lv2,player-contrac
 ownerTeam,slides,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:slides.ownerTeam (no requireField/runtime dependency),locked
 registerVariants,slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:slides.registerVariants (no requireField/runtime dependency),locked
 remediationPaths,slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:slides.remediationPaths (no requireField/runtime dependency),locked
-shortSummaryTeacherSlide,slides,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:slides.shortSummaryTeacherSlide (no requireField/runtime dependency),locked
+shortSummarySlideTeacher,slides,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:slides.shortSummarySlideTeacher (no requireField/runtime dependency),locked
 signatureMetaphors,slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:slides.signatureMetaphors (no requireField/runtime dependency),locked
 simplificationGuidelines,slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:slides.simplificationGuidelines (no requireField/runtime dependency),locked
 slideId,slides,,category_payload,true,true,true,false,true,db,player-contract requireField + contract path,runtime_not_required:slides.slideId (no requireField/runtime dependency),locked
@@ -599,7 +596,7 @@ styleConstraints,slides,,category_payload,false,false,false,false,false,lv2,play
 successCriteria,slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:slides.successCriteria (no requireField/runtime dependency),locked
 tags,slides,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:slides.tags (no requireField/runtime dependency),locked
 targetLanguage,slides,,category_payload,true,true,true,false,true,cms,player-contract requireField + contract path,runtime_not_required:slides.targetLanguage (no requireField/runtime dependency),locked
-targetNodeKeys,slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:slides.targetNodeKeys (no requireField/runtime dependency),locked
+targetedNodes,slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:slides.targetedNodes (no requireField/runtime dependency),locked
 teacherNotes,slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:slides.teacherNotes (no requireField/runtime dependency),locked
 teacherOverview,slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:slides.teacherOverview (no requireField/runtime dependency),locked
 telemetryTags,slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:slides.telemetryTags (no requireField/runtime dependency),locked
@@ -610,7 +607,7 @@ visibility,slides,,category_payload,true,true,true,false,false,lv2,player-contra
 audioId,title_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:title_slides.audioId (no requireField/runtime dependency),locked
 buttons,title_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:title_slides.buttons (no requireField/runtime dependency),locked
 defaultLang,title_slides,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:title_slides.defaultLang (no requireField/runtime dependency),locked
-description,title_slides,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:title_slides.description (no requireField/runtime dependency),locked
+description,title_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:title_slides.description (no requireField/runtime dependency),locked
 diffLog,title_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:title_slides.diffLog (no requireField/runtime dependency),locked
 ingestPayload,title_slides,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:title_slides.ingestPayload (no requireField/runtime dependency),locked
 ingestSource,title_slides,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:title_slides.ingestSource (no requireField/runtime dependency),locked
@@ -627,7 +624,7 @@ slideId,title_slides,,category_payload,true,true,true,false,true,db,player-contr
 slug,title_slides,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:title_slides.slug (no requireField/runtime dependency),locked
 sourceVersion,title_slides,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:title_slides.sourceVersion (no requireField/runtime dependency),locked
 subtitle,title_slides,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:title_slides.subtitle (no requireField/runtime dependency),locked
-tags,title_slides,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:title_slides.tags (no requireField/runtime dependency),locked
+tags,title_slides,,category_payload,false,false,false,false,false,lv2,player-contract requireField + contract path,runtime_not_required:title_slides.tags (no requireField/runtime dependency),locked
 targetLanguage,title_slides,,category_payload,true,true,true,false,true,cms,player-contract requireField + contract path,runtime_not_required:title_slides.targetLanguage (no requireField/runtime dependency),locked
 title,title_slides,,category_payload,true,true,true,true,false,lv2,player-contract requireField + contract path,runtime_required:title_slides.title via player-contract,locked
 version,title_slides,,category_payload,true,true,true,false,false,lv2,player-contract requireField + contract path,runtime_not_required:title_slides.version (no requireField/runtime dependency),locked

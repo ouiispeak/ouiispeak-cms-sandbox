@@ -1,7 +1,7 @@
 import CustomFieldInput from "@/components/CustomFieldInput";
 import { isCustomComplexInputType, loadLessonConfigCategories } from "@/lib/universalConfigs";
 import { createLessonFromFormData, loadLessonById, updateLessonFromFormData } from "@/lib/lessons";
-import { loadModules } from "@/lib/modules";
+import { loadModuleById, loadModules } from "@/lib/modules";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +20,23 @@ async function updateLessonAction(lessonId: string, formData: FormData) {
   redirect(`/edit-lesson/${lessonId}`);
 }
 
+type ComponentValueMap = Record<string, Record<string, string | null>>;
+
+function getComponentSlug(values: ComponentValueMap | undefined): string | null {
+  if (!values) {
+    return null;
+  }
+
+  for (const categoryValues of Object.values(values)) {
+    const candidate = categoryValues?.slug;
+    if (typeof candidate === "string" && candidate.trim().length > 0) {
+      return candidate.trim();
+    }
+  }
+
+  return null;
+}
+
 export default async function EditLessonPage({ params }: { params: Promise<{ lessonId: string }> }) {
   const { lessonId } = await params;
   const isNewLessonRoute = lessonId === "new";
@@ -27,9 +44,8 @@ export default async function EditLessonPage({ params }: { params: Promise<{ les
   const lessonPlayerBaseUrl =
     process.env.LESSON_PLAYER_BASE_URL ??
     process.env.NEXT_PUBLIC_LESSON_PLAYER_BASE_URL ??
-    "http://localhost:3001";
+    "http://localhost:3000";
   const normalizedLessonPlayerBaseUrl = lessonPlayerBaseUrl.replace(/\/+$/, "");
-  const lessonPlayerUrl = `${normalizedLessonPlayerBaseUrl}/lesson/${encodeURIComponent(lessonId)}`;
 
   try {
     const [categories, lessonRecord, modules] = await Promise.all([
@@ -37,6 +53,18 @@ export default async function EditLessonPage({ params }: { params: Promise<{ les
       isNewLessonRoute ? Promise.resolve(null) : loadLessonById(lessonId),
       loadModules(),
     ]);
+    const moduleRecord =
+      !isNewLessonRoute && lessonRecord ? await loadModuleById(lessonRecord.module_id) : null;
+
+    const lessonSlug = lessonRecord ? getComponentSlug(lessonRecord.values) : null;
+    const moduleSlug = moduleRecord ? getComponentSlug(moduleRecord.values) : null;
+    const lessonPlayerPath =
+      moduleSlug && lessonSlug
+        ? `/lecons/${encodeURIComponent(moduleSlug)}/${encodeURIComponent(lessonSlug)}`
+        : null;
+    const lessonPlayerUrl = lessonPlayerPath
+      ? `${normalizedLessonPlayerBaseUrl}${lessonPlayerPath}`
+      : null;
 
     if (!isNewLessonRoute && !lessonRecord) {
       return (
@@ -263,9 +291,15 @@ export default async function EditLessonPage({ params }: { params: Promise<{ les
         <div className="panelHeader">
           <h2>{pageTitle}</h2>
           <div className="panelActions">
-            <form action={lessonPlayerUrl} method="get" target="_blank">
-              <button type="submit">View Lesson</button>
-            </form>
+            {lessonPlayerUrl ? (
+              <form action={lessonPlayerUrl} method="get" target="_blank">
+                <button type="submit">View Lesson</button>
+              </form>
+            ) : (
+              <button type="button" disabled title="Missing module/lesson slug">
+                View Lesson
+              </button>
+            )}
             <form action={`/api/lessons/${lessonId}/export-json`} method="get">
               <button type="submit">Export JSON File</button>
             </form>

@@ -40,7 +40,7 @@ const COMPOSITE_FIELD_GROUPS: Record<CompositeLeaderFieldKey, readonly string[]>
 };
 
 const COMPOSITE_LEADER_FIELD_KEYS = new Set<string>(Object.keys(COMPOSITE_FIELD_GROUPS));
-const COMPOSITE_FOLLOWER_TO_LEADER_MAP = new Map<string, CompositeLeaderFieldKey>(
+const COMPOSITE_FOLlowER_TO_LEADER_MAP = new Map<string, CompositeLeaderFieldKey>(
   Object.entries(COMPOSITE_FIELD_GROUPS).flatMap(([leaderKey, followerKeys]) =>
     followerKeys.map((followerKey) => [followerKey, leaderKey as CompositeLeaderFieldKey] as const)
   )
@@ -127,20 +127,6 @@ export default async function EditActivitySlidePage({
         if (fieldKey === "activityId") {
           return profileDefaults.activityId;
         }
-        if (fieldKey === "runtimeContractV1") {
-          return JSON.stringify(
-            {
-              contractVersion: "v1",
-              interaction: {
-                activity_row_tool: profileDefaults.activityRowTool,
-                command_row_controls: profileDefaults.commandRowControls,
-                status: "active",
-              },
-            },
-            null,
-            2
-          );
-        }
         return undefined;
       }
 
@@ -171,7 +157,7 @@ export default async function EditActivitySlidePage({
               <div className="configForm">
                 {category.fields.map((field) => (
                   (() => {
-                    const leaderFieldKey = COMPOSITE_FOLLOWER_TO_LEADER_MAP.get(field.key);
+                    const leaderFieldKey = COMPOSITE_FOLlowER_TO_LEADER_MAP.get(field.key);
                     if (
                       leaderFieldKey &&
                       profileFieldKeySet.has(leaderFieldKey) &&

@@ -429,7 +429,6 @@ test("lesson_ends shape-lock seed matches approved field set and excludes titleM
     "moduleId",
     "slideId",
     "slug",
-    "orderIndex",
   ];
 
   const expectedOptional = [
@@ -445,16 +444,12 @@ test("lesson_ends shape-lock seed matches approved field set and excludes titleM
     "defaultLang",
     "audioId",
     "targetLanguage",
-    "telemetryTags",
     "ingestSource",
     "ingestPayload",
     "sourceVersion",
     "diffLog",
     "metadata",
     "extraPracticeNotes",
-    "activityId",
-    "groupId",
-    "groupName",
   ];
 
   for (const fieldName of requiredBaseline) {
@@ -472,6 +467,8 @@ test("lesson_ends shape-lock seed matches approved field set and excludes titleM
       `Missing optional lesson_ends field "${fieldName}" in activation seed`
     );
   }
+
+  assert.match(activationSeed, /\('orderIndex', 'lesson_ends', false, false\)/);
 
   assert.doesNotMatch(activationSeed, /\('titleModule', 'lesson_ends', true, (true|false)\)/);
   assert.doesNotMatch(activationSeed, /\('type', 'lesson_ends', true, (true|false)\)/);

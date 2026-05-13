@@ -1,10 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { importModulesFromJsonPayload, importModuleUpdatesFromJsonPayload } from "../lib/modules";
+import { importLessonsFromJsonPayload } from "../lib/lessons";
 
 const MODULE_1_UUID = "11111111-1111-4111-8111-111111111111";
 const MODULE_2_UUID = "22222222-2222-4222-8222-222222222222";
 const MODULE_3_UUID = "33333333-3333-4333-8333-333333333333";
+const LESSON_1_UUID = "44444444-4444-4444-8444-444444444444";
 
 function jsonResponse(payload: unknown, status = 200): Response {
   return new Response(JSON.stringify(payload), {
@@ -62,6 +64,51 @@ function mockRequiredRuleRows() {
     { field_key: "slug" },
     { field_key: "version" },
     { field_key: "sourceVersion" },
+  ];
+}
+
+function mockLessonConfigRows() {
+  return [
+    {
+      category_name: "Identity & Lifecycle",
+      field_name: "title",
+      input_type: "text",
+      field_order: 1,
+    },
+    {
+      category_name: "Identity & Lifecycle",
+      field_name: "slug",
+      input_type: "text",
+      field_order: 2,
+    },
+    {
+      category_name: "Identity & Lifecycle",
+      field_name: "lessonId",
+      input_type: "text",
+      field_order: 3,
+    },
+    {
+      category_name: "Identity & Lifecycle",
+      field_name: "moduleId",
+      input_type: "text",
+      field_order: 4,
+    },
+    {
+      category_name: "Scope, Prerequisites & Targeting",
+      field_name: "priorLessons",
+      input_type: "text",
+      field_order: 1,
+    },
+  ];
+}
+
+function mockLessonRequiredRuleRows() {
+  return [
+    { field_key: "title" },
+    { field_key: "slug" },
+    { field_key: "lessonId" },
+    { field_key: "moduleId" },
+    { field_key: "priorLessons" },
   ];
 }
 
@@ -423,6 +470,121 @@ test("module create import fails closed when post-write DB required field is mis
         importModulesFromJsonPayload([{ "Identity & Lifecycle": { title: "Missing Version Check" } }]),
       /post-write DB validation failed; missing required persisted module fields: version/i
     );
+  } finally {
+    globalThis.fetch = originalFetch;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = originalUrl;
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = originalAnon;
+    process.env.SUPABASE_SERVICE_ROLE_KEY = originalService;
+  }
+});
+
+test("lesson create import treats lessonId as top-level identity during post-write validation", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const originalAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const originalService = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  process.env.NEXT_PUBLIC_SUPABASE_URL = "http://localhost:54321";
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon-test-key";
+  process.env.SUPABASE_SERVICE_ROLE_KEY = "service-test-key";
+
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string" ? input : input.toString();
+
+    if (url.includes("/rest/v1/config_component_fields") && url.includes("component_name=eq.lessons")) {
+      return jsonResponse(mockLessonConfigRows());
+    }
+
+    if (url.includes("/rest/v1/field_dictionary_component_rules") && url.includes("component_name=eq.lessons")) {
+      return jsonResponse(mockLessonRequiredRuleRows());
+    }
+
+    if (
+      url.includes(
+        `/rest/v1/lesson_field_values?select=lesson_id,field_value,lessons!inner(module_id)&component_name=eq.lessons&field_name=eq.slug&lessons.module_id=eq.${MODULE_1_UUID}`
+      )
+    ) {
+      return jsonResponse([]);
+    }
+
+    if (
+      url.includes(
+        `/rest/v1/lesson_field_values?select=lesson_id,lessons!inner(module_id)&component_name=eq.lessons&field_name=eq.slug&field_value=eq.lesson-title&lessons.module_id=eq.${MODULE_1_UUID}`
+      )
+    ) {
+      return jsonResponse([{ lesson_id: LESSON_1_UUID }]);
+    }
+
+    if (url.includes("/rest/v1/rpc/import_lessons_create_atomic")) {
+      const body = JSON.parse(String(init?.body ?? "{}")) as {
+        p_rows?: Array<{
+          moduleId: string;
+          values: Array<{ field_name: string; field_value: string | null }>;
+        }>;
+      };
+
+      assert.equal(Array.isArray(body.p_rows), true);
+      assert.equal(body.p_rows?.length, 1);
+      assert.equal(body.p_rows?.[0]?.moduleId, MODULE_1_UUID);
+
+      const valuesMap = valuesToMap(body.p_rows?.[0]?.values ?? []);
+      assert.equal(valuesMap.get("title"), "Lesson Title");
+      assert.equal(valuesMap.get("slug"), "lesson-title");
+      assert.equal(valuesMap.get("priorLessons"), "[]");
+      assert.equal(valuesMap.has("lessonId"), false);
+      return jsonResponse(1);
+    }
+
+    if (url.includes(`/rest/v1/lessons?select=id,module_id&id=eq.${LESSON_1_UUID}&limit=1`)) {
+      return jsonResponse([{ id: LESSON_1_UUID, module_id: MODULE_1_UUID }]);
+    }
+
+    if (
+      url.includes(
+        `/rest/v1/lesson_field_values?select=lesson_id,component_name,category_name,field_name,field_value&lesson_id=eq.${LESSON_1_UUID}&component_name=eq.lessons`
+      )
+    ) {
+      return jsonResponse([
+        {
+          lesson_id: LESSON_1_UUID,
+          component_name: "lessons",
+          category_name: "Identity & Lifecycle",
+          field_name: "title",
+          field_value: "Lesson Title",
+        },
+        {
+          lesson_id: LESSON_1_UUID,
+          component_name: "lessons",
+          category_name: "Identity & Lifecycle",
+          field_name: "slug",
+          field_value: "lesson-title",
+        },
+        {
+          lesson_id: LESSON_1_UUID,
+          component_name: "lessons",
+          category_name: "Scope, Prerequisites & Targeting",
+          field_name: "priorLessons",
+          field_value: "[]",
+        },
+      ]);
+    }
+
+    return new Response("Unexpected URL in test", { status: 500 });
+  }) as typeof fetch;
+
+  try {
+    const count = await importLessonsFromJsonPayload([
+      {
+        moduleId: MODULE_1_UUID,
+        "Identity & Lifecycle": {
+          title: "Lesson Title",
+        },
+        "Scope, Prerequisites & Targeting": {
+          priorLessons: "[]",
+        },
+      },
+    ]);
+    assert.equal(count, 1);
   } finally {
     globalThis.fetch = originalFetch;
     process.env.NEXT_PUBLIC_SUPABASE_URL = originalUrl;

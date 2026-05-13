@@ -1,7 +1,13 @@
 import { loadActivitySlideConfigCategories } from "@/lib/universalConfigs";
 import { exportEmptyValueForInputType, type ExportTemplateValue } from "@/lib/exportTemplateValues";
 import { getTopLevelOnlyFieldKeys } from "@/lib/canonicalFieldMap";
-import { filterActivitySlideCategoriesForProfile, resolveActivityProfile } from "@/lib/activityProfiles";
+import {
+  filterActivitySlideCategoriesForProfile,
+  resolveActivityProfile,
+  resolveConcreteActivityProfile,
+} from "@/lib/activityProfiles";
+import { ACTIVITY_PROFILE_DEFAULTS } from "@/lib/activityRuntimeDefaults";
+import { canonicalizeActivityExportTemplate } from "@/lib/activityExportCanonicalization";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +16,8 @@ type ActivitySlideTemplate = Record<string, Record<string, ExportTemplateValue>>
 export async function GET(request: Request): Promise<Response> {
   const template: ActivitySlideTemplate = {};
   const profile = resolveActivityProfile(new URL(request.url).searchParams.get("profile") ?? undefined);
+  const concreteProfile = resolveConcreteActivityProfile(profile);
+  const activityId = ACTIVITY_PROFILE_DEFAULTS[concreteProfile].activityId;
   const categories = filterActivitySlideCategoriesForProfile(await loadActivitySlideConfigCategories(), profile);
   const topLevelOnlyFields = getTopLevelOnlyFieldKeys("activity_slides");
 
@@ -27,8 +35,9 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   const payload = {
+    slideId: "",
     groupId: "",
-    ...template,
+    ...canonicalizeActivityExportTemplate(template, activityId),
   };
 
   return new Response(JSON.stringify(payload, null, 2), {

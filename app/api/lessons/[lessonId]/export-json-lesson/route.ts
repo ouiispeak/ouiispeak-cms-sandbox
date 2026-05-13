@@ -6,22 +6,29 @@ import {
   loadActivitySlides,
   type ActivitySlideDetailRow,
 } from "@/lib/activitySlides";
+import { loadTitleSlideById, loadTitleSlides, type TitleSlideDetailRow } from "@/lib/titleSlides";
+import { loadLessonEndById, loadLessonEnds, type LessonEndDetailRow } from "@/lib/lessonEnds";
 import {
   loadActivitySlideConfigCategories,
   loadGroupConfigCategories,
+  loadLessonEndConfigCategories,
   loadLessonConfigCategories,
   loadSlideConfigCategories,
+  loadTitleSlideConfigCategories,
   type UniversalConfigCategory,
 } from "@/lib/universalConfigs";
 import { exportValueFromStoredValue, type ExportTemplateValue } from "@/lib/exportTemplateValues";
 import { getTopLevelOnlyFieldKeys } from "@/lib/canonicalFieldMap";
 import { assertExportRuntimeGate } from "@/lib/exportRuntimeGate";
+import { canonicalizeActivityExportTemplate } from "@/lib/activityExportCanonicalization";
 
 export const dynamic = "force-dynamic";
 const LESSON_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("lessons");
 const GROUP_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("groups");
 const SLIDE_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("slides");
 const ACTIVITY_SLIDE_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("activity_slides");
+const TITLE_SLIDE_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("title_slides");
+const LESSON_END_TOP_LEVEL_ONLY_FIELDS = getTopLevelOnlyFieldKeys("lesson_ends");
 
 type ConfigPayload = Record<string, Record<string, ExportTemplateValue>>;
 
@@ -211,6 +218,98 @@ function buildActivitySlidePayload(
   return payload;
 }
 
+function resolveActivityIdFromRecord(activitySlideRecord: ActivitySlideDetailRow): string | undefined {
+  return (
+    activitySlideRecord.values["Identity & Lifecycle"]?.activityId ??
+    activitySlideRecord.values.Identity?.activityId ??
+    undefined
+  );
+}
+
+function resolveTitleSlideFieldValue(
+  titleSlideRecord: TitleSlideDetailRow,
+  categoryKey: string,
+  fieldKey: string
+): string | undefined {
+  if (fieldKey === "slideId") {
+    return String(titleSlideRecord.id);
+  }
+
+  const categoryValues = titleSlideRecord.values[categoryKey];
+  if (categoryValues && Object.prototype.hasOwnProperty.call(categoryValues, fieldKey)) {
+    return categoryValues[fieldKey] ?? undefined;
+  }
+
+  return undefined;
+}
+
+function buildTitleSlidePayload(
+  titleSlideRecord: TitleSlideDetailRow,
+  categories: UniversalConfigCategory[]
+): ConfigPayload {
+  const payload: ConfigPayload = {};
+
+  for (const category of categories) {
+    const categoryPayload: Record<string, ExportTemplateValue> = {};
+
+    for (const field of category.fields) {
+      if (TITLE_SLIDE_TOP_LEVEL_ONLY_FIELDS.has(field.key)) {
+        continue;
+      }
+
+      const value = resolveTitleSlideFieldValue(titleSlideRecord, category.key, field.key);
+      categoryPayload[field.key] = exportValueFromStoredValue(field.inputType, value);
+    }
+
+    payload[category.key] = categoryPayload;
+  }
+
+  return payload;
+}
+
+function resolveLessonEndFieldValue(
+  lessonEndRecord: LessonEndDetailRow,
+  categoryKey: string,
+  fieldKey: string
+): string | undefined {
+  if (fieldKey === "slideId") {
+    return String(lessonEndRecord.id);
+  }
+
+  const categoryValues = lessonEndRecord.values[categoryKey];
+  if (categoryValues && Object.prototype.hasOwnProperty.call(categoryValues, fieldKey)) {
+    return categoryValues[fieldKey] ?? undefined;
+  }
+
+  return undefined;
+}
+
+function buildLessonEndPayload(
+  lessonEndRecord: LessonEndDetailRow,
+  categories: UniversalConfigCategory[]
+): ConfigPayload {
+  const payload: ConfigPayload = {};
+
+  for (const category of categories) {
+    const categoryPayload: Record<string, ExportTemplateValue> = {};
+
+    for (const field of category.fields) {
+      if (LESSON_END_TOP_LEVEL_ONLY_FIELDS.has(field.key)) {
+        continue;
+      }
+
+      const value = resolveLessonEndFieldValue(lessonEndRecord, category.key, field.key);
+      categoryPayload[field.key] = exportValueFromStoredValue(field.inputType, value);
+    }
+
+    if (Object.keys(categoryPayload).length > 0) {
+      payload[category.key] = categoryPayload;
+    }
+  }
+
+  return payload;
+}
+
 export async function GET(
   request: Request,
   context: { params: Promise<{ lessonId: string }> }
@@ -225,19 +324,27 @@ export async function GET(
       groupCategories,
       slideCategories,
       activitySlideCategories,
+      titleSlideCategories,
+      lessonEndCategories,
       lessonRecord,
       groups,
       slides,
       activitySlides,
+      titleSlides,
+      lessonEnds,
     ] = await Promise.all([
       loadLessonConfigCategories(),
       loadGroupConfigCategories(),
       loadSlideConfigCategories(),
       loadActivitySlideConfigCategories(),
+      loadTitleSlideConfigCategories(),
+      loadLessonEndConfigCategories(),
       loadLessonById(lessonId),
       loadGroups(),
       loadSlides(),
       loadActivitySlides(),
+      loadTitleSlides(),
+      loadLessonEnds(),
     ]);
 
     if (!lessonRecord) {
@@ -245,6 +352,29 @@ export async function GET(
     }
 
     const nestedGroupIds = groups.filter((group) => group.lesson_id === lessonRecord.id).map((group) => group.id);
+    const titleSlideId = titleSlides.find((titleSlide) => titleSlide.lesson_id === lessonRecord.id)?.id;
+    const lessonEndId = lessonEnds.find((lessonEnd) => lessonEnd.lesson_id === lessonRecord.id)?.id;
+    if (!titleSlideId) {
+      throw new Error(
+        `Nested lesson export requires a title boundary; none found for lesson "${lessonRecord.id}".`
+      );
+    }
+    if (!lessonEndId) {
+      throw new Error(
+        `Nested lesson export requires a lessonEnd boundary; none found for lesson "${lessonRecord.id}".`
+      );
+    }
+    const [titleBoundaryRecord, lessonEndRecord] = await Promise.all([
+      loadTitleSlideById(titleSlideId),
+      loadLessonEndById(lessonEndId),
+    ]);
+    if (!titleBoundaryRecord) {
+      throw new Error(`Failed to load title boundary "${titleSlideId}" for lesson "${lessonRecord.id}".`);
+    }
+    if (!lessonEndRecord) {
+      throw new Error(`Failed to load lessonEnd boundary "${lessonEndId}" for lesson "${lessonRecord.id}".`);
+    }
+
     const nestedGroupRecords = (
       await Promise.all(nestedGroupIds.map((groupId) => loadGroupById(String(groupId))))
     ).filter((group): group is GroupDetailRow => group !== null);
@@ -298,10 +428,14 @@ export async function GET(
 
       const activitySlidePayloads = (activitySlidesByGroupId.get(groupRecord.id) ?? []).map(
         (activitySlideRecord) => {
+          const activityId = resolveActivityIdFromRecord(activitySlideRecord);
           const activitySlidePayload = {
-          slideId: activitySlideRecord.id,
-          groupId: activitySlideRecord.group_id,
-          ...buildActivitySlidePayload(activitySlideRecord, activitySlideCategories),
+            slideId: activitySlideRecord.id,
+            groupId: activitySlideRecord.group_id,
+            ...canonicalizeActivityExportTemplate(
+              buildActivitySlidePayload(activitySlideRecord, activitySlideCategories),
+              activityId
+            ),
           };
           assertExportRuntimeGate(
             "activity_slides",
@@ -320,8 +454,36 @@ export async function GET(
       };
     });
 
+    const titleBoundaryPayload = {
+      slideId: titleBoundaryRecord.id,
+      lessonId: titleBoundaryRecord.lesson_id,
+      ...buildTitleSlidePayload(titleBoundaryRecord, titleSlideCategories),
+    };
+    assertExportRuntimeGate(
+      "title_slides",
+      titleSlideCategories,
+      titleBoundaryPayload,
+      "Nested lesson export (title boundary)"
+    );
+
+    const lessonEndPayload = {
+      slideId: lessonEndRecord.id,
+      lessonId: lessonEndRecord.lesson_id,
+      ...buildLessonEndPayload(lessonEndRecord, lessonEndCategories),
+    };
+    assertExportRuntimeGate(
+      "lesson_ends",
+      lessonEndCategories,
+      lessonEndPayload,
+      "Nested lesson export (lesson end)"
+    );
+
     const payload = {
       ...lessonPayload,
+      boundaries: {
+        title: titleBoundaryPayload,
+        lessonEnd: lessonEndPayload,
+      },
       groups: groupPayloads,
     };
 

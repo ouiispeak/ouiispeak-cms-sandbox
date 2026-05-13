@@ -218,7 +218,7 @@ export default async function DashboardPage() {
                                           ) : (
                                             lessonBoundaryEnds.map((lessonEnd) => (
                                               <li key={lessonEnd.id} className="treeNode">
-                                                <Link href={`/edit-lesson-end/${lessonEnd.id}`}>
+                                                <Link href={`/edit-lessonEnd/${lessonEnd.id}`}>
                                                   {`lesson_ends ${lessonEnd.id}`}
                                                 </Link>
                                               </li>

@@ -10,14 +10,14 @@ async function createLessonEndAction(formData: FormData) {
   "use server";
 
   const lessonEndId = await createLessonEndFromFormData(formData);
-  redirect(`/edit-lesson-end/${lessonEndId}`);
+  redirect(`/edit-lessonEnd/${lessonEndId}`);
 }
 
 async function updateLessonEndAction(lessonEndId: string, formData: FormData) {
   "use server";
 
   await updateLessonEndFromFormData(lessonEndId, formData);
-  redirect(`/edit-lesson-end/${lessonEndId}`);
+  redirect(`/edit-lessonEnd/${lessonEndId}`);
 }
 
 export default async function EditLessonEndPage({ params }: { params: Promise<{ lessonEndId: string }> }) {
@@ -36,7 +36,7 @@ export default async function EditLessonEndPage({ params }: { params: Promise<{ 
       return (
         <section className="panel">
           <h2>{pageTitle}</h2>
-          <p className="meta">Route: /edit-lesson-end/[lessonEndId]</p>
+          <p className="meta">Route: /edit-lessonEnd/[lessonEndId]</p>
           <p className="meta">lesson_ends not found in Supabase.</p>
         </section>
       );
@@ -46,7 +46,7 @@ export default async function EditLessonEndPage({ params }: { params: Promise<{ 
       return (
         <section className="panel">
           <h2>{pageTitle}</h2>
-          <p className="meta">Route: /edit-lesson-end/[lessonEndId]</p>
+          <p className="meta">Route: /edit-lessonEnd/[lessonEndId]</p>
           <p className="meta">No lessons exist yet. Create a lesson first.</p>
         </section>
       );
@@ -91,7 +91,7 @@ export default async function EditLessonEndPage({ params }: { params: Promise<{ 
                   .filter((field) => field.key !== "orderIndex")
                   .map((field) => (
                   <div key={`${category.key}-${field.key}`} className="configField">
-                    <label htmlFor={`edit-lesson-end-${category.key}-${field.key}`}>{field.label}</label>
+                    <label htmlFor={`edit-lessonEnd-${category.key}-${field.key}`}>{field.label}</label>
                     {(() => {
                       const fieldDefaultValue = getFieldDefaultValue(category.key, field.key);
                       const isLockedField = field.isReadOnly || field.key === "slideId";
@@ -103,7 +103,7 @@ export default async function EditLessonEndPage({ params }: { params: Promise<{ 
                       if (isCustomComplexInputType(field.inputType)) {
                         return (
                           <CustomFieldInput
-                            id={`edit-lesson-end-${category.key}-${field.key}`}
+                            id={`edit-lessonEnd-${category.key}-${field.key}`}
                             name={`${category.key}.${field.key}`}
                             inputType={field.inputType}
                             defaultValue={fieldDefaultValue}
@@ -115,7 +115,7 @@ export default async function EditLessonEndPage({ params }: { params: Promise<{ 
                       if (field.inputType === "textarea" || field.inputType === "json" || field.inputType === "list") {
                         return (
                           <textarea
-                            id={`edit-lesson-end-${category.key}-${field.key}`}
+                            id={`edit-lessonEnd-${category.key}-${field.key}`}
                             name={`${category.key}.${field.key}`}
                             defaultValue={fieldDefaultValue}
                             readOnly={isLockedField}
@@ -130,7 +130,7 @@ export default async function EditLessonEndPage({ params }: { params: Promise<{ 
                         if (isLockedField) {
                           return (
                             <input
-                              id={`edit-lesson-end-${category.key}-${field.key}`}
+                              id={`edit-lessonEnd-${category.key}-${field.key}`}
                               type="checkbox"
                               defaultChecked={checkboxChecked}
                               disabled
@@ -142,7 +142,7 @@ export default async function EditLessonEndPage({ params }: { params: Promise<{ 
                           <>
                             <input type="hidden" name={`${category.key}.${field.key}`} value="false" />
                             <input
-                              id={`edit-lesson-end-${category.key}-${field.key}`}
+                              id={`edit-lessonEnd-${category.key}-${field.key}`}
                               name={`${category.key}.${field.key}`}
                               type="checkbox"
                               value="true"
@@ -155,7 +155,7 @@ export default async function EditLessonEndPage({ params }: { params: Promise<{ 
                       if (field.inputType === "select") {
                         return (
                           <select
-                            id={`edit-lesson-end-${category.key}-${field.key}`}
+                            id={`edit-lessonEnd-${category.key}-${field.key}`}
                             name={`${category.key}.${field.key}`}
                             defaultValue={fieldDefaultValue ?? ""}
                             disabled={isLockedField}
@@ -183,7 +183,7 @@ export default async function EditLessonEndPage({ params }: { params: Promise<{ 
 
                       return (
                         <input
-                          id={`edit-lesson-end-${category.key}-${field.key}`}
+                          id={`edit-lessonEnd-${category.key}-${field.key}`}
                           name={`${category.key}.${field.key}`}
                           type={field.inputType}
                           defaultValue={fieldDefaultValue}
@@ -207,8 +207,8 @@ export default async function EditLessonEndPage({ params }: { params: Promise<{ 
         <h3 className="configCategoryTitle">Hierarchy</h3>
         <div className="configForm">
           <div className="configField">
-            <label htmlFor="lesson-end-lesson-id">Lesson</label>
-            <select id="lesson-end-lesson-id" name="lessonId" defaultValue={String(defaultLessonId)} required>
+            <label htmlFor="lessonEnd-lesson-id">Lesson</label>
+            <select id="lessonEnd-lesson-id" name="lessonId" defaultValue={String(defaultLessonId)} required>
               {lessons.map((lesson) => (
                 <option key={lesson.id} value={String(lesson.id)}>
                   {lesson.title ?? `Lesson ${lesson.id}`}
@@ -224,7 +224,7 @@ export default async function EditLessonEndPage({ params }: { params: Promise<{ 
       return (
         <section className="panel">
           <h2>{pageTitle}</h2>
-          <p className="meta">Route: /edit-lesson-end/[lessonEndId]</p>
+          <p className="meta">Route: /edit-lessonEnd/[lessonEndId]</p>
           <p className="meta">
             Source of truth: Supabase public.field_dictionary_component_rules -&gt; public.component_config_fields
             (lesson_ends)
@@ -249,13 +249,13 @@ export default async function EditLessonEndPage({ params }: { params: Promise<{ 
           <h2>{pageTitle}</h2>
           <div className="panelActions">
             {categories.length > 0 ? (
-              <button type="submit" form="edit-lesson-end-form">
+              <button type="submit" form="edit-lessonEnd-form">
                 Save Changes
               </button>
             ) : null}
           </div>
         </div>
-        <p className="meta">Route: /edit-lesson-end/[lessonEndId]</p>
+        <p className="meta">Route: /edit-lessonEnd/[lessonEndId]</p>
         <p className="meta">
           Source of truth: Supabase public.field_dictionary_component_rules -&gt; public.component_config_fields
           (lesson_ends)
@@ -263,7 +263,7 @@ export default async function EditLessonEndPage({ params }: { params: Promise<{ 
         {categories.length === 0 ? (
           <p className="meta">No lesson_ends categories defined.</p>
         ) : (
-          <form id="edit-lesson-end-form" action={updateLessonEndAction.bind(null, lessonEndId)}>
+          <form id="edit-lessonEnd-form" action={updateLessonEndAction.bind(null, lessonEndId)}>
             {lessonSelector}
             <p className="meta">Order index is system-assigned to the final lesson_ends slide position.</p>
             {categoriesMarkup}

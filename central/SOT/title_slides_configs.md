@@ -17,11 +17,8 @@ title_slides:
     - visibility
     - sourceVersion
   Purpose & Outcomes:
-    - description
-    - tags
   Content & Media:
     - audioId
-    - buttons
     - primaryCtaAction
     - primaryCtaLabel
     - subtitle

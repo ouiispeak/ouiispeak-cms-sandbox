@@ -62,7 +62,7 @@ modules:
   Teacher Guidance:
     - authorNotes
     - commonMisconceptions
-    - shortSummaryTeacherModule
+    - shortSummaryModuleTeacher
     - teacherNotes
     - teacherOverview
   AI Generation & Prompting:

@@ -34,14 +34,17 @@ export default function ActivitySlidesPage() {
       {CREATE_ACTIVITY_IDS.map((activityId) => {
         const profile = activityId.replace("ACT-", "act-");
         return (
-          <form key={activityId} action={`/edit-activity-slide/new?profile=${profile}`}>
-            <button type="submit">Create {activityId} Activity Slide</button>
-          </form>
+          <div key={activityId} className="panelActions">
+            <form action={`/edit-activity-slide/new?profile=${profile}`}>
+              <button type="submit">Create {activityId} Activity Slide</button>
+            </form>
+            <form action="/api/activity-slides/export-json" method="get">
+              <input type="hidden" name="profile" value={profile} />
+              <button type="submit">Export {activityId} JSON File</button>
+            </form>
+          </div>
         );
       })}
-      <form action="/api/activity-slides/export-json" method="get">
-        <button type="submit">Export JSON File</button>
-      </form>
     </section>
   );
 }

@@ -20,7 +20,7 @@ when field dictionary entries change, config pages must reflect those changes wi
 the single runtime mapping boundary for hierarchy components is lib/canonicalFieldMap.ts.
 json import/export for modules, lessons, groups, slides, activity_slides, title_slides, and lesson_ends must use canonical runtime field keys.
 lesson_ends config-chain shape-lock is active and runtime DB boundary tables/RPC are enabled; cms runtime import/export routes are active.
-lesson_ends required baseline keys are lessonId, moduleId, slideId, slug, orderIndex.
+lesson_ends required baseline keys are lessonId, moduleId, slideId, slug.
 module, lesson, group, slide, activity_slides, and title_slides import category payloads may not include system-controlled runtime identifiers (moduleId, lessonId, groupId, slideId).
 batch module/lesson/group/slide/activity_slides/title_slides/lesson_ends imports must run through atomic rpc functions so one failing entry rolls back the whole upload.
 the files in central/SOT are mirrors for documentation and must stay aligned with the supabase authority tables.

@@ -76,7 +76,7 @@ Shared shape across all `*_field_values` tables:
 ## Constraint Map (Named Constraints)
 
 ### Foundational checks
-1. `levels_level_number_range_check`: `level_number BETWEEN 1 AND 10`
+1. `levels_level_number_range_check`: `level_number BETWEEN 0 AND 10`
 2. `config_categories_category_order_check`: `category_order >= 0`
 3. `universal_fields_input_type_check`: allow-list of supported input types
 4. `universal_fields_field_order_check`: `field_order >= 0`
@@ -152,7 +152,7 @@ Canonical execution order source: `central/CONSTITUTION.md` -> `setup_sql_order`
 
 | Order | File | Type | Effect |
 |---|---|---|---|
-| 001 | `supabase/manual/001_levels_setup.sql` | schema + seed | Creates `levels`, seeds Level 1..10, enforces range check |
+| 001 | `supabase/manual/001_levels_setup.sql` | schema + seed | Creates `levels`, seeds Level 0..10, enforces range check |
 | 002 | `supabase/manual/002_config_authority_setup.sql` | schema + ops functions | Creates config/projection tables, views, ordering and rename utilities |
 | 004 | `supabase/manual/004_field_dictionary_authority_setup.sql` | schema + sync triggers/functions | Creates dictionary authority tables, sync triggers, authority write functions |
 | 009 | `supabase/manual/009_uuid_identity_reset.sql` | schema reset + runtime import RPC | Rebuilds hierarchy core + base `*_field_values` + import RPC for modules/lessons/groups/slides |

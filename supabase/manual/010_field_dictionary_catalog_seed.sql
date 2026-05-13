@@ -45,17 +45,18 @@ VALUES
   ('version', 'Identity & Lifecycle', 'text', 13, 'active', NULL),
   ('visibility', 'Identity & Lifecycle', 'text', 14, 'active', NULL),
   ('activityDescription', 'Purpose & Outcomes', 'text', 1, 'active', NULL),
-  ('competencyTags', 'Purpose & Outcomes', 'text', 2, 'active', NULL),
-  ('coreTopics', 'Purpose & Outcomes', 'text', 3, 'active', NULL),
-  ('description', 'Purpose & Outcomes', 'text', 4, 'active', NULL),
-  ('groupGoal', 'Purpose & Outcomes', 'text', 5, 'active', NULL),
-  ('groupSummary', 'Purpose & Outcomes', 'text', 6, 'active', NULL),
-  ('keywords', 'Purpose & Outcomes', 'text', 7, 'active', NULL),
-  ('learningObjectives', 'Purpose & Outcomes', 'text', 8, 'active', NULL),
-  ('moduleGoal', 'Purpose & Outcomes', 'text', 9, 'active', NULL),
-  ('moduleOutcomes', 'Purpose & Outcomes', 'text', 10, 'active', NULL),
-  ('tags', 'Purpose & Outcomes', 'text', 11, 'active', NULL),
-  ('topicCategory', 'Purpose & Outcomes', 'text', 12, 'active', NULL),
+  ('activityIntent', 'Purpose & Outcomes', 'text', 2, 'active', NULL),
+  ('competencyTags', 'Purpose & Outcomes', 'text', 3, 'active', NULL),
+  ('coreTopics', 'Purpose & Outcomes', 'text', 4, 'active', NULL),
+  ('description', 'Purpose & Outcomes', 'text', 5, 'active', NULL),
+  ('groupGoal', 'Purpose & Outcomes', 'text', 6, 'active', NULL),
+  ('groupSummary', 'Purpose & Outcomes', 'text', 7, 'active', NULL),
+  ('keywords', 'Purpose & Outcomes', 'text', 8, 'active', NULL),
+  ('learningObjectives', 'Purpose & Outcomes', 'text', 9, 'active', NULL),
+  ('moduleGoal', 'Purpose & Outcomes', 'text', 10, 'active', NULL),
+  ('moduleOutcomes', 'Purpose & Outcomes', 'text', 11, 'active', NULL),
+  ('tags', 'Purpose & Outcomes', 'text', 12, 'active', NULL),
+  ('topicCategory', 'Purpose & Outcomes', 'text', 13, 'active', NULL),
   ('audienceNotes', 'Scope, Prerequisites & Targeting', 'text', 1, 'active', NULL),
   ('level', 'Scope, Prerequisites & Targeting', 'text', 2, 'active', NULL),
   ('levelMax', 'Scope, Prerequisites & Targeting', 'text', 3, 'active', NULL),
@@ -148,11 +149,11 @@ VALUES
   ('notesForTeacherOrAI', 'Teacher Guidance', 'text', 4, 'active', NULL),
   ('shortSummaryLessonAdmin', 'Teacher Guidance', 'text', 5, 'active', NULL),
   ('shortSummaryLessonStudent', 'Teacher Guidance', 'text', 6, 'active', NULL),
-  ('shortSummaryTeacherActivity', 'Teacher Guidance', 'text', 7, 'active', NULL),
-  ('shortSummaryTeacherGroup', 'Teacher Guidance', 'text', 8, 'active', NULL),
-  ('shortSummaryTeacherLesson', 'Teacher Guidance', 'text', 9, 'active', NULL),
-  ('shortSummaryTeacherModule', 'Teacher Guidance', 'text', 10, 'active', NULL),
-  ('shortSummaryTeacherSlide', 'Teacher Guidance', 'text', 11, 'active', NULL),
+  ('shortSummaryActivityTeacher', 'Teacher Guidance', 'text', 7, 'active', NULL),
+  ('shortSummaryGroupTeacher', 'Teacher Guidance', 'text', 8, 'active', NULL),
+  ('shortSummaryLessonTeacher', 'Teacher Guidance', 'text', 9, 'active', NULL),
+  ('shortSummaryModuleTeacher', 'Teacher Guidance', 'text', 10, 'active', NULL),
+  ('shortSummarySlideTeacher', 'Teacher Guidance', 'text', 11, 'active', NULL),
   ('teacherNotes', 'Teacher Guidance', 'text', 12, 'active', NULL),
   ('teacherOverview', 'Teacher Guidance', 'text', 13, 'active', NULL),
   ('aiInstructions', 'AI Generation & Prompting', 'text', 1, 'active', NULL),
@@ -217,14 +218,14 @@ VALUES
   ('timeExpectationGroup', 'Links, Dependencies & Summaries', 'text', 11, 'active', NULL),
   ('timeExpectationLesson', 'Links, Dependencies & Summaries', 'text', 12, 'active', NULL),
   ('canonicalNodeKey', 'Telemetry & Analytics', 'text', 1, 'active', NULL),
-  ('expectedCompletionRate', 'Telemetry & Analytics', 'text', 2, 'active', NULL),
-  ('expectedModuleDurationMinutes', 'Telemetry & Analytics', 'text', 3, 'active', NULL),
-  ('expectedTimeOnTask', 'Telemetry & Analytics', 'text', 4, 'active', NULL),
-  ('experimentFlag', 'Telemetry & Analytics', 'text', 5, 'active', NULL),
-  ('targetedEdges', 'Telemetry & Analytics', 'text', 6, 'active', NULL),
-  ('targetedNodes', 'Telemetry & Analytics', 'text', 7, 'active', NULL),
-  ('targetedSlices', 'Telemetry & Analytics', 'text', 8, 'active', NULL),
-  ('targetNodeKeys', 'Telemetry & Analytics', 'text', 9, 'active', NULL),
+  ('canonicalSliceKey', 'Telemetry & Analytics', 'text', 2, 'active', NULL),
+  ('expectedCompletionRate', 'Telemetry & Analytics', 'text', 3, 'active', NULL),
+  ('expectedModuleDurationMinutes', 'Telemetry & Analytics', 'text', 4, 'active', NULL),
+  ('expectedTimeOnTask', 'Telemetry & Analytics', 'text', 5, 'active', NULL),
+  ('experimentFlag', 'Telemetry & Analytics', 'text', 6, 'active', NULL),
+  ('targetedEdges', 'Telemetry & Analytics', 'text', 7, 'active', NULL),
+  ('targetedNodes', 'Telemetry & Analytics', 'text', 8, 'active', NULL),
+  ('targetedSlices', 'Telemetry & Analytics', 'text', 9, 'active', NULL),
   ('telemetryTags', 'Telemetry & Analytics', 'text', 10, 'active', NULL),
   ('breakingChangeGuard', 'Operations, Provenance & Governance', 'checkbox', 1, 'active', NULL),
   ('changeImpactAssessment', 'Operations, Provenance & Governance', 'text', 2, 'active', NULL),
@@ -326,6 +327,13 @@ WHERE field_key = 'correctAnswer';
 UPDATE public.field_dictionary
 SET
   input_type = 'select',
+  select_options_json = '["listen_only","stress_identification","minimal_pair_detection","intonation_pattern_match","listen_and_repeat","multiple_choice_audio","multiple_choice_text","true_false","odd_one_out","drag_and_drop_match","word_sort","sentence_reconstruction","tense_sort","fill_in_blank_typed","fill_in_blank_word_bank","error_correction","speak_and_score","speech_match","open_production_prompted","npc_dialogue_tree","environmental_puzzle","audio_sequence_ordering","open_discussion"]'::jsonb,
+  select_source = NULL
+WHERE field_key = 'activityIntent';
+
+UPDATE public.field_dictionary
+SET
+  input_type = 'select',
   select_options_json = '["rising","falling","fall-rise"]'::jsonb,
   select_source = NULL
 WHERE field_key = 'correctCurveId';
@@ -340,14 +348,14 @@ WHERE field_key = 'defaultLang';
 UPDATE public.field_dictionary
 SET
   input_type = 'select',
-  select_options_json = '["HIGH","MEDIUM","LOW"]'::jsonb,
+  select_options_json = '["high","medium","low"]'::jsonb,
   select_source = NULL
 WHERE field_key = 'extractabilityTier';
 
 UPDATE public.field_dictionary
 SET
   input_type = 'select',
-  select_options_json = '["ORIENTATION","INPUT","SCAFFOLDED_PRACTICE","TARGET_PERFORMANCE","INTEGRATION"]'::jsonb,
+  select_options_json = '["orientation","input","scaffoldedPractice","targetPerformance","integration"]'::jsonb,
   select_source = NULL
 WHERE field_key = 'groupType';
 
@@ -403,7 +411,7 @@ WHERE field_key = 'promptMode';
 UPDATE public.field_dictionary
 SET
   input_type = 'select',
-  select_options_json = '["PREPARE_FOR_PURPOSE","SUPPORT_FIRST_CONTROL","MEASURE_FIRST_CONTROL","STABILIZE_TRANSFER"]'::jsonb,
+  select_options_json = '["prepareForPurpose","supportFirstControl","measureFirstControl","stabilizeTransfer"]'::jsonb,
   select_source = NULL
 WHERE field_key = 'purposeRelationshipTag';
 
@@ -445,7 +453,7 @@ WHERE field_key = 'skipPolicy';
 UPDATE public.field_dictionary
 SET
   input_type = 'select',
-  select_options_json = '["MOTIVATION","INSTRUCTION","EXPLANATION","EXAMPLE","FEEDBACK_SUMMARY"]'::jsonb,
+  select_options_json = '["motivation","instruction","explanation","example","feedbackSummary"]'::jsonb,
   select_source = NULL
 WHERE field_key = 'textSubtype';
 
@@ -475,7 +483,7 @@ SET
   input_type = 'select',
   select_options_json = NULL,
   select_source = 'levels'
-WHERE field_key IN ('levels', 'level');
+WHERE field_key = 'level';
 
 -- Canonical category/field ordering for UI config/edit rendering.
 -- NOTE: levelMax/levelMin are the canonical replacements for legacy bandMax/bandMin.
@@ -502,12 +510,13 @@ WITH desired_field_order(field_key, category_name, field_order) AS (
     ('groupSummary', 'Purpose & Outcomes', 4),
     ('description', 'Purpose & Outcomes', 5),
     ('activityDescription', 'Purpose & Outcomes', 6),
-    ('learningObjectives', 'Purpose & Outcomes', 7),
-    ('competencyTags', 'Purpose & Outcomes', 8),
-    ('tags', 'Purpose & Outcomes', 9),
-    ('coreTopics', 'Purpose & Outcomes', 10),
-    ('topicCategory', 'Purpose & Outcomes', 11),
-    ('keywords', 'Purpose & Outcomes', 12),
+    ('activityIntent', 'Purpose & Outcomes', 7),
+    ('learningObjectives', 'Purpose & Outcomes', 8),
+    ('competencyTags', 'Purpose & Outcomes', 9),
+    ('tags', 'Purpose & Outcomes', 10),
+    ('coreTopics', 'Purpose & Outcomes', 11),
+    ('topicCategory', 'Purpose & Outcomes', 12),
+    ('keywords', 'Purpose & Outcomes', 13),
     ('audienceNotes', 'Scope, Prerequisites & Targeting', 1),
     ('level', 'Scope, Prerequisites & Targeting', 2),
     ('cefrLevel', 'Scope, Prerequisites & Targeting', 3),
@@ -594,13 +603,13 @@ WITH desired_field_order(field_key, category_name, field_order) AS (
     ('authorNotes', 'Teacher Guidance', 4),
     ('anecdoteOrMemoryHook', 'Teacher Guidance', 5),
     ('commonMisconceptions', 'Teacher Guidance', 6),
-    ('shortSummaryTeacherModule', 'Teacher Guidance', 7),
+    ('shortSummaryModuleTeacher', 'Teacher Guidance', 7),
     ('shortSummaryLessonAdmin', 'Teacher Guidance', 8),
-    ('shortSummaryTeacherLesson', 'Teacher Guidance', 9),
+    ('shortSummaryLessonTeacher', 'Teacher Guidance', 9),
     ('shortSummaryLessonStudent', 'Teacher Guidance', 10),
-    ('shortSummaryTeacherGroup', 'Teacher Guidance', 11),
-    ('shortSummaryTeacherActivity', 'Teacher Guidance', 12),
-    ('shortSummaryTeacherSlide', 'Teacher Guidance', 13),
+    ('shortSummaryGroupTeacher', 'Teacher Guidance', 11),
+    ('shortSummaryActivityTeacher', 'Teacher Guidance', 12),
+    ('shortSummarySlideTeacher', 'Teacher Guidance', 13),
     ('aiInstructions', 'AI Generation & Prompting', 1),
     ('exampleResponses', 'AI Generation & Prompting', 2),
     ('expansionGuidelines', 'AI Generation & Prompting', 3),
@@ -646,6 +655,7 @@ UPDATE public.field_dictionary
 SET is_read_only = true
 WHERE field_key IN (
   'activityId',
+  'activityIntent',
   'groupId',
   'groupName',
   'lastUpdatedAt',
@@ -653,7 +663,7 @@ WHERE field_key IN (
   'priorLessons',
   'slideId',
   'targetLanguage',
-  'targetNodeKeys',
+  'targetedNodes',
   'type',
   'version'
 );

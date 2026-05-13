@@ -33,7 +33,7 @@ This document is the canonical JSON contract for CMS ingest and export inside th
 
 ## Generation Ownership Policy
 1. DB-owned generated identity keys: `moduleId`, `lessonId`, `groupId`, `slideId`.
-2. CMS-owned generated fields: `lastUpdatedAt`, `targetLanguage`; `orderIndex` is CMS-owned in `lesson_ends`.
+2. CMS-owned generated fields: `lastUpdatedAt`, `targetLanguage`.
 3. `slug` is a canonical identity/meta key and is not URL-route-only metadata.
 4. `slug` policy: derive from `title` on create only when missing; enforce uniqueness; do not auto-regenerate on update unless explicitly requested.
 5. `sourceVersion` policy (current lane): default to `v1` when omitted.
@@ -108,7 +108,7 @@ This document is the canonical JSON contract for CMS ingest and export inside th
 | `slides` | `/api/slides/export-json` | `/api/slides/[slideId]/export-json` | `/api/slides/import-json` | `slideId` update identity and category payload keys remain canonical. |
 | `activity_slides` | `/api/activity-slides/export-json` | `/api/activity-slides/[activitySlideId]/export-json` | `/api/activity-slides/import-json` | ACT envelope and shape-lock constraints remain valid after round-trip. |
 | `title_slides` | `/api/title-slides/export-json` | `/api/title-slides/[titleSlideId]/export-json` | `/api/title-slides/import-json` | Canonical `slideId` identity preserved across import/export. |
-| `lesson_ends` | `/api/lesson-ends/export-json` | `/api/lesson-ends/[lessonEndId]/export-json` | `/api/lesson-ends/import-json` | Canonical `slideId` identity preserved across import/export. |
+| `lesson_ends` | `/api/lessonEnds/export-json` | `/api/lessonEnds/[lessonEndId]/export-json` | `/api/lessonEnds/import-json` | Canonical `slideId` identity preserved across import/export. |
 
 ## Notes
 1. Runtime authority is local CMS sandbox code and local Supabase schema in this repo only.

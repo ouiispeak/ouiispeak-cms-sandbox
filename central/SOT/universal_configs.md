@@ -27,6 +27,7 @@ Purpose & Outcomes:
   groupSummary: textarea field
   description: textarea field
   activityDescription: textarea field
+  activityIntent: select field
   learningObjectives: textarea field
   competencyTags: textarea field
   tags: text field
@@ -141,13 +142,13 @@ Teacher Guidance:
   authorNotes: textarea field
   anecdoteOrMemoryHook: textarea field
   commonMisconceptions: textarea field
-  shortSummaryTeacherModule: textarea field
+  shortSummaryModuleTeacher: textarea field
   shortSummaryLessonAdmin: textarea field
-  shortSummaryTeacherLesson: textarea field
+  shortSummaryLessonTeacher: textarea field
   shortSummaryLessonStudent: textarea field
-  shortSummaryTeacherGroup: textarea field
-  shortSummaryTeacherActivity: textarea field
-  shortSummaryTeacherSlide: textarea field
+  shortSummaryGroupTeacher: textarea field
+  shortSummaryActivityTeacher: textarea field
+  shortSummarySlideTeacher: textarea field
 
 AI Generation & Prompting:
   aiInstructions: textarea field
@@ -217,6 +218,7 @@ Links, Dependencies & Summaries:
 
 Telemetry & Analytics:
   canonicalNodeKey: text field
+  canonicalSliceKey: text field
   expectedCompletionRate: number field
   expectedModuleDurationMinutes: number field
   expectedTimeOnTask: number field
@@ -224,7 +226,6 @@ Telemetry & Analytics:
   targetedEdges: text field
   targetedNodes: text field
   targetedSlices: text field
-  targetNodeKeys: text field
   telemetryTags: textarea field
 
 Operations, Provenance & Governance:

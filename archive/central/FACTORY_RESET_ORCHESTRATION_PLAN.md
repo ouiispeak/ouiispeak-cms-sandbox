@@ -36,7 +36,7 @@ Protect telemetry integrity and L6 input contract correctness as hard cutover ga
 
 ## Producer Lane Delta Snapshot (Original CMS Audit)
 ### Current Producer Data Model
-1. Runtime authoring model is centered on `modules`, `lessons`, `lesson_groups`, and `slides`; title/lesson-end/activity exist as slide types in this lane.
+1. Runtime authoring model is centered on `modules`, `lessons`, `lesson_groups`, and `slides`; title/lessonEnd/activity exist as slide types in this lane.
    - `/Users/raycheljohnson/Desktop/ouiispeak-cms/lib/data/modules.ts:581`
    - `/Users/raycheljohnson/Desktop/ouiispeak-cms/lib/data/lessons.ts:637`
    - `/Users/raycheljohnson/Desktop/ouiispeak-cms/lib/data/groups.ts:650`
@@ -61,7 +61,7 @@ Protect telemetry integrity and L6 input contract correctness as hard cutover ga
    - `/Users/raycheljohnson/Desktop/ouiispeak-cms/docs/schema.slides.sql:1`
    - `/Users/raycheljohnson/Desktop/ouiispeak-cms/docs/schema.lessons.sql:1`
    - `/Users/raycheljohnson/Desktop/ouiispeak-cms/lib/data/slides.ts:842`
-3. `high` `proven`: title-slide and lesson-end creation/editing can still run through group-scoped slide insertion paths, conflicting with strict boundary separation target.
+3. `high` `proven`: title-slide and lessonEnd creation/editing can still run through group-scoped slide insertion paths, conflicting with strict boundary separation target.
    - `/Users/raycheljohnson/Desktop/ouiispeak-cms/app/(main)/group-slides/[groupId]/page.tsx:170`
    - `/Users/raycheljohnson/Desktop/ouiispeak-cms/app/(main)/group-slides/[groupId]/page.tsx:356`
 4. `medium` `proven`: runtime envelope generation is not uniform for all ACT IDs in non-ingest producer writes (ACT-001 special-case).
@@ -243,7 +243,7 @@ Current assignment snapshot:
 | B3 | high | Canonical route resolves by module/lesson slug | UUID-canonical cutover can fail if slug assumptions drift | PLAYER-LANE | 3 | `/lecons/[module]/[lesson]` resolves on post-cutover dataset with deterministic 200 |
 | B4 | medium | Runtime interaction may be surfaced from top-level shape on canonical lane | Target authority is `propsJson.runtimeContractV1.interaction` | PLAYER-LANE | 4 | Activity render path passes when contract exists in canonical nested shape only |
 | B5 | high | Hardcoded local endpoints in read surfaces | Cutover environment requires environment-driven URLs/keys | PLAYER-LANE | 5 | No hardcoded localhost dependency on cutover routes |
-| B6 | high | Title/Lesson-end creation can still traverse group-scoped insertion flows in legacy lane | Target boundary model is split + lane-specific tables | LEGACY-LANE | 6 | Legacy lane is retired for content writes post-cutover |
+| B6 | high | Title/lessonEnd creation can still traverse group-scoped insertion flows in legacy lane | Target boundary model is split + lane-specific tables | LEGACY-LANE | 6 | Legacy lane is retired for content writes post-cutover |
 | B7 | medium | RPC transaction functions called in app code but SQL bodies not source-controlled in legacy repo | Cutover rollback confidence depends on known DB execution semantics | OPERATOR + LEGACY-LANE | 7 | Catalog export includes active RPC signatures + trigger inventory archived with cutover snapshot |
 | B8 | medium | Canonical nested relation reads may depend on default row limits | Production row limits can truncate unresolved relations | PLAYER-LANE | 8 | Row-limit behavior tested and bounded (explicit range/pagination where required) |
 | B9 | low | `/lesson/[id]` scope relative to production is not explicitly fixed | Ambiguous runtime obligations at cutover | OPERATOR + PLAYER-LANE | 9 | Written decision: lab route is prod-critical or dev-only |
@@ -533,7 +533,7 @@ curl -fsS "http://127.0.0.1:3000/api/groups/export-json" -o ./cutover-backups/<t
 curl -fsS "http://127.0.0.1:3000/api/slides/export-json" -o ./cutover-backups/<ts>/seed/slides.json
 curl -fsS "http://127.0.0.1:3000/api/activity-slides/export-json" -o ./cutover-backups/<ts>/seed/activity-slides.json
 curl -fsS "http://127.0.0.1:3000/api/title-slides/export-json" -o ./cutover-backups/<ts>/seed/title-slides.json
-curl -fsS "http://127.0.0.1:3000/api/lesson-ends/export-json" -o ./cutover-backups/<ts>/seed/lesson-ends.json
+curl -fsS "http://127.0.0.1:3000/api/lessonEnds/export-json" -o ./cutover-backups/<ts>/seed/lessonEnds.json
 ```
 3. Validate JSON files are parseable:
 ```bash
@@ -640,7 +640,7 @@ Checkpoint R4 PASS Criteria:
    - `cutover-backups/<ts>/seed/slides.json`
    - `cutover-backups/<ts>/seed/activity-slides.json`
    - `cutover-backups/<ts>/seed/title-slides.json`
-   - `cutover-backups/<ts>/seed/lesson-ends.json`
+   - `cutover-backups/<ts>/seed/lessonEnds.json`
 5. Deterministic import command sequence:
 ```bash
 curl -fsS -o /tmp/modules-import.out -w "%{http_code}" -X POST -F "mode=create" -F "file=@cutover-backups/<ts>/seed/modules.json" "http://127.0.0.1:3000/api/modules/import-json"
@@ -649,7 +649,7 @@ curl -fsS -o /tmp/groups-import.out -w "%{http_code}" -X POST -F "mode=create" -
 curl -fsS -o /tmp/slides-import.out -w "%{http_code}" -X POST -F "mode=create" -F "file=@cutover-backups/<ts>/seed/slides.json" "http://127.0.0.1:3000/api/slides/import-json"
 curl -fsS -o /tmp/activity-slides-import.out -w "%{http_code}" -X POST -F "mode=create" -F "file=@cutover-backups/<ts>/seed/activity-slides.json" "http://127.0.0.1:3000/api/activity-slides/import-json"
 curl -fsS -o /tmp/title-slides-import.out -w "%{http_code}" -X POST -F "mode=create" -F "file=@cutover-backups/<ts>/seed/title-slides.json" "http://127.0.0.1:3000/api/title-slides/import-json"
-curl -fsS -o /tmp/lesson-ends-import.out -w "%{http_code}" -X POST -F "mode=create" -F "file=@cutover-backups/<ts>/seed/lesson-ends.json" "http://127.0.0.1:3000/api/lesson-ends/import-json"
+curl -fsS -o /tmp/lessonEnds-import.out -w "%{http_code}" -X POST -F "mode=create" -F "file=@cutover-backups/<ts>/seed/lessonEnds.json" "http://127.0.0.1:3000/api/lessonEnds/import-json"
 ```
 6. Deterministic contamination check:
 ```bash

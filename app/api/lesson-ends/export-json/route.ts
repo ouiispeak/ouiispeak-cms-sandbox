@@ -21,10 +21,13 @@ export async function GET(): Promise<Response> {
       categoryPayload[field.key] = exportEmptyValueForInputType(field.inputType);
     }
 
-    template[category.key] = categoryPayload;
+    if (Object.keys(categoryPayload).length > 0) {
+      template[category.key] = categoryPayload;
+    }
   }
 
   const payload = {
+    slideId: "",
     lessonId: "",
     ...template,
   };

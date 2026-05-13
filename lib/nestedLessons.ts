@@ -15,8 +15,18 @@ import {
   importActivitySlidesFromJsonPayload,
   importActivitySlideUpdatesFromJsonPayload,
 } from "@/lib/activitySlides";
+import {
+  importTitleSlidesFromJsonPayload,
+  importTitleSlideUpdatesFromJsonPayload,
+} from "@/lib/titleSlides";
+import { importLessonEndsFromJsonPayload, importLessonEndUpdatesFromJsonPayload } from "@/lib/lessonEnds";
 
 type ObjectEntry = Record<string, unknown>;
+
+type ParsedNestedBoundariesEntry = {
+  title: ObjectEntry | null;
+  lessonEnd: ObjectEntry | null;
+};
 
 type ParsedNestedGroupEntry = {
   groupEntry: ObjectEntry;
@@ -26,6 +36,7 @@ type ParsedNestedGroupEntry = {
 
 type ParsedNestedLessonEntry = {
   lessonEntry: ObjectEntry;
+  boundaries: ParsedNestedBoundariesEntry;
   groups: ParsedNestedGroupEntry[];
 };
 
@@ -53,7 +64,7 @@ function buildFormDataFromComponentEntry(entry: ObjectEntry): FormData {
   const formData = new FormData();
 
   for (const [key, value] of Object.entries(entry)) {
-    if (key === "groups" || key === "slides" || key === "activitySlides") {
+    if (key === "groups" || key === "slides" || key === "activitySlides" || key === "boundaries") {
       continue;
     }
 
@@ -80,6 +91,39 @@ function parseNestedLessonEntries(payload: unknown): ParsedNestedLessonEntry[] {
 
     const groupsRaw = entry.groups;
     const groups: ParsedNestedGroupEntry[] = [];
+    const boundariesRaw = entry.boundaries;
+    const boundaries: ParsedNestedBoundariesEntry = {
+      title: null,
+      lessonEnd: null,
+    };
+
+    if (boundariesRaw !== undefined) {
+      if (!isObjectRecord(boundariesRaw)) {
+        throw new Error(
+          `Nested lesson entry ${index + 1} has invalid "boundaries"; expected an object.`
+        );
+      }
+
+      const titleRaw = boundariesRaw.title;
+      if (titleRaw !== undefined) {
+        if (!isObjectRecord(titleRaw)) {
+          throw new Error(
+            `Nested lesson entry ${index + 1} has invalid "boundaries.title"; expected an object.`
+          );
+        }
+        boundaries.title = titleRaw;
+      }
+
+      const lessonEndRaw = boundariesRaw.lessonEnd;
+      if (lessonEndRaw !== undefined) {
+        if (!isObjectRecord(lessonEndRaw)) {
+          throw new Error(
+            `Nested lesson entry ${index + 1} has invalid "boundaries.lessonEnd"; expected an object.`
+          );
+        }
+        boundaries.lessonEnd = lessonEndRaw;
+      }
+    }
 
     if (groupsRaw !== undefined) {
       if (!Array.isArray(groupsRaw)) {
@@ -141,8 +185,9 @@ function parseNestedLessonEntries(payload: unknown): ParsedNestedLessonEntry[] {
 
     const lessonEntry: ObjectEntry = { ...entry };
     delete lessonEntry.groups;
+    delete lessonEntry.boundaries;
 
-    return { lessonEntry, groups };
+    return { lessonEntry, boundaries, groups };
   });
 }
 
@@ -182,6 +227,22 @@ function resolveSlideIdForUpdate(
   );
 }
 
+function resolveBoundarySlideIdForUpdate(
+  boundaryEntry: ObjectEntry,
+  index: number,
+  boundaryLabel: "title" | "lessonEnd"
+): string | null {
+  const slideId = boundaryEntry.slideId;
+  if (slideId === undefined || slideId === null || (typeof slideId === "string" && slideId.trim().length === 0)) {
+    return null;
+  }
+
+  return parseUuid(
+    slideId,
+    `Nested lesson update entry ${index + 1}, boundaries.${boundaryLabel} must include a valid uuid "slideId".`
+  );
+}
+
 async function createSlidesForGroup(slides: ObjectEntry[], groupId: string): Promise<void> {
   for (const slideEntry of slides) {
     const slideFormData = buildFormDataFromComponentEntry({
@@ -202,6 +263,102 @@ async function createActivitySlidesForGroup(activitySlides: ObjectEntry[], group
     groupId,
   }));
   await importActivitySlidesFromJsonPayload(createEntries);
+}
+
+function sanitizeBoundaryPayloadForImport(
+  boundaryEntry: ObjectEntry,
+  boundaryLabel: "title" | "lessonEnd"
+): ObjectEntry {
+  const normalized: ObjectEntry = { ...boundaryEntry };
+
+  if (boundaryLabel !== "lessonEnd") {
+    return normalized;
+  }
+
+  for (const [categoryName, categoryPayload] of Object.entries(normalized)) {
+    if (!isObjectRecord(categoryPayload)) {
+      continue;
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(categoryPayload, "orderIndex")) {
+      continue;
+    }
+
+    const normalizedCategoryPayload: ObjectEntry = { ...categoryPayload };
+    delete normalizedCategoryPayload.orderIndex;
+    normalized[categoryName] = normalizedCategoryPayload;
+  }
+
+  return normalized;
+}
+
+function assertCreateBoundariesPresent(boundaries: ParsedNestedBoundariesEntry, index: number): void {
+  if (!boundaries.title || !boundaries.lessonEnd) {
+    throw new Error(
+      `Nested lesson create entry ${index + 1} must include both "boundaries.title" and "boundaries.lessonEnd".`
+    );
+  }
+}
+
+async function createBoundariesForLesson(
+  boundaries: ParsedNestedBoundariesEntry,
+  lessonId: string
+): Promise<void> {
+  if (boundaries.title) {
+    await importTitleSlidesFromJsonPayload([
+      {
+        ...sanitizeBoundaryPayloadForImport(boundaries.title, "title"),
+        lessonId,
+      },
+    ]);
+  }
+
+  if (boundaries.lessonEnd) {
+    await importLessonEndsFromJsonPayload([
+      {
+        ...sanitizeBoundaryPayloadForImport(boundaries.lessonEnd, "lessonEnd"),
+        lessonId,
+      },
+    ]);
+  }
+}
+
+async function updateOrCreateBoundariesForLesson(
+  boundaries: ParsedNestedBoundariesEntry,
+  lessonId: string,
+  lessonIndex: number
+): Promise<void> {
+  if (boundaries.title) {
+    const normalizedTitleBoundary: ObjectEntry = {
+      ...sanitizeBoundaryPayloadForImport(boundaries.title, "title"),
+      lessonId,
+    };
+    const titleBoundarySlideId = resolveBoundarySlideIdForUpdate(boundaries.title, lessonIndex, "title");
+    if (titleBoundarySlideId) {
+      normalizedTitleBoundary.slideId = titleBoundarySlideId;
+      await importTitleSlideUpdatesFromJsonPayload([normalizedTitleBoundary]);
+    } else {
+      await importTitleSlidesFromJsonPayload([normalizedTitleBoundary]);
+    }
+  }
+
+  if (boundaries.lessonEnd) {
+    const normalizedLessonEndBoundary: ObjectEntry = {
+      ...sanitizeBoundaryPayloadForImport(boundaries.lessonEnd, "lessonEnd"),
+      lessonId,
+    };
+    const lessonEndSlideId = resolveBoundarySlideIdForUpdate(
+      boundaries.lessonEnd,
+      lessonIndex,
+      "lessonEnd"
+    );
+    if (lessonEndSlideId) {
+      normalizedLessonEndBoundary.slideId = lessonEndSlideId;
+      await importLessonEndUpdatesFromJsonPayload([normalizedLessonEndBoundary]);
+    } else {
+      await importLessonEndsFromJsonPayload([normalizedLessonEndBoundary]);
+    }
+  }
 }
 
 async function updateOrCreateSlidesForGroup(
@@ -273,6 +430,7 @@ export async function importNestedLessonsCreateFromJsonPayload(payload: unknown)
 
   for (const [index, parsedEntry] of entries.entries()) {
     try {
+      assertCreateBoundariesPresent(parsedEntry.boundaries, index);
       const lessonFormData = buildFormDataFromComponentEntry(parsedEntry.lessonEntry);
       const lessonId = await createLessonFromFormData(lessonFormData);
       createdCount += 1;
@@ -292,6 +450,8 @@ export async function importNestedLessonsCreateFromJsonPayload(payload: unknown)
           await createActivitySlidesForGroup(parsedGroup.activitySlides, groupId);
         }
       }
+
+      await createBoundariesForLesson(parsedEntry.boundaries, lessonId);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Nested lesson create failed.";
       throw new Error(`Nested lesson create entry ${index + 1}: ${message}`);
@@ -342,6 +502,8 @@ export async function importNestedLessonsUpdateFromJsonPayload(payload: unknown)
           );
         }
       }
+
+      await updateOrCreateBoundariesForLesson(parsedEntry.boundaries, lessonId, index);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Nested lesson update failed.";
       throw new Error(`Nested lesson update entry ${index + 1}: ${message}`);

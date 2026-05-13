@@ -25,6 +25,7 @@ export async function GET(): Promise<Response> {
   }
 
   const payload = {
+    groupId: "",
     lessonId: "",
     ...template,
   };

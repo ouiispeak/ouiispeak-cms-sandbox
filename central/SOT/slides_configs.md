@@ -20,7 +20,6 @@ slides:
     - body6
     - body7
     - body8
-    - buttons
     - commonMisconceptions
     - culturalContext
     - defaultLang
@@ -48,7 +47,7 @@ slides:
     - ownerTeam
     - registerVariants
     - remediationPaths
-    - shortSummaryTeacherSlide
+    - shortSummarySlideTeacher
     - signatureMetaphors
     - simplificationGuidelines
     - slideId (required, system-controlled)
@@ -58,7 +57,7 @@ slides:
     - successCriteria
     - tags
     - targetLanguage
-    - targetNodeKeys
+    - targetedNodes
     - teacherNotes
     - teacherOverview
     - telemetryTags

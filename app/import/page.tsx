@@ -93,7 +93,7 @@ const IMPORT_COMPONENTS: ImportComponentConfig[] = [
     labelPlural: "Activity Slides",
     createHeading: "Create New Activity Slides",
     createDescription:
-      'Include top-level groupId (uuid). Required activity slide fields are enforced from Supabase field_dictionary_component_rules.is_required for activity_slides. Use canonical keys for the selected active profile (ACT-001..ACT-005, ACT-009..ACT-026) plus type="activity", activityId, orderIndex, runtimeContractV1.',
+      'Include top-level groupId (uuid). Required activity slide fields are enforced from Supabase field_dictionary_component_rules.is_required for activity_slides. Use canonical keys for the selected active profile (ACT-001..ACT-005, ACT-009..ACT-026) plus type="activity", activityId, orderIndex, and propsJson.runtimeContractV1.',
     updateHeading: "Update Existing Activity Slides",
     updateDescription:
       'Top-level slideId (uuid) is required. groupId (uuid) is optional. Activity slide fields must match current activity_slides profile config. Keep type="activity" and activityId aligned with the profile payload.',
@@ -133,7 +133,7 @@ const IMPORT_COMPONENTS: ImportComponentConfig[] = [
     updateButtonLabel: "Import lesson_ends Update JSON",
     createInputId: "lesson_ends-json-file-create",
     updateInputId: "lesson_ends-json-file-update",
-    action: "/api/lesson-ends/import-json",
+    action: "/api/lessonEnds/import-json",
   },
 ];
 
@@ -228,6 +228,10 @@ export default async function ImportPage({
         Contract: identity/parent keys (<code>moduleId</code>, <code>lessonId</code>, <code>groupId</code>,{" "}
         <code>slideId</code>) must be top-level only and are rejected inside category payloads.
       </p>
+      <p className="meta">
+        Template/export parity: create and update payloads now share the same top-level key shape. Create ignores blank
+        identity keys; update requires identity keys.
+      </p>
       {hasError ? (
         <section className="configSection" aria-label="Validation Failed Gate">
           <h3 className="configCategoryTitle">Validation Failed: {errorContextLabel}</h3>
@@ -262,7 +266,7 @@ export default async function ImportPage({
       ))}
       <ImportSection
         heading="Create New Nested Lessons"
-        description='Upload lesson payloads that include top-level "groups", and each group can include "slides" and "activitySlides". The lesson is created first, then nested groups, then nested slides. Lesson-boundary title slides and lesson_ends slides are imported separately through their dedicated imports.'
+        description='Upload lesson payloads that include top-level "boundaries" and "groups"; each group can include "slides" and "activitySlides". The lesson is created first, then nested groups/slides, then lesson boundaries (title + lessonEnd).'
         action="/api/lessons/import-json-nested"
         mode="create"
         inputId="lesson-json-file-nested-create"
@@ -272,7 +276,7 @@ export default async function ImportPage({
       />
       <ImportSection
         heading="Update Existing Nested Lessons"
-        description='Upload lesson payloads with "lessonId" plus optional nested "groups", "slides", and "activitySlides". Groups/slides/activitySlides with ids are updated; entries without ids are created under their parent. Lesson-boundary title slides and lesson_ends slides are updated through their dedicated imports.'
+        description='Upload lesson payloads with "lessonId" plus optional nested "boundaries", "groups", "slides", and "activitySlides". Nested entries with ids are updated; entries without ids are created under their parent.'
         action="/api/lessons/import-json-nested"
         mode="update"
         inputId="lesson-json-file-nested-update"

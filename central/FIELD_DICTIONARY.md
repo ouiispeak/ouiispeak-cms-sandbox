@@ -6,18 +6,18 @@ Constitution Reference: central/CONSTITUTION.md
 # FIELD_DICTIONARY
 
 Date: 2026-04-09
-Last Updated: 2026-04-10
+Last Updated: 2026-04-17
 Owner: CMS Platform (Sandbox Data Lane)
 Repository: ouiispeak-cms-sandbox
 Machine companion: central/FIELD_DICTIONARY.csv
 
 ## Deliverable Status
-1. Active fields covered from public.field_dictionary: 208
+1. Active fields covered from public.field_dictionary: 210
 2. Uncategorized active fields: 0
-3. Definitions populated in machine companion: 208
+3. Definitions populated in machine companion: 210
 4. Definitions requiring source input: 0
 5. Lesson Player requiredness explicitly sourced in repo: 36
-6. LV2 requiredness explicitly sourced in repo: 178
+6. LV2 requiredness explicitly sourced in repo: 180
 
 ## Columns In Machine Companion
 1. definition/description

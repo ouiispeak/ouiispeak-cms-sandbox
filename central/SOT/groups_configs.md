@@ -88,7 +88,7 @@ groups:
     - anecdoteOrMemoryHook
     - commonMisconceptions
     - notesForTeacherOrAI
-    - shortSummaryTeacherGroup
+    - shortSummaryGroupTeacher
     - teacherNotes
     - teacherOverview
   AI Generation & Prompting:
@@ -115,7 +115,6 @@ groups:
     - targetedEdges
     - targetedNodes
     - targetedSlices
-    - targetNodeKeys
     - telemetryTags
   Operations, Provenance & Governance:
     - breakingChangeGuard

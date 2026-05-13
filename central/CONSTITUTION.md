@@ -189,9 +189,7 @@
         "lastUpdatedAt",
         "targetLanguage"
       ],
-      "cms_owned_conditional": [
-        "orderIndex (lesson_ends lane)"
-      ]
+      "cms_owned_conditional": []
     },
     "slug": {
       "classification": "canonical_identity_key_not_system_generated",
@@ -236,15 +234,15 @@
       "status": "closed",
       "decision_date": "2026-04-09",
       "component": "lesson_ends",
-      "final_choice": "lesson_ends is the canonical component token; URL collection slug is lesson-ends; route param is lessonEndId; DB FK is lesson_end_id.",
+      "final_choice": "lesson_ends is the canonical component token; URL collection slug is lessonEnds; route param is lessonEndId; DB FK is lesson_end_id.",
       "forbidden_variants": [
         "Lesson End Slide",
         "lesson end",
         "lesson ends",
-        "lesson-end",
-        "lesson-ends"
+        "lessonEnd",
+        "lessonEnds"
       ],
-      "enforcement": "No aliasing or fallback naming. Contracts/component_name must use lesson_ends; URL collections use lesson-ends; entity IDs use singular forms."
+      "enforcement": "No aliasing or fallback naming. Contracts/component_name must use lesson_ends; URL collections use lessonEnds; entity IDs use singular forms."
     },
     "NAMING-LAYER-001": {
       "status": "closed",
@@ -259,8 +257,8 @@
       ],
       "examples": {
         "component_token": "lesson_ends",
-        "collection_slug": "lesson-ends",
-        "entity_action_slug": "lesson-end",
+        "collection_slug": "lessonEnds",
+        "entity_action_slug": "lessonEnd",
         "route_param": "lessonEndId",
         "db_fk": "lesson_end_id"
       },
@@ -349,7 +347,7 @@
         ],
         "if_new_input_type_added": [
           "supabase/manual/004_field_dictionary_authority_setup.sql (field_dictionary_input_type_check)",
-          "lib/universalConfigs.ts (toInputType and COMPLEX_CUSTOM_INPUT_TYPES when applicable)",
+          "lib/universalConfigs.ts (toInputType and COMPLEX_CUSTOM_input_TYPES when applicable)",
           "lib/exportTemplateValues.ts",
           "components/CustomFieldInput.tsx when input is custom-complex",
           "central/SOT/universal_configs.md"
@@ -741,7 +739,7 @@
     "system_field_guard": "public.lesson_end_field_values.field_name must never equal 'slideId'",
     "rules": [
       "for CMS JSON routes, category payloads must not include top-level identity/parent keys",
-      "required baseline keys are lessonId, moduleId, slideId, slug, orderIndex",
+      "required baseline keys are lessonId, moduleId, slideId, slug",
       "current player B2 runtime reads lesson_ends baseline identity keys from lesson_end_field_values",
       "titleModule is forbidden",
       "source fields are mirrored in central/SOT/lesson_ends_configs.md"

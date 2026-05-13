@@ -10,6 +10,7 @@ ALTER TABLE public.levels
 
 INSERT INTO public.levels (level_number, name, definition)
 VALUES
+  (0, 'Level 0', 'Pre-Entry Foundations: Orientation and readiness before structured production.'),
   (1, 'Level 1', 'Survival Mapping: Recognizes key words/phrases and links them to meaning in context.'),
   (2, 'Level 2', 'Formulaic Use: Uses memorized chunks (fixed phrases) for basic needs.'),
   (3, 'Level 3', 'Pattern Noticing: Begins spotting patterns (word order, verb forms) without full control.'),
@@ -42,6 +43,6 @@ BEGIN
   ) THEN
     ALTER TABLE public.levels
       ADD CONSTRAINT levels_level_number_range_check
-      CHECK (level_number BETWEEN 1 AND 10);
+      CHECK (level_number BETWEEN 0 AND 10);
   END IF;
 END $$;

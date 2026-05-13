@@ -72,7 +72,7 @@ Current baseline: universal field catalog is populated and component field activ
 - DB primary/foreign keys for lesson_ends records are UUID (`lesson_ends.id`, `lesson_ends.lesson_id`).
 - UI route params are `[moduleId]`, `[lessonId]`, `[groupId]`, `[slideId]`, `[activitySlideId]`, `[titleSlideId]`, and `[lessonEndId]`.
 - Naming decision `ACT-NAMING-001` is closed: use `slideId` only. `slideUuid` is legacy and unsupported.
-- Naming decision `CMP-NAMING-001` is closed: component token is `lesson_ends`, collection URL slug is `lesson-ends`, entity route param is `lessonEndId`, and DB FK is `lesson_end_id`.
+- Naming decision `CMP-NAMING-001` is closed: component token is `lesson_ends`, collection URL slug is `lessonEnds`, entity route param is `lessonEndId`, and DB FK is `lesson_end_id`.
 - JSON import/export identity keys:
   - module update: `moduleId`
   - lesson create parent: `moduleId`

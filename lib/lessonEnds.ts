@@ -7,10 +7,8 @@ import {
 import { loadLessonEndConfigCategories, type UniversalConfigCategory } from "@/lib/universalConfigs";
 
 const LESSON_END_FIELD_MAP = CANONICAL_COMPONENT_FIELD_MAP.lesson_ends;
-const LESSON_END_ORDER_INDEX_FIELD_NAME = "orderIndex";
 const LESSON_END_SYSTEM_CONTROLLED_FIELD_NAMES = new Set([
   LESSON_END_FIELD_MAP.identityFieldKey,
-  LESSON_END_ORDER_INDEX_FIELD_NAME,
 ]);
 const LESSON_END_PARENT_FIELD_KEY = LESSON_END_FIELD_MAP.parentFieldKey;
 const LESSON_END_PARENT_DB_COLUMN = LESSON_END_FIELD_MAP.parentDbColumn;
@@ -61,58 +59,38 @@ function parseLessonIdValue(value: unknown, contextLabel: string): string {
   return parseUuid(value, `${contextLabel} must include a valid uuid "lessonId".`);
 }
 
-type LessonEndOrderValueRow = {
-  lesson_end_id: string;
-  field_value: string | null;
-};
-
 type LessonEndParentRow = {
   id: string;
   lesson_id: string;
 };
 
-type LessonEndOrderState = {
-  nextOrderIndex: number;
-  currentOrderById: Map<string, number>;
-};
-
-function toLessonEndOrderStateKey(lessonId: string): string {
-  return `lesson_ends-order-state:${lessonId}`;
-}
-
-function parseOrderIndex(rawValue: string | null): number | null {
-  if (rawValue === null) {
-    return null;
-  }
-
-  const trimmed = rawValue.trim();
-  if (!/^\d+$/.test(trimmed)) {
-    return null;
-  }
-
-  const parsed = Number.parseInt(trimmed, 10);
-  if (!Number.isFinite(parsed) || parsed < 1) {
-    return null;
-  }
-
-  return parsed;
-}
-
-function setOrderIndexIfActive(
+function setFieldValueIfActive(
   values: FieldInputMap,
   categories: UniversalConfigCategory[],
-  orderIndex: number
+  fieldName: string,
+  fieldValue: string
 ): void {
-  const orderIndexText = String(orderIndex);
-
   for (const category of categories) {
-    if (!category.fields.some((field) => field.key === LESSON_END_ORDER_INDEX_FIELD_NAME)) {
+    if (!category.fields.some((field) => field.key === fieldName)) {
       continue;
     }
 
-    values.set(`${category.key}.${LESSON_END_ORDER_INDEX_FIELD_NAME}`, orderIndexText);
+    values.set(`${category.key}.${fieldName}`, fieldValue);
     return;
   }
+}
+
+async function resolveModuleIdForLesson(lessonId: string): Promise<string | null> {
+  const rows = await fetchAnonRows<{ id: string; module_id: string }>(
+    `lessons?select=id,module_id&id=eq.${encodeURIComponent(lessonId)}&limit=1`,
+    "Failed to load lesson parent for lesson_ends"
+  );
+  const row = rows[0];
+  if (!row || typeof row.module_id !== "string" || row.module_id.trim().length === 0) {
+    return null;
+  }
+
+  return row.module_id;
 }
 
 async function resolveLessonIdForSystemAssignment(context: SystemAssignedFieldContext): Promise<string | null> {
@@ -136,80 +114,18 @@ async function resolveLessonIdForSystemAssignment(context: SystemAssignedFieldCo
   return row.lesson_id;
 }
 
-async function loadOrCreateOrderState(
-  lessonId: string,
-  operationState: Map<string, unknown>
-): Promise<LessonEndOrderState> {
-  const stateKey = toLessonEndOrderStateKey(lessonId);
-  const existing = operationState.get(stateKey);
-  if (existing) {
-    return existing as LessonEndOrderState;
-  }
-
-  const rows = await fetchAnonRows<LessonEndOrderValueRow>(
-    `lesson_end_field_values?select=lesson_end_id,field_value,lesson_ends!inner(lesson_id)&component_name=eq.lesson_ends&field_name=eq.${encodeURIComponent(
-      LESSON_END_ORDER_INDEX_FIELD_NAME
-    )}&lesson_ends.lesson_id=eq.${encodeURIComponent(lessonId)}`,
-    "Failed to load lesson_ends order indices"
-  );
-
-  let maxOrderIndex = 0;
-  const currentOrderById = new Map<string, number>();
-
-  for (const row of rows) {
-    const parsed = parseOrderIndex(row.field_value);
-    if (parsed === null) {
-      continue;
-    }
-
-    currentOrderById.set(row.lesson_end_id, parsed);
-    if (parsed > maxOrderIndex) {
-      maxOrderIndex = parsed;
-    }
-  }
-
-  const createdState: LessonEndOrderState = {
-    nextOrderIndex: maxOrderIndex + 1,
-    currentOrderById,
-  };
-  operationState.set(stateKey, createdState);
-  return createdState;
-}
-
 async function applyLessonEndSystemAssignedFields(context: SystemAssignedFieldContext): Promise<void> {
   const lessonId = await resolveLessonIdForSystemAssignment(context);
   if (!lessonId) {
     return;
   }
 
-  const orderState = await loadOrCreateOrderState(lessonId, context.operationState);
-
-  if (context.mode === "create" || context.mode === "import_create") {
-    const assigned = orderState.nextOrderIndex;
-    orderState.nextOrderIndex += 1;
-    setOrderIndexIfActive(context.values, context.categories, assigned);
-    return;
+  // lesson_ends require lessonId/moduleId as persisted dynamic fields for downstream consumers.
+  setFieldValueIfActive(context.values, context.categories, "lessonId", lessonId);
+  const moduleId = await resolveModuleIdForLesson(lessonId);
+  if (moduleId) {
+    setFieldValueIfActive(context.values, context.categories, "moduleId", moduleId);
   }
-
-  if (!context.id) {
-    const assigned = orderState.nextOrderIndex;
-    orderState.nextOrderIndex += 1;
-    setOrderIndexIfActive(context.values, context.categories, assigned);
-    return;
-  }
-
-  const existingOrder = orderState.currentOrderById.get(context.id);
-  const currentTopOrder = orderState.nextOrderIndex - 1;
-
-  if (existingOrder !== undefined && existingOrder === currentTopOrder) {
-    setOrderIndexIfActive(context.values, context.categories, existingOrder);
-    return;
-  }
-
-  const assigned = orderState.nextOrderIndex;
-  orderState.nextOrderIndex += 1;
-  orderState.currentOrderById.set(context.id, assigned);
-  setOrderIndexIfActive(context.values, context.categories, assigned);
 }
 
 const lessonEndEngine = createHierarchyComponentEngine<LessonEndCoreRow, LessonEndRow, LessonEndDetailRow>({

@@ -23,7 +23,7 @@ Constitution Reference: central/CONSTITUTION.md
 `009_uuid_identity_reset.sql` is mandatory for current runtime behavior.
 
 ## Baseline Verification
-1. `public.levels` contains `Level 1` through `Level 10`.
+1. `public.levels` contains `Level 0` through `Level 10`.
 2. Identity columns are UUID:
    - `public.modules.id`
    - `public.lessons.id`, `public.lessons.module_id`
@@ -74,7 +74,8 @@ Constitution Reference: central/CONSTITUTION.md
    - lesson_ends
 5. Current activation baseline is seeded by `supabase/manual/012_component_activation_seed.sql`; additional activity shape activation is enforced by drift-gates for the active set ACT-001..ACT-005 and ACT-009..ACT-026.
 6. Runtime activity_slides tables/RPC and slide/activity separation guard are created by `supabase/manual/016_activity_slides_setup.sql`.
-7. Full universal field mirror is in `central/SOT/universal_configs.md`.
+7. Boundary uniqueness hardening (one title + one lessonEnd per lesson) is enforced by `supabase/manual/017_boundary_uniqueness_hardening.sql`.
+8. Full universal field mirror is in `central/SOT/universal_configs.md`.
 
 ## Guardrails
 1. `public.universal_fields` is projection data from `public.field_dictionary`.
@@ -125,7 +126,7 @@ Constitution Reference: central/CONSTITUTION.md
    - update: top-level `slideId` (uuid) required; `lessonId` optional
 7. lesson_ends:
    - config chain is active (`lesson_ends`) with shape-locked baseline keys:
-     - `lessonId`, `moduleId`, `slideId`, `slug`, `orderIndex`
+     - `lessonId`, `moduleId`, `slideId`, `slug`
    - runtime DB tables/RPC and CMS edit/create/import/export routes are active
 8. Category payload keys must be canonical runtime keys.
 

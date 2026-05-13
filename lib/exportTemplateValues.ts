@@ -8,7 +8,7 @@ export type ExportTemplateValue =
   | Record<string, unknown>
   | unknown[];
 
-const ARRAY_JSON_INPUT_TYPES = new Set<UniversalConfigField["inputType"]>([
+const ARRAY_JSON_input_TYPES = new Set<UniversalConfigField["inputType"]>([
   "list",
   "audio_list",
   "blanks_mapper",
@@ -18,7 +18,7 @@ const ARRAY_JSON_INPUT_TYPES = new Set<UniversalConfigField["inputType"]>([
   "avatar_dialogues_mapper",
 ]);
 
-const OBJECT_JSON_INPUT_TYPES = new Set<UniversalConfigField["inputType"]>(["json", "audio_prompt"]);
+const OBJECT_JSON_input_TYPES = new Set<UniversalConfigField["inputType"]>(["json", "audio_prompt"]);
 
 function parseNumber(value: string): number | null {
   const trimmed = value.trim();
@@ -64,11 +64,11 @@ export function exportEmptyValueForInputType(inputType: UniversalConfigField["in
     return false;
   }
 
-  if (ARRAY_JSON_INPUT_TYPES.has(inputType)) {
+  if (ARRAY_JSON_input_TYPES.has(inputType)) {
     return [];
   }
 
-  if (OBJECT_JSON_INPUT_TYPES.has(inputType)) {
+  if (OBJECT_JSON_input_TYPES.has(inputType)) {
     return {};
   }
 
@@ -93,7 +93,7 @@ export function exportValueFromStoredValue(
     return parsed === null ? rawValue : parsed;
   }
 
-  if (ARRAY_JSON_INPUT_TYPES.has(inputType)) {
+  if (ARRAY_JSON_input_TYPES.has(inputType)) {
     const parsed = parseJson(rawValue);
     if (Array.isArray(parsed)) {
       return parsed;
@@ -102,7 +102,7 @@ export function exportValueFromStoredValue(
     return rawValue;
   }
 
-  if (OBJECT_JSON_INPUT_TYPES.has(inputType)) {
+  if (OBJECT_JSON_input_TYPES.has(inputType)) {
     const parsed = parseJson(rawValue);
     if (parsed !== null && typeof parsed === "object" && !Array.isArray(parsed)) {
       return parsed as Record<string, unknown>;

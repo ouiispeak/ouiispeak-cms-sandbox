@@ -76,7 +76,7 @@ function toInputType(inputType: string): UniversalConfigField["inputType"] {
   return inputType;
 }
 
-export const COMPLEX_CUSTOM_INPUT_TYPES = [
+export const COMPLEX_CUSTOM_input_TYPES = [
   "audio_selector",
   "audio_list",
   "audio_prompt",
@@ -88,14 +88,14 @@ export const COMPLEX_CUSTOM_INPUT_TYPES = [
   "media_picker",
  ] as const;
 
-type CustomComplexInputType = (typeof COMPLEX_CUSTOM_INPUT_TYPES)[number];
+type CustomComplexInputType = (typeof COMPLEX_CUSTOM_input_TYPES)[number];
 
-const COMPLEX_CUSTOM_INPUT_TYPE_SET = new Set<string>(COMPLEX_CUSTOM_INPUT_TYPES);
+const COMPLEX_CUSTOM_input_TYPE_SET = new Set<string>(COMPLEX_CUSTOM_input_TYPES);
 
 export function isCustomComplexInputType(
   inputType: UniversalConfigField["inputType"]
 ): inputType is CustomComplexInputType {
-  return COMPLEX_CUSTOM_INPUT_TYPE_SET.has(inputType);
+  return COMPLEX_CUSTOM_input_TYPE_SET.has(inputType);
 }
 
 function toSelectOptions(input: unknown): string[] {
@@ -143,17 +143,21 @@ function rowsToCategories(rows: ConfigRow[], requiredFieldKeys: Set<string> = ne
 
 async function fetchRows<T>(resourcePath: string): Promise<T[]> {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const readKey = supabaseServiceRoleKey ?? supabaseAnonKey;
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+  if (!supabaseUrl || !readKey) {
+    throw new Error(
+      "Missing NEXT_PUBLIC_SUPABASE_URL and read API key (SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY)."
+    );
   }
 
   const response = await fetch(`${supabaseUrl}/rest/v1/${resourcePath}`, {
     cache: "no-store",
     headers: {
-      apikey: supabaseAnonKey,
-      Authorization: `Bearer ${supabaseAnonKey}`,
+      apikey: readKey,
+      Authorization: `Bearer ${readKey}`,
     },
   });
 

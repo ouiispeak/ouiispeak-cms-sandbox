@@ -38,6 +38,7 @@ activity_slides:
     - ACT-026
   active_field_keys:
     - activityId
+    - activityIntent
     - acceptedCorrections
     - aiInstructions
     - allowRetry
@@ -52,11 +53,14 @@ activity_slides:
     - audioPrompt
     - autoAdvance
     - avatarDialogues
+    - level
     - levelMax
     - levelMin
     - body
     - blanks
     - buttons
+    - canonicalNodeKey
+    - canonicalSliceKey
     - categoryLabels
     - cefrLevel
     - cefrMax
@@ -127,7 +131,6 @@ activity_slides:
     - passingScoreType
     - passingScoreValue
     - prerequisiteEdges
-    - prerequisiteModules
     - prerequisiteNodes
     - prerequisiteSlices
     - prerequisites
@@ -143,8 +146,8 @@ activity_slides:
     - requiredScore
     - retryPolicy
     - runtimeContractV1
-    - shortSummaryTeacherActivity
-    - shortSummaryTeacherSlide
+    - shortSummaryActivityTeacher
+    - shortSummarySlideTeacher
     - signatureMetaphors
     - simplificationGuidelines
     - skipPolicy
@@ -165,14 +168,11 @@ activity_slides:
     - targetedSlices
     - targetLanguage
     - targetKeywords
-    - targetNodeKeys
     - targetText
     - teacherNotes
     - teacherOverview
     - telemetryTags
-    - textSubtype
     - tenseBins
-    - timeExpectationActivity
     - title
     - topicCategory
     - type
@@ -182,7 +182,9 @@ activity_slides:
     - word
     - wordBank
   notes:
-    - `slideId` and `slug` are required in activity_slides activation seed.
+    - `slideId`, `slug`, `canonicalNodeKey`, and `canonicalSliceKey` are required in activity_slides activation seed.
+    - `type` is system-assigned to `activity` at write time.
+    - `activityIntent` is system-assigned from `activityId` at write time.
     - content slides are managed separately under `slides`.
     - Active activity profiles are `ACT-001..ACT-005` and `ACT-009..ACT-026` (`ACT-006/007/008` are inactive).
     - Activity profile field filters:

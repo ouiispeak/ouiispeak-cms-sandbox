@@ -13,7 +13,7 @@ import {
   validateActivitySlidePersistedValuesPostWrite,
 } from "@/lib/activitySlidePreflight";
 import { normalizeActivityPropsJson } from "@/lib/activityPayloadNormalization";
-import { loadActivitySlideConfigCategories } from "@/lib/universalConfigs";
+import { loadActivitySlideConfigCategories, type UniversalConfigCategory } from "@/lib/universalConfigs";
 
 const ACTIVITY_SLIDE_FIELD_MAP = CANONICAL_COMPONENT_FIELD_MAP.activity_slides;
 const ACTIVITY_SLIDE_SYSTEM_CONTROLLED_FIELD_NAMES = new Set([ACTIVITY_SLIDE_FIELD_MAP.identityFieldKey]);
@@ -57,6 +57,32 @@ export type ActivitySlideRow = {
 type ActivitySlideOrderIndexRow = {
   activity_slide_id: string;
   field_value: string | null;
+};
+
+const ACTIVITY_INTENT_BY_ACTIVITY_ID: Record<string, string> = {
+  "ACT-001": "listen_only",
+  "ACT-002": "stress_identification",
+  "ACT-003": "minimal_pair_detection",
+  "ACT-004": "intonation_pattern_match",
+  "ACT-005": "listen_and_repeat",
+  "ACT-009": "multiple_choice_audio",
+  "ACT-010": "multiple_choice_text",
+  "ACT-011": "true_false",
+  "ACT-012": "odd_one_out",
+  "ACT-013": "drag_and_drop_match",
+  "ACT-014": "word_sort",
+  "ACT-015": "sentence_reconstruction",
+  "ACT-016": "tense_sort",
+  "ACT-017": "fill_in_blank_typed",
+  "ACT-018": "fill_in_blank_word_bank",
+  "ACT-019": "error_correction",
+  "ACT-020": "speak_and_score",
+  "ACT-021": "speech_match",
+  "ACT-022": "open_production_prompted",
+  "ACT-023": "npc_dialogue_tree",
+  "ACT-024": "environmental_puzzle",
+  "ACT-025": "audio_sequence_ordering",
+  "ACT-026": "open_discussion",
 };
 
 export type ActivitySlideValueMap = Record<string, Record<string, string | null>>;
@@ -111,6 +137,30 @@ function normalizeActivityPropsJsonInValueMap(values: FieldInputMap): void {
 
   const normalizedPropsJson = normalizeActivityPropsJson(activityId, parsedPropsJson as Record<string, unknown>);
   values.set(propsJsonQualifiedKey, JSON.stringify(normalizedPropsJson));
+}
+
+function setFieldValueIfActive(
+  values: FieldInputMap,
+  categories: UniversalConfigCategory[],
+  fieldName: string,
+  fieldValue: string
+): void {
+  for (const category of categories) {
+    if (!category.fields.some((field) => field.key === fieldName)) {
+      continue;
+    }
+
+    values.set(`${category.key}.${fieldName}`, fieldValue);
+    return;
+  }
+}
+
+function resolveActivityIntentFromActivityId(activityId: string | null): string | null {
+  if (!activityId) {
+    return null;
+  }
+  const normalizedActivityId = activityId.trim().toUpperCase();
+  return ACTIVITY_INTENT_BY_ACTIVITY_ID[normalizedActivityId] ?? null;
 }
 
 const activitySlideEngine = createHierarchyComponentEngine<
@@ -175,8 +225,16 @@ const activitySlideEngine = createHierarchyComponentEngine<
     loadErrorLabel: "Failed to load activity slide field values",
     saveErrorLabel: "Failed to save activity slide field values",
   },
-  applySystemAssignedFields: ({ values }) => {
+  applySystemAssignedFields: ({ values, categories }) => {
     normalizeActivityPropsJsonInValueMap(values);
+    // Player contract requires activity slide type; enforce canonical activity type at write time.
+    setFieldValueIfActive(values, categories, "type", "activity");
+    // Canonical intent classifier is derived from ACT identity for downstream automation/analytics use.
+    const activityIdEntry = getFieldMapEntryByName(values, "activityId");
+    const activityIntent = resolveActivityIntentFromActivityId(activityIdEntry?.[1] ?? null);
+    if (activityIntent) {
+      setFieldValueIfActive(values, categories, "activityIntent", activityIntent);
+    }
   },
   verifyPostWriteDynamicInvariants: ({ id, persistedValues, contextLabel }) => {
     validateActivitySlidePersistedValuesPostWrite(

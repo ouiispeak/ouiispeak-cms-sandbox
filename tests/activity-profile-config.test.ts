@@ -436,7 +436,7 @@ test("default activity profile hides ACT-specific interaction fields", () => {
   assert.equal(fieldKeys.has("correctStressIndex"), false);
   assert.equal(fieldKeys.has("intonationOptions"), false);
   assert.equal(fieldKeys.has("correctCurveId"), false);
-  assert.equal(fieldKeys.has("runtimeContractV1"), true);
+  assert.equal(fieldKeys.has("runtimeContractV1"), false);
 });
 
 test("activity runtime defaults stay canonical for command controls", () => {

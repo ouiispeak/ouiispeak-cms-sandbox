@@ -35,6 +35,7 @@ const CANONICAL_STRUCTURED_PAYLOAD_FIELD_KEYS = [
   "minWordCount",
   "promptMode",
   "promptText",
+  "runtimeContractV1",
   "sentenceCards",
   "sentenceTokens",
   "sentenceWithGaps",

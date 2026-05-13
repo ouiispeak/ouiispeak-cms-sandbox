@@ -47,7 +47,24 @@ test("activity post-write validation rejects persisted payload missing propsJson
 
   assert.throws(
     () => validateActivitySlidePersistedValuesPostWrite(persistedValues, "Activity slide post-write"),
-    /requires non-empty runtimeContractV1/
+    /requires propsJson.runtimeContractV1/
+  );
+});
+
+test("activity post-write validation rejects persisted payload missing type", () => {
+  const persistedValues = new Map<string, string | null>([
+    ["Identity & Lifecycle.activityId", "ACT-010"],
+    ["Activities & Interaction.propsJson", JSON.stringify({
+      runtimeContractV1: validRuntimeContract("AudioChoiceSelector"),
+      promptText: "Pick the right noun.",
+      choiceElements: [{ label: "glass" }, { label: "cup" }],
+      correctAnswer: "glass",
+    })],
+  ]);
+
+  assert.throws(
+    () => validateActivitySlidePersistedValuesPostWrite(persistedValues, "Activity slide post-write"),
+    /requires non-empty type="activity"/
   );
 });
 
@@ -65,9 +82,6 @@ test("activity preflight rejects propsJson/top-level duplicate structured fields
           runtimeContractV1: validRuntimeContract("ChipSequencePlayer"),
           lines: [[{ label: "Canonical", speech: { mode: "file", fileUrl: "https://example.com/b.mp3" } }]],
         },
-      },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("ChipSequencePlayer"),
       },
     },
   ];
@@ -96,7 +110,49 @@ test("activity preflight rejects missing runtime contract for create", () => {
 
   assert.throws(
     () => validateActivitySlideImportPayloadPreflight(payload, "create"),
-    /requires non-empty runtimeContractV1/
+    /requires propsJson.runtimeContractV1/
+  );
+});
+
+test("activity preflight rejects missing activityId for create", () => {
+  const payload = [
+    {
+      groupId: "376913db-4f97-46f5-b5fa-b854b849f436",
+      "Activities & Interaction": {
+        propsJson: {
+          runtimeContractV1: validRuntimeContract("SequentialRecorder"),
+          targetText: "I can hear the difference.",
+        },
+      },
+    },
+  ];
+
+  assert.throws(
+    () => validateActivitySlideImportPayloadPreflight(payload, "create"),
+    /requires non-empty activityId/
+  );
+});
+
+test("activity preflight rejects non-activity type", () => {
+  const payload = [
+    {
+      groupId: "376913db-4f97-46f5-b5fa-b854b849f436",
+      "Identity & Lifecycle": {
+        activityId: "ACT-005",
+        type: "text",
+      },
+      "Activities & Interaction": {
+        propsJson: {
+          runtimeContractV1: validRuntimeContract("SequentialRecorder"),
+          targetText: "I can hear the difference.",
+        },
+      },
+    },
+  ];
+
+  assert.throws(
+    () => validateActivitySlideImportPayloadPreflight(payload, "create"),
+    /requires type="activity"/
   );
 });
 
@@ -117,9 +173,6 @@ test("activity preflight accepts valid ACT-005 create payload", () => {
           ],
         },
       },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("SequentialRecorder"),
-      },
     },
   ];
 
@@ -139,7 +192,7 @@ test("activity preflight allows update payload that only changes metadata", () =
   assert.doesNotThrow(() => validateActivitySlideImportPayloadPreflight(payload, "update"));
 });
 
-test("activity form preflight rejects runtime mismatch between top-level and propsJson", () => {
+test("activity form preflight rejects top-level runtimeContractV1 field", () => {
   const formData = new FormData();
   formData.append("Identity & Lifecycle.activityId", "ACT-001");
   formData.append("Identity & Lifecycle.type", "activity");
@@ -157,7 +210,7 @@ test("activity form preflight rejects runtime mismatch between top-level and pro
 
   assert.throws(
     () => validateActivitySlideFormDataPreflight(formData, "create"),
-    /mismatched runtimeContractV1/
+    /Remove top-level duplicate fields: runtimeContractV1/
   );
 });
 
@@ -225,9 +278,6 @@ test("activity preflight accepts valid ACT-009 payload using shape-lock rules", 
           },
         },
       },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("AudioChoiceSelector"),
-      },
     },
   ];
 
@@ -251,9 +301,6 @@ test("activity preflight accepts ACT-004 payload using audioPrompt alias and can
             speech: { mode: "tts", text: "Select the contour." },
           },
         },
-      },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("ChipSelector"),
       },
     },
   ];
@@ -279,9 +326,6 @@ test("activity preflight accepts ACT-009 payload with 1-based numeric correctAns
           },
         },
       },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("AudioChoiceSelector"),
-      },
     },
   ];
 
@@ -301,9 +345,6 @@ test("activity preflight rejects ACT-017 payload missing sentenceWithGaps", () =
           runtimeContractV1: validRuntimeContract("InlineGapTextInput"),
           blanks: [{ correctGapIndex: 1, acceptedAlternatives: ["bonjour"] }],
         },
-      },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("InlineGapTextInput"),
       },
     },
   ];
@@ -328,9 +369,6 @@ test("activity preflight rejects ACT-021 payload missing correctAnswer", () => {
           choiceElements: [{ label: "A" }, { label: "B" }],
         },
       },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("ChipAudioMatcher"),
-      },
     },
   ];
 
@@ -353,9 +391,6 @@ test("activity preflight rejects ACT-026 payload missing required promptText\/ta
           runtimeContractV1: validRuntimeContract("FreeRecorder"),
           body: " ",
         },
-      },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("FreeRecorder"),
       },
     },
   ];
@@ -381,9 +416,6 @@ test("activity preflight accepts ACT-026 payload with promptText and targetText"
           targetText: "Use at least three key words.",
         },
       },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("FreeRecorder"),
-      },
     },
   ];
 
@@ -404,9 +436,6 @@ test("activity preflight rejects ACT-015 payload with sentence token/order misma
           sentenceTokens: ["I", "am", "ready"],
           correctOrderWords: ["ready", "I"],
         },
-      },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("ChipSequenceBuilder"),
       },
     },
   ];
@@ -431,9 +460,6 @@ test("activity preflight rejects ACT-017 payload with out-of-range blank index",
           sentenceWithGaps: "She eats an apple",
           blanks: [{ correctGapIndex: 6, acceptedAlternatives: ["eats"] }],
         },
-      },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("InlineGapTextInput"),
       },
     },
   ];
@@ -469,9 +495,6 @@ test("activity preflight rejects ACT-018 payload with accepted_answers outside w
           ],
         },
       },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("WordBankInput"),
-      },
     },
   ];
 
@@ -506,9 +529,6 @@ test("activity preflight accepts ACT-018 payload with canonical gap objects", ()
           ],
         },
       },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("WordBankInput"),
-      },
     },
   ];
 
@@ -537,9 +557,6 @@ test("activity preflight rejects ACT-023 payload with empty turn responses", () 
             },
           ],
         },
-      },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("AvatarDialoguePlayer"),
       },
     },
   ];
@@ -570,9 +587,6 @@ test("activity preflight rejects ACT-023 payload missing avatarLine", () => {
           ],
         },
       },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("AvatarDialoguePlayer"),
-      },
     },
   ];
 
@@ -601,9 +615,6 @@ test("activity preflight rejects ACT-023 payload missing turn audio", () => {
             },
           ],
         },
-      },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: validRuntimeContract("AvatarDialoguePlayer"),
       },
     },
   ];

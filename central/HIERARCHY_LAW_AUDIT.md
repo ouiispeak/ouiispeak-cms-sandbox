@@ -60,7 +60,7 @@ Environment: local repository + local Supabase
   - `AI Generation & Prompting` (7)
   - `Activities & Interaction` (41)
   - `Links, Dependencies & Summaries` (12)
-  - `Telemetry & Analytics` (10)
+  - `Telemetry & Analytics` (11)
   - `Operations, Provenance & Governance` (11)
 - Component activation state (`is_present = true`):
   - modules
@@ -94,7 +94,7 @@ Environment: local repository + local Supabase
 4. Slides contract: PASS
 5. activity_slides contract: PASS
 6. title_slides contract: PASS
-7. lesson_ends config shape-lock contract: PASS (required baseline `lessonId,moduleId,slideId,slug,orderIndex`; runtime DB boundary tables active)
+7. lesson_ends config shape-lock contract: PASS (required baseline `lessonId,moduleId,slideId,slug`; runtime DB boundary tables active)
 8. Authority chain and projection contract: PASS
 9. Canonical mapping boundary: PASS
 10. Atomic import contract: PASS

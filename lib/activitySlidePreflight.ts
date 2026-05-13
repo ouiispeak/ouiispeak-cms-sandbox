@@ -652,31 +652,21 @@ function validateActivitySlideFieldMap(
   }
 
   const activityId = asTrimmedString(fieldMap.get("activityId"));
+  if (mode === "create" && !activityId) {
+    throw new Error(`${contextLabel} requires non-empty activityId.`);
+  }
+
+  const typeValue = asTrimmedString(fieldMap.get("type"));
+  if (typeValue && typeValue.toLowerCase() !== "activity") {
+    throw new Error(`${contextLabel} requires type="activity".`);
+  }
+
   const propsJsonRaw = parseObjectLikeJson(fieldMap.get("propsJson"), `${contextLabel} propsJson`);
   const propsJson = propsJsonRaw ? normalizeActivityPropsJson(activityId, propsJsonRaw) : null;
-  const runtimeFromTopLevel = parseObjectLikeJson(
-    fieldMap.get("runtimeContractV1"),
-    `${contextLabel} runtimeContractV1`
-  );
   const runtimeFromProps =
     propsJson && Object.prototype.hasOwnProperty.call(propsJson, "runtimeContractV1")
       ? parseObjectLikeJson(propsJson.runtimeContractV1, `${contextLabel} propsJson.runtimeContractV1`)
       : null;
-  const runtimeContract = validateRuntimeContract(
-    runtimeFromTopLevel ?? runtimeFromProps,
-    `${contextLabel}`
-  );
-
-  if (runtimeFromTopLevel && runtimeFromProps) {
-    const topLevelInteraction = runtimeFromTopLevel.interaction;
-    const propsInteraction = runtimeFromProps.interaction;
-    if (
-      JSON.stringify(topLevelInteraction) !== JSON.stringify(propsInteraction) ||
-      runtimeFromTopLevel.contractVersion !== runtimeFromProps.contractVersion
-    ) {
-      throw new Error(`${contextLabel} has mismatched runtimeContractV1 between top-level field and propsJson.`);
-    }
-  }
 
   if (!propsJson) {
     throw new Error(`${contextLabel} requires non-empty propsJson.`);
@@ -690,7 +680,7 @@ function validateActivitySlideFieldMap(
   if (!runtimeFromProps) {
     throw new Error(`${contextLabel} requires propsJson.runtimeContractV1.`);
   }
-  validateRuntimeContract(runtimeContract, contextLabel);
+  validateRuntimeContract(runtimeFromProps, contextLabel);
 }
 
 function extractFieldMapFromImportEntry(entry: unknown, contextLabel: string): Map<string, unknown> {
@@ -763,6 +753,16 @@ export function validateActivitySlidePersistedValuesPostWrite(
   for (const [qualifiedKey, fieldValue] of persistedValues.entries()) {
     const { fieldName } = splitQualifiedFieldKey(qualifiedKey);
     fieldMap.set(fieldName, fieldValue);
+  }
+
+  const persistedActivityId = asTrimmedString(fieldMap.get("activityId"));
+  if (!persistedActivityId) {
+    throw new Error(`${contextLabel} requires non-empty activityId.`);
+  }
+
+  const persistedType = asTrimmedString(fieldMap.get("type"));
+  if (!persistedType || persistedType.toLowerCase() !== "activity") {
+    throw new Error(`${contextLabel} requires non-empty type="activity".`);
   }
 
   validateActivitySlideFieldMap(fieldMap, "create", contextLabel);

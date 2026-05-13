@@ -9,6 +9,7 @@ DO $$
 DECLARE
   requested_field_keys TEXT[] := ARRAY[
     'activityId',
+    'activityIntent',
     'aiInstructions',
     'allowRetry',
     'allowSkip',
@@ -20,10 +21,13 @@ DECLARE
     'audioId',
     'audioPrompt',
     'autoAdvance',
+    'level',
     'levelMax',
     'levelMin',
     'body',
     'buttons',
+    'canonicalNodeKey',
+    'canonicalSliceKey',
     'cefrLevel',
     'cefrMax',
     'cefrMin',
@@ -82,7 +86,6 @@ DECLARE
     'passingScoreType',
     'passingScoreValue',
     'prerequisiteEdges',
-    'prerequisiteModules',
     'prerequisiteNodes',
     'prerequisiteSlices',
     'prerequisites',
@@ -97,8 +100,8 @@ DECLARE
     'requiredScore',
     'retryPolicy',
     'runtimeContractV1',
-    'shortSummaryTeacherActivity',
-    'shortSummaryTeacherSlide',
+    'shortSummaryActivityTeacher',
+    'shortSummarySlideTeacher',
     'signatureMetaphors',
     'simplificationGuidelines',
     'skipPolicy',
@@ -114,12 +117,9 @@ DECLARE
     'targetedNodes',
     'targetedSlices',
     'targetLanguage',
-    'targetNodeKeys',
     'teacherNotes',
     'teacherOverview',
     'telemetryTags',
-    'textSubtype',
-    'timeExpectationActivity',
     'title',
     'topicCategory',
     'type',
@@ -146,7 +146,7 @@ BEGIN
     'activity_slides',
     true,
     CASE
-      WHEN requested.field_key IN ('slideId', 'slug') THEN true
+      WHEN requested.field_key IN ('slideId', 'slug', 'canonicalNodeKey', 'canonicalSliceKey') THEN true
       ELSE false
     END
   FROM UNNEST(requested_field_keys) AS requested(field_key)

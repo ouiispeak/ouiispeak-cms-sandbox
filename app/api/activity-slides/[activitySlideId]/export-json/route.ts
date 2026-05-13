@@ -3,7 +3,7 @@ import { loadActivitySlideConfigCategories, type UniversalConfigCategory } from 
 import { exportValueFromStoredValue, type ExportTemplateValue } from "@/lib/exportTemplateValues";
 import { getTopLevelOnlyFieldKeys } from "@/lib/canonicalFieldMap";
 import { filterActivitySlideCategoriesForProfile, resolveConcreteActivityProfileFromActivityId } from "@/lib/activityProfiles";
-import { normalizeActivityPropsJson } from "@/lib/activityPayloadNormalization";
+import { canonicalizeActivityExportTemplate } from "@/lib/activityExportCanonicalization";
 import { assertExportRuntimeGate } from "@/lib/exportRuntimeGate";
 
 export const dynamic = "force-dynamic";
@@ -51,31 +51,6 @@ function buildActivitySlideTemplate(
   return template;
 }
 
-function normalizeTemplatePropsJson(
-  template: ActivitySlideTemplate,
-  activityId: string | undefined
-): ActivitySlideTemplate {
-  const normalizedTemplate: ActivitySlideTemplate = { ...template };
-
-  for (const [categoryKey, categoryPayload] of Object.entries(template)) {
-    if (!Object.prototype.hasOwnProperty.call(categoryPayload, "propsJson")) {
-      continue;
-    }
-
-    const rawPropsJson = categoryPayload.propsJson;
-    if (!rawPropsJson || typeof rawPropsJson !== "object" || Array.isArray(rawPropsJson)) {
-      continue;
-    }
-
-    normalizedTemplate[categoryKey] = {
-      ...categoryPayload,
-      propsJson: normalizeActivityPropsJson(activityId, rawPropsJson as Record<string, unknown>),
-    };
-  }
-
-  return normalizedTemplate;
-}
-
 function resolveActivityIdFromRecord(activitySlideRecord: ActivitySlideDetailRow): string | undefined {
   return (
     activitySlideRecord.values["Identity & Lifecycle"]?.activityId ??
@@ -102,7 +77,7 @@ export async function GET(
       profile
     );
     const activityId = resolveActivityIdFromRecord(activitySlideRecord);
-    const template = normalizeTemplatePropsJson(
+    const template = canonicalizeActivityExportTemplate(
       buildActivitySlideTemplate(activitySlideRecord, categories),
       activityId
     );

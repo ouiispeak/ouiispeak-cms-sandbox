@@ -83,7 +83,7 @@ lessons:
     - notesForTeacherOrAI
     - shortSummaryLessonAdmin
     - shortSummaryLessonStudent
-    - shortSummaryTeacherLesson
+    - shortSummaryLessonTeacher
     - teacherNotes
     - teacherOverview
   AI Generation & Prompting:
@@ -110,7 +110,6 @@ lessons:
     - targetedEdges
     - targetedNodes
     - targetedSlices
-    - targetNodeKeys
     - telemetryTags
   Operations, Provenance & Governance:
     - breakingChangeGuard

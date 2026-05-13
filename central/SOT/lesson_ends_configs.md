@@ -7,13 +7,9 @@ lesson_ends:
   Identity baseline keys:
     - lessonId
     - moduleId
-    - orderIndex
     - slideId
     - slug
   Identity & Lifecycle:
-    - activityId
-    - groupId
-    - groupName
     - lastUpdatedAt
     - lastUpdatedBy
     - lessonId
@@ -33,13 +29,10 @@ lesson_ends:
     - recommendedNextStep
   Pedagogy & Scaffolding:
     - extraPracticeNotes
-  Structure & Sequencing:
-    - orderIndex
   Localization:
     - defaultLang
     - targetLanguage
   Telemetry & Analytics:
-    - telemetryTags
   Operations, Provenance & Governance:
     - diffLog
     - ingestPayload

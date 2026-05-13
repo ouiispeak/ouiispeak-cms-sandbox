@@ -24,7 +24,12 @@ export async function GET(): Promise<Response> {
     template[category.key] = categoryPayload;
   }
 
-  return new Response(JSON.stringify(template, null, 2), {
+  const payload = {
+    moduleId: "",
+    ...template,
+  };
+
+  return new Response(JSON.stringify(payload, null, 2), {
     status: 200,
     headers: {
       "Content-Type": "application/json; charset=utf-8",

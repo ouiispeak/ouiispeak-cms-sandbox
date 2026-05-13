@@ -504,16 +504,6 @@ test("activity slide create import uses one atomic RPC call for multi-entry payl
             lines: [[{ label: "Bonjour", speech: { mode: "file", fileUrl: "https://example.com/a.mp3" } }]],
           },
         },
-        "Operations, Provenance & Governance": {
-          runtimeContractV1: {
-            contractVersion: "v1",
-            interaction: {
-              activity_row_tool: "ChipSequencePlayer",
-              command_row_controls: ["play"],
-              status: "active",
-            },
-          },
-        },
       },
       {
         groupId: GROUP_2_UUID,
@@ -529,16 +519,6 @@ test("activity slide create import uses one atomic RPC call for multi-entry payl
               },
             },
             lines: [[{ label: "Salut", speech: { mode: "file", fileUrl: "https://example.com/b.mp3" } }]],
-          },
-        },
-        "Operations, Provenance & Governance": {
-          runtimeContractV1: {
-            contractVersion: "v1",
-            interaction: {
-              activity_row_tool: "ChipSequencePlayer",
-              command_row_controls: ["play"],
-              status: "active",
-            },
           },
         },
       },
@@ -638,16 +618,6 @@ test("activity slide update import uses one atomic RPC call for multi-entry payl
             lines: [[{ label: "Bonjour", speech: { mode: "file", fileUrl: "https://example.com/a.mp3" } }]],
           },
         },
-        "Operations, Provenance & Governance": {
-          runtimeContractV1: {
-            contractVersion: "v1",
-            interaction: {
-              activity_row_tool: "ChipSequencePlayer",
-              command_row_controls: ["play"],
-              status: "active",
-            },
-          },
-        },
       },
       {
         slideId: ACTIVITY_SLIDE_2_UUID,
@@ -663,16 +633,6 @@ test("activity slide update import uses one atomic RPC call for multi-entry payl
               },
             },
             lines: [[{ label: "Salut", speech: { mode: "file", fileUrl: "https://example.com/b.mp3" } }]],
-          },
-        },
-        "Operations, Provenance & Governance": {
-          runtimeContractV1: {
-            contractVersion: "v1",
-            interaction: {
-              activity_row_tool: "ChipSequencePlayer",
-              command_row_controls: ["play"],
-              status: "active",
-            },
           },
         },
       },

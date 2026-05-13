@@ -37,6 +37,24 @@ export function getSupabaseAnonCredentials(): { supabaseUrl: string; supabaseAno
   return { supabaseUrl, supabaseAnonKey };
 }
 
+export function getSupabaseReadCredentials(): { supabaseUrl: string; supabaseReadKey: string } {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (supabaseUrl && supabaseServiceRoleKey) {
+    return { supabaseUrl, supabaseReadKey: supabaseServiceRoleKey };
+  }
+
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (supabaseUrl && supabaseAnonKey) {
+    return { supabaseUrl, supabaseReadKey: supabaseAnonKey };
+  }
+
+  throw new Error(
+    "Missing NEXT_PUBLIC_SUPABASE_URL and read API key (SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY)."
+  );
+}
+
 export function isObjectRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -151,7 +169,7 @@ export function extractFieldInputsFromFormData(
   return fieldInputs;
 }
 
-const STRUCTURED_FIELD_INPUT_TYPES = new Set<UniversalConfigField["inputType"]>([
+const STRUCTURED_FIELD_input_TYPES = new Set<UniversalConfigField["inputType"]>([
   "json",
   "list",
   "audio_list",
@@ -173,7 +191,7 @@ function parseImportFieldValue(
   }
 
   if (typeof value === "object") {
-    if (value !== null && STRUCTURED_FIELD_INPUT_TYPES.has(inputType ?? "text")) {
+    if (value !== null && STRUCTURED_FIELD_input_TYPES.has(inputType ?? "text")) {
       return JSON.stringify(value);
     }
 
@@ -578,14 +596,14 @@ export async function upsertDynamicFieldRows(
 }
 
 export async function fetchAnonRows<T>(resourcePath: string, errorLabel: string): Promise<T[]> {
-  const { supabaseUrl, supabaseAnonKey } = getSupabaseAnonCredentials();
+  const { supabaseUrl, supabaseReadKey } = getSupabaseReadCredentials();
 
   return parseJsonResponse<T[]>(
     await fetch(`${supabaseUrl}/rest/v1/${resourcePath}`, {
       cache: "no-store",
       headers: {
-        apikey: supabaseAnonKey,
-        Authorization: `Bearer ${supabaseAnonKey}`,
+        apikey: supabaseReadKey,
+        Authorization: `Bearer ${supabaseReadKey}`,
       },
     }),
     errorLabel

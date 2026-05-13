@@ -43,7 +43,9 @@ function buildLessonEndTemplate(
       categoryPayload[field.key] = exportValueFromStoredValue(field.inputType, value);
     }
 
-    template[category.key] = categoryPayload;
+    if (Object.keys(categoryPayload).length > 0) {
+      template[category.key] = categoryPayload;
+    }
   }
 
   return template;

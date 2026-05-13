@@ -16,7 +16,7 @@ import { GET as exportGroupJson } from "../app/api/groups/[groupId]/export-json/
 import { GET as exportSlideJson } from "../app/api/slides/[slideId]/export-json/route";
 import { GET as exportActivitySlideJson } from "../app/api/activity-slides/[activitySlideId]/export-json/route";
 import { GET as exportTitleSlideJson } from "../app/api/title-slides/[titleSlideId]/export-json/route";
-import { GET as exportLessonEndJson } from "../app/api/lesson-ends/[lessonEndId]/export-json/route";
+import { GET as exportLessonEndJson } from "../app/api/lessonEnds/[lessonEndId]/export-json/route";
 
 type ComponentName =
   | "modules"
@@ -101,7 +101,6 @@ const configByComponent: Record<ComponentName, Array<{ category: string; field: 
     { category: "Identity & Lifecycle", field: "title", type: "text" },
     { category: "Instructions & Flow", field: "instructions", type: "textarea" },
     { category: "Activities & Interaction", field: "propsJson", type: "json" },
-    { category: "Operations, Provenance & Governance", field: "runtimeContractV1", type: "json" },
   ],
   title_slides: [
     { category: "Identity & Lifecycle", field: "type", type: "text" },
@@ -821,9 +820,6 @@ test("activity slide import/export parity is deterministic (ACT-009)", async () 
       "Activities & Interaction": {
         propsJson,
       },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: runtimeContract,
-      },
     };
 
     const importedCount = await importActivitySlidesFromJsonPayload(payload);
@@ -850,10 +846,6 @@ test("activity slide import/export parity is deterministic (ACT-009)", async () 
     assert.deepEqual(exportedPropsJson.audio, {
       speech: { mode: "tts", text: "Choisis la bonne reponse" },
     });
-    assert.deepEqual(
-      (exported["Operations, Provenance & Governance"] as Record<string, unknown>).runtimeContractV1,
-      runtimeContract
-    );
   } finally {
     harness.restore();
   }
@@ -889,9 +881,6 @@ test("activity slide import/export canonicalizes ACT-004 aliases and synonyms", 
             speech: { mode: "tts", text: "Choose contour" },
           },
         },
-      },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: runtimeContract,
       },
     };
 
@@ -959,9 +948,6 @@ test("activity slide import/export parity is deterministic (ACT-018 canonical ga
       },
       "Activities & Interaction": {
         propsJson,
-      },
-      "Operations, Provenance & Governance": {
-        runtimeContractV1: runtimeContract,
       },
     };
 
@@ -1076,9 +1062,6 @@ test("activity slide import/export parity is deterministic across active ACT lan
         },
         "Activities & Interaction": {
           propsJson,
-        },
-        "Operations, Provenance & Governance": {
-          runtimeContractV1: runtimeContract,
         },
       };
 

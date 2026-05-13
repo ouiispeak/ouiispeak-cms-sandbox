@@ -26,7 +26,7 @@ type ConfigTabKey =
   | "slides"
   | "activity-slides"
   | "title-slides"
-  | "lesson-ends";
+  | "lessonEnds";
 
 type ConfigTab = {
   key: ConfigTabKey;
@@ -124,9 +124,9 @@ const CONFIG_TABS: ConfigTab[] = [
     loadCategories: loadTitleSlideConfigCategories,
   },
   {
-    key: "lesson-ends",
+    key: "lessonEnds",
     label: "lesson_ends",
-    href: "/configs/lesson-ends",
+    href: "/configs/lessonEnds",
     sourceOfTruth:
       "Supabase public.field_dictionary_component_rules -> public.component_config_fields (lesson_ends)",
     emptyMessage: "No lesson_ends categories defined.",
