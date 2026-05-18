@@ -31,7 +31,6 @@ slides:
     - forbiddenPatterns
     - groupId
     - groupName
-    - ingestPayload
     - ingestSource
     - instructions
     - keyTakeawaysSlide

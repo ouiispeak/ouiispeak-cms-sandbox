@@ -233,7 +233,6 @@ Operations, Provenance & Governance:
   changeImpactAssessment: textarea field
   diffLog: json field
   extractabilityTier: select field
-  ingestPayload: json field
   ingestSource: select field
   manualOverrideJson: json field
   metadata: json field

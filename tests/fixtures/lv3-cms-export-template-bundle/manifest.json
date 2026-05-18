@@ -1,0 +1,190 @@
+{
+  "artifact": "lv3-cms-export-template-bundle",
+  "contract": "CMS export templates are the source of truth; import rejects target component identity/direct parent keys inside category buckets.",
+  "sourceCommit": "c60682332ff9cd05dbcf4274c665878364adb525",
+  "sourceCommitDate": "2026-05-13T20:57:39+02:00",
+  "configSource": "public.config_component_fields via CMS export-json route handlers",
+  "generatedAt": "2026-05-13T20:57:39+02:00",
+  "files": [
+    {
+      "component": "modules",
+      "route": "/api/modules/export-json",
+      "file": "templates/module-template.json",
+      "sha256": "3c783869165413f7de09bd4b08618ae78d9a4e5a7393a3565b561b7b3702e132"
+    },
+    {
+      "component": "lessons",
+      "route": "/api/lessons/export-json",
+      "file": "templates/lesson-template.json",
+      "sha256": "734a2cb8d9bca714bc0e7669d7c75027ba592b9efc58efdba917fe890b2baee2"
+    },
+    {
+      "component": "groups",
+      "route": "/api/groups/export-json",
+      "file": "templates/group-template.json",
+      "sha256": "fe4576b2caa738e6e26dc4fd4ca394878789a38330e0d63cdaa02d211429272f"
+    },
+    {
+      "component": "slides",
+      "route": "/api/slides/export-json",
+      "file": "templates/slide-template.json",
+      "sha256": "8ce72f5bb83b00594693cd73ed55b20848d1f0278169272d4375d18258bcc0d2"
+    },
+    {
+      "component": "title_slides",
+      "route": "/api/title-slides/export-json",
+      "file": "templates/title-slide-template.json",
+      "sha256": "082dd5604fb65bbe1fa242583ce1360da66d4160b90798f51c84b6758dfc6cb9"
+    },
+    {
+      "component": "lesson_ends",
+      "route": "/api/lesson-ends/export-json",
+      "file": "templates/lesson_ends-template.json",
+      "sha256": "fa5bedc4b13345d62d32a7b83a3e6f684a2d4025db4789b3c5f3b26ce624a6a8"
+    },
+    {
+      "component": "activity_slides:default",
+      "route": "/api/activity-slides/export-json?profile=default",
+      "file": "templates/activity-slide-template-default.json",
+      "sha256": "24e3c66ae809fd63cc015cb1c5606a4a4739f080dd0ba8e9b0a8b6edb8d840c7"
+    },
+    {
+      "component": "activity_slides:act-001",
+      "route": "/api/activity-slides/export-json?profile=act-001",
+      "file": "templates/activity-slide-template-act-001.json",
+      "sha256": "24e3c66ae809fd63cc015cb1c5606a4a4739f080dd0ba8e9b0a8b6edb8d840c7"
+    },
+    {
+      "component": "activity_slides:act-002",
+      "route": "/api/activity-slides/export-json?profile=act-002",
+      "file": "templates/activity-slide-template-act-002.json",
+      "sha256": "33177f587725ce9725aa0108d351622b762cdacec07aa5cd67ae7305c324041a"
+    },
+    {
+      "component": "activity_slides:act-003",
+      "route": "/api/activity-slides/export-json?profile=act-003",
+      "file": "templates/activity-slide-template-act-003.json",
+      "sha256": "a2fc9508c6731fcf1c84eb49adc908cb26587091fe9dbc9fe854af99613d90a2"
+    },
+    {
+      "component": "activity_slides:act-004",
+      "route": "/api/activity-slides/export-json?profile=act-004",
+      "file": "templates/activity-slide-template-act-004.json",
+      "sha256": "54cb0ce066df1fe01f92f5708737abe9d9c87a1ee82cb135cebd82baf7e70595"
+    },
+    {
+      "component": "activity_slides:act-005",
+      "route": "/api/activity-slides/export-json?profile=act-005",
+      "file": "templates/activity-slide-template-act-005.json",
+      "sha256": "6f2e3e29a7f8cbf32d5a4b8f695c01f2aa6e4e37ee8d512b4fb8a38b0dabd0e0"
+    },
+    {
+      "component": "activity_slides:act-009",
+      "route": "/api/activity-slides/export-json?profile=act-009",
+      "file": "templates/activity-slide-template-act-009.json",
+      "sha256": "a94e1d04a65ca1dd0227f6d75dd18121a7806fd3ebe5362ee9174a20df0a1aeb"
+    },
+    {
+      "component": "activity_slides:act-010",
+      "route": "/api/activity-slides/export-json?profile=act-010",
+      "file": "templates/activity-slide-template-act-010.json",
+      "sha256": "cfc7d4db8ae794ffcee506d3a4133e455cb6c188ce3b6c7b09686da542217938"
+    },
+    {
+      "component": "activity_slides:act-011",
+      "route": "/api/activity-slides/export-json?profile=act-011",
+      "file": "templates/activity-slide-template-act-011.json",
+      "sha256": "0b5e45628d7a9758ae9d30e1701d51cdc7b7cb691b10b49462f7043398b9605c"
+    },
+    {
+      "component": "activity_slides:act-012",
+      "route": "/api/activity-slides/export-json?profile=act-012",
+      "file": "templates/activity-slide-template-act-012.json",
+      "sha256": "48f5b926529d25e82ba27c03c16066626b3e33b50030eb0cf0d6974daec34c98"
+    },
+    {
+      "component": "activity_slides:act-013",
+      "route": "/api/activity-slides/export-json?profile=act-013",
+      "file": "templates/activity-slide-template-act-013.json",
+      "sha256": "758b0de4e7f018b8a69ee839209fcbdbb00c5bfa0abf9e3b25b78aa4d525653e"
+    },
+    {
+      "component": "activity_slides:act-014",
+      "route": "/api/activity-slides/export-json?profile=act-014",
+      "file": "templates/activity-slide-template-act-014.json",
+      "sha256": "b278dbf8b42d36fc16ecb82f5fe129ac99542b45295619ab98de863f8cd6429d"
+    },
+    {
+      "component": "activity_slides:act-015",
+      "route": "/api/activity-slides/export-json?profile=act-015",
+      "file": "templates/activity-slide-template-act-015.json",
+      "sha256": "f33b4779dd2a989bb5e805dd9b58d52a192593b3a2176a68fd8299d353ef677b"
+    },
+    {
+      "component": "activity_slides:act-016",
+      "route": "/api/activity-slides/export-json?profile=act-016",
+      "file": "templates/activity-slide-template-act-016.json",
+      "sha256": "f48ef7bc95fd6778e7f4f885344d5c065aa9c17bd6ec9df4573279ef2ce51036"
+    },
+    {
+      "component": "activity_slides:act-017",
+      "route": "/api/activity-slides/export-json?profile=act-017",
+      "file": "templates/activity-slide-template-act-017.json",
+      "sha256": "fd0bec34707566fc16d7c141e990c1199511dc7a106fd1f851b9f2ed972602f3"
+    },
+    {
+      "component": "activity_slides:act-018",
+      "route": "/api/activity-slides/export-json?profile=act-018",
+      "file": "templates/activity-slide-template-act-018.json",
+      "sha256": "70d8bc2f4138b64b46d1a6bec944264319c97fbb665bafcabdc4570b767aaac7"
+    },
+    {
+      "component": "activity_slides:act-019",
+      "route": "/api/activity-slides/export-json?profile=act-019",
+      "file": "templates/activity-slide-template-act-019.json",
+      "sha256": "4a2675c759ceb6f8516efd37e8249585bec74188078405d47024f316289ef90f"
+    },
+    {
+      "component": "activity_slides:act-020",
+      "route": "/api/activity-slides/export-json?profile=act-020",
+      "file": "templates/activity-slide-template-act-020.json",
+      "sha256": "6bdd4837e0958ee51a40f2c021c223ed003545cd3f78c4216d08fa4b2489be7a"
+    },
+    {
+      "component": "activity_slides:act-021",
+      "route": "/api/activity-slides/export-json?profile=act-021",
+      "file": "templates/activity-slide-template-act-021.json",
+      "sha256": "4da611c8efb334aa1cc5b0eb12272d0d7c5f62d53ecba3d9d6c91e89e55ef23d"
+    },
+    {
+      "component": "activity_slides:act-022",
+      "route": "/api/activity-slides/export-json?profile=act-022",
+      "file": "templates/activity-slide-template-act-022.json",
+      "sha256": "70b8110d9b35114edebe1de90743d8d3fc77719566cf9034a98019485cbd69ec"
+    },
+    {
+      "component": "activity_slides:act-023",
+      "route": "/api/activity-slides/export-json?profile=act-023",
+      "file": "templates/activity-slide-template-act-023.json",
+      "sha256": "5d1cd68bf2db2034a7e181024a00553070b52a2f61aa865c7f1818aa78936ab7"
+    },
+    {
+      "component": "activity_slides:act-024",
+      "route": "/api/activity-slides/export-json?profile=act-024",
+      "file": "templates/activity-slide-template-act-024.json",
+      "sha256": "95fdb21820f294ea11049bf949bc21d48caade8115cb9ee16c921a051c4db44c"
+    },
+    {
+      "component": "activity_slides:act-025",
+      "route": "/api/activity-slides/export-json?profile=act-025",
+      "file": "templates/activity-slide-template-act-025.json",
+      "sha256": "45e48dcf35967bf9b64abecdc42639f43106dfea72ac2adb8afea0cad7149780"
+    },
+    {
+      "component": "activity_slides:act-026",
+      "route": "/api/activity-slides/export-json?profile=act-026",
+      "file": "templates/activity-slide-template-act-026.json",
+      "sha256": "d0e810543b0a5c418028b993ef2399bb90e0a0338b69c6e87c6bdc61583ae45a"
+    }
+  ]
+}

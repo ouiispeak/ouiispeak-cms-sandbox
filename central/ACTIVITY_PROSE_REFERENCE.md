@@ -1,3 +1,8 @@
+Authority Role: guide
+Artifact Type: activity-prose-reference
+Canonical Source: central/ACTIVITY_PROSE_REFERENCE.md
+Constitution Reference: central/CONSTITUTION.md
+
 # Activity Prose Reference
 
 Purpose: concise instructional intent for each ACT type, written for curriculum and authoring reference.

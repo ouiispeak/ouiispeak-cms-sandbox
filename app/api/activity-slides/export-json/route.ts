@@ -3,11 +3,15 @@ import { exportEmptyValueForInputType, type ExportTemplateValue } from "@/lib/ex
 import { getTopLevelOnlyFieldKeys } from "@/lib/canonicalFieldMap";
 import {
   filterActivitySlideCategoriesForProfile,
+  listActivityProfileExtraFieldKeys,
   resolveActivityProfile,
   resolveConcreteActivityProfile,
 } from "@/lib/activityProfiles";
 import { ACTIVITY_PROFILE_DEFAULTS } from "@/lib/activityRuntimeDefaults";
-import { canonicalizeActivityExportTemplate } from "@/lib/activityExportCanonicalization";
+import {
+  buildActivityPropsJsonTemplate,
+  canonicalizeActivityExportTemplate,
+} from "@/lib/activityExportCanonicalization";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +22,7 @@ export async function GET(request: Request): Promise<Response> {
   const profile = resolveActivityProfile(new URL(request.url).searchParams.get("profile") ?? undefined);
   const concreteProfile = resolveConcreteActivityProfile(profile);
   const activityId = ACTIVITY_PROFILE_DEFAULTS[concreteProfile].activityId;
+  const profileFieldKeys = listActivityProfileExtraFieldKeys(concreteProfile);
   const categories = filterActivitySlideCategoriesForProfile(await loadActivitySlideConfigCategories(), profile);
   const topLevelOnlyFields = getTopLevelOnlyFieldKeys("activity_slides");
 
@@ -32,6 +37,21 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     template[category.key] = categoryPayload;
+  }
+
+  const identityPayload = template["Identity & Lifecycle"];
+  if (identityPayload) {
+    if (Object.prototype.hasOwnProperty.call(identityPayload, "activityId")) {
+      identityPayload.activityId = activityId;
+    }
+    if (Object.prototype.hasOwnProperty.call(identityPayload, "type")) {
+      identityPayload.type = "activity";
+    }
+  }
+
+  const activityPayload = template["Activities & Interaction"];
+  if (activityPayload && Object.prototype.hasOwnProperty.call(activityPayload, "propsJson")) {
+    activityPayload.propsJson = buildActivityPropsJsonTemplate(activityId, profileFieldKeys);
   }
 
   const payload = {

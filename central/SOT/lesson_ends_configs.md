@@ -35,7 +35,6 @@ lesson_ends:
   Telemetry & Analytics:
   Operations, Provenance & Governance:
     - diffLog
-    - ingestPayload
     - ingestSource
     - metadata
   Runtime note:

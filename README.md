@@ -72,7 +72,7 @@ Current baseline: universal field catalog is populated and component field activ
 - DB primary/foreign keys for lesson_ends records are UUID (`lesson_ends.id`, `lesson_ends.lesson_id`).
 - UI route params are `[moduleId]`, `[lessonId]`, `[groupId]`, `[slideId]`, `[activitySlideId]`, `[titleSlideId]`, and `[lessonEndId]`.
 - Naming decision `ACT-NAMING-001` is closed: use `slideId` only. `slideUuid` is legacy and unsupported.
-- Naming decision `CMP-NAMING-001` is closed: component token is `lesson_ends`, collection URL slug is `lessonEnds`, entity route param is `lessonEndId`, and DB FK is `lesson_end_id`.
+- Naming decision `CMP-NAMING-001` is closed: component token is `lesson_ends`, collection URL slug is `lesson-ends`, entity route param is `lessonEndId`, and DB FK is `lesson_end_id`.
 - JSON import/export identity keys:
   - module update: `moduleId`
   - lesson create parent: `moduleId`
@@ -87,6 +87,12 @@ Current baseline: universal field catalog is populated and component field activ
   - title_slides update: `slideId` (`lessonId` optional reparent)
   - lesson_ends create parent: `lessonId`
   - lesson_ends update: `slideId` (`lessonId` optional reparent)
+- Export templates are the source of truth for external source generation. Import rejects the target component identity
+  key and direct parent key inside category buckets; LV3 should generate from the exported template shape instead of
+  asking CMS ingest to accept category-bucket identity/parent keys.
+- Frozen LV3 target bundle: `tests/fixtures/lv3-cms-export-template-bundle/manifest.json`.
+- Regenerate that bundle only as an explicit golden-fixture workflow, for example:
+  `npm run export:template-bundle -- --env-file .env.local`.
 
 ## Minimal Documentation Map
 To prevent spec duplication, treat these as the only detailed docs:

@@ -33,12 +33,12 @@ This law defines the JSON contract LV2 must use when generating payloads for CMS
 - No compatibility alias is allowed from `slideUuid` to `slideId`.
 
 ## Naming Decision (CMP-NAMING-001)
-- Final choice: component token is `lesson_ends`; collection URL slug is `lessonEnds`; entity route param is `lessonEndId`; DB FK is `lesson_end_id`.
+- Final choice: component token is `lesson_ends`; collection URL slug is `lesson-ends`; entity route param is `lessonEndId`; DB FK is `lesson_end_id`.
 - Legacy component-token variants are forbidden: `Lesson End Slide`, `lesson end`, `lesson ends`, `lessonEnd`, `lessonEnds`.
 - No compatibility alias is allowed for component-token naming.
 
 Note:
-- CMS JSON routes for this component are active under `/api/lessonEnds/*`.
+- CMS JSON routes for this component are active under `/api/lesson-ends/*`.
 - `moduleId` and `slug` remain required baseline fields in lesson_ends config payloads.
 - Current player B2 runtime reads the lesson_ends identity baseline from `public.lesson_end_field_values`.
 

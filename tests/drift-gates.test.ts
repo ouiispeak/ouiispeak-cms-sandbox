@@ -445,7 +445,6 @@ test("lesson_ends shape-lock seed matches approved field set and excludes titleM
     "audioId",
     "targetLanguage",
     "ingestSource",
-    "ingestPayload",
     "sourceVersion",
     "diffLog",
     "metadata",
@@ -705,6 +704,9 @@ test("INGEST_CONTRACT reflects canonical config source and rejection envelope be
   assert.match(ingestContract, /ACT-specific rejection codes \(`ACTIVITY_\*`\)/);
   assert.match(ingestContract, /Hard Fact \(HF-IDENTITY-001\)/);
   assert.match(ingestContract, /`slideUuid` is forbidden/);
+  assert.match(ingestContract, /current CMS export template routes are the source of truth for LV3 source generation/);
+  assert.match(ingestContract, /must not be loosened to accept target component identity or direct parent keys inside category buckets/);
+  assert.match(ingestContract, /tests\/fixtures\/lv3-cms-export-template-bundle\/manifest\.json/);
 });
 
 test("ACTIVITY_PROFILES structured payload policy tracks code-derived collision guard", () => {

@@ -1,0 +1,132 @@
+{
+  "lessonId": "",
+  "moduleId": "",
+  "Identity & Lifecycle": {
+    "lastUpdatedAt": "",
+    "lastUpdatedBy": "",
+    "ownerTeam": "",
+    "slug": "",
+    "title": "",
+    "version": "",
+    "visibility": "",
+    "sourceVersion": ""
+  },
+  "Purpose & Outcomes": {
+    "description": "",
+    "activityDescription": "",
+    "learningObjectives": "",
+    "competencyTags": "",
+    "tags": "",
+    "coreTopics": "",
+    "topicCategory": "",
+    "keywords": ""
+  },
+  "Scope, Prerequisites & Targeting": {
+    "audienceNotes": "",
+    "level": "",
+    "cefrLevel": "",
+    "levelMax": "",
+    "cefrMax": "",
+    "levelMin": "",
+    "cefrMin": "",
+    "diagnosticChecks": "",
+    "prerequisites": "",
+    "priorLessons": "",
+    "prerequisiteEdges": "",
+    "prerequisiteNodes": "",
+    "prerequisiteSlices": ""
+  },
+  "Instructions & Flow": {
+    "allowRetry": false,
+    "retryPolicy": "",
+    "allowSkip": false,
+    "skipPolicy": "",
+    "minAttemptsBeforeSkip": ""
+  },
+  "Pedagogy & Scaffolding": {
+    "scaffoldingPlan": "",
+    "pedagogicalStrategy": "",
+    "differentiationPaths": "",
+    "differentiationStrategies": "",
+    "remediationGuidance": "",
+    "remediationPaths": "",
+    "discourseFocus": "",
+    "grammarFocus": "",
+    "pronunciationFocus": "",
+    "vocabularyTheme": "",
+    "extraPracticeNotes": "",
+    "pacingNotes": "",
+    "practiceProgression": ""
+  },
+  "Assessment & Mastery": {
+    "assessmentPlan": "",
+    "successCriteria": "",
+    "passRequiredForNext": false,
+    "requiredScore": "",
+    "maxAttempts": "",
+    "masteryRule": "",
+    "masteryThreshold": ""
+  },
+  "Structure & Sequencing": {
+    "orderIndex": "",
+    "groupPlan": "",
+    "slidePlan": ""
+  },
+  "Teacher Guidance": {
+    "teacherNotes": "",
+    "teacherOverview": "",
+    "notesForTeacherOrAI": "",
+    "commonMisconceptions": "",
+    "shortSummaryLessonAdmin": "",
+    "shortSummaryTeacherLesson": "",
+    "shortSummaryLessonStudent": ""
+  },
+  "AI Generation & Prompting": {
+    "aiInstructions": "",
+    "exampleResponses": "",
+    "expansionGuidelines": "",
+    "forbiddenPatterns": "",
+    "signatureMetaphors": "",
+    "simplificationGuidelines": "",
+    "styleConstraints": ""
+  },
+  "Links, Dependencies & Summaries": {
+    "keyTakeawaysLesson": "",
+    "learningGoalPreviewLesson": "",
+    "linkedResources": "",
+    "timeExpectationLesson": "",
+    "estimatedMinutes": ""
+  },
+  "Operations, Provenance & Governance": {
+    "breakingChangeGuard": false,
+    "changeImpactAssessment": "",
+    "diffLog": {},
+    "ingestSource": "",
+    "manualOverrideJson": {},
+    "publishNotes": "",
+    "reviewRequired": false
+  },
+  "Localization": {
+    "culturalContext": "",
+    "defaultLang": "",
+    "l1InterferenceNotes": "",
+    "registerTone": "",
+    "registerVariants": "",
+    "targetLanguage": ""
+  },
+  "Activities & Interaction": {
+    "activityTypes": ""
+  },
+  "Telemetry & Analytics": {
+    "canonicalNodeKey": "",
+    "canonicalSliceKey": "",
+    "expectedCompletionRate": "",
+    "expectedTimeOnTask": "",
+    "experimentFlag": "",
+    "targetedEdges": "",
+    "targetedNodes": "",
+    "targetedSlices": "",
+    "targetNodeKeys": "",
+    "telemetryTags": ""
+  }
+}

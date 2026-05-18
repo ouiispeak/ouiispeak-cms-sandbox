@@ -1,0 +1,38 @@
+{
+  "slideId": "",
+  "lessonId": "",
+  "Identity & Lifecycle": {
+    "lastUpdatedAt": "",
+    "lastUpdatedBy": "",
+    "moduleId": "",
+    "ownerTeam": "",
+    "slug": "",
+    "title": "",
+    "version": "",
+    "visibility": "",
+    "sourceVersion": ""
+  },
+  "Purpose & Outcomes": {
+    "description": "",
+    "tags": ""
+  },
+  "Content & Media": {
+    "audioId": "",
+    "subtitle": "",
+    "buttons": {},
+    "primaryCtaAction": "",
+    "primaryCtaLabel": ""
+  },
+  "Instructions & Flow": {
+    "instructions": ""
+  },
+  "Operations, Provenance & Governance": {
+    "diffLog": {},
+    "ingestSource": "",
+    "metadata": {}
+  },
+  "Localization": {
+    "defaultLang": "",
+    "targetLanguage": ""
+  }
+}

@@ -104,6 +104,7 @@ lessons:
     - timeExpectationLesson
   Telemetry & Analytics:
     - canonicalNodeKey
+    - canonicalSliceKey
     - expectedCompletionRate
     - expectedTimeOnTask
     - experimentFlag
@@ -115,7 +116,6 @@ lessons:
     - breakingChangeGuard
     - changeImpactAssessment
     - diffLog
-    - ingestPayload
     - ingestSource
     - manualOverrideJson
     - publishNotes

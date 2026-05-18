@@ -70,7 +70,6 @@ const ACTIVITY_DEFAULT_FIELD_KEYS = [
   "grammarFocus",
   "groupId",
   "groupName",
-  "ingestPayload",
   "ingestSource",
   "instructions",
   "isRequiredToPass",
@@ -275,6 +274,10 @@ export function resolveConcreteActivityProfileFromActivityId(
     return "act-026";
   }
   return "act-001";
+}
+
+export function listActivityProfileExtraFieldKeys(profile: ConcreteActivityProfile): string[] {
+  return [...ACTIVITY_PROFILE_EXTRA_FIELDS[profile]];
 }
 
 function buildActivityProfileAllowedFieldSet(profile: ActivityProfile): Set<string> {

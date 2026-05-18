@@ -55,13 +55,14 @@ This document is the canonical JSON contract for CMS ingest and export inside th
 2. Create mode must include the canonical parent key when parent linkage exists.
 3. Update mode must include the canonical identity key.
 4. Category objects may include only active fields for that component from `public.config_component_fields` (canonical read view).
-5. Top-level identity keys must never appear inside category payload objects.
+5. The target component identity key and direct parent key are top-level-only and must never appear inside category payload objects.
 6. `activity_slides` must satisfy `propsJson` + `runtimeContractV1` envelope and ACT shape-lock rules.
 7. `activity_slides` ingest uses whitelist validation derived from ACT shape-lock keys and canonical structured payload keys.
 8. `runtimeContractV1.interaction` keys are strict snake_case: `activity_row_tool`, `command_row_controls`, `status`.
 9. Supported ACT aliases/synonyms are accepted only when normalized to canonical payload keys/values before validation.
 10. Imports are atomic per uploaded file (one failing row rejects the batch).
 11. Non-activity component import requiredness (`modules`, `lessons`, `groups`, `slides`, `title_slides`, `lesson_ends`) is derived from `central/REQUIREDNESS_MATRIX.csv` `category_payload` rows and filtered to currently active config fields.
+12. The current CMS export template routes are the source of truth for LV3 source generation. Import parsing must not be loosened to accept target component identity or direct parent keys inside category buckets; LV3 must align generated source JSON to the exported template shape.
 
 ## Deterministic Rejection Envelope (JSON clients)
 1. Import APIs return deterministic rejection payloads for non-HTML clients.
@@ -75,10 +76,16 @@ This document is the canonical JSON contract for CMS ingest and export inside th
 1. Unknown component field for the target component.
 2. Missing required key for create/update mode.
 3. Legacy identity key usage (`slideUuid`) or unsupported alias payloads.
-4. Top-level/category contamination (identity keys or blocked duplicates in category objects).
+4. Top-level/category contamination (target component identity keys, direct parent keys, or blocked duplicates in category objects).
 5. Missing required `activity_slides` envelope/shape for active ACT ids.
 6. Unsupported or inactive `activityId` (`ACT-006`, `ACT-007`, `ACT-008`).
 7. Runtime contract casing drift (for example `activityRowTool` / `commandRowControls` without canonical snake_case keys).
+
+## LV3 Target Fixture
+1. If CMS needs to provide LV3 with an artifact beyond this contract, the ask is a frozen exported template bundle or golden round-trip fixture from the exact CMS commit and config LV3 targets.
+2. The current frozen exported template bundle lives at `tests/fixtures/lv3-cms-export-template-bundle/manifest.json`.
+3. The bundle records the CMS commit, export route, template filename, and SHA-256 hash for each template file.
+4. Regenerating the bundle is an explicit golden-fixture workflow. Use `npm run export:template-bundle -- --env-file <approved-env-file>` after confirming the target CMS commit/config.
 
 ## ACT Normalization Notes
 1. ACT-004 accepts `audioPrompt` input by canonicalizing to `propsJson.audio`; validation then checks playable audio via `audioId` or `audio.speech`.
@@ -108,7 +115,7 @@ This document is the canonical JSON contract for CMS ingest and export inside th
 | `slides` | `/api/slides/export-json` | `/api/slides/[slideId]/export-json` | `/api/slides/import-json` | `slideId` update identity and category payload keys remain canonical. |
 | `activity_slides` | `/api/activity-slides/export-json` | `/api/activity-slides/[activitySlideId]/export-json` | `/api/activity-slides/import-json` | ACT envelope and shape-lock constraints remain valid after round-trip. |
 | `title_slides` | `/api/title-slides/export-json` | `/api/title-slides/[titleSlideId]/export-json` | `/api/title-slides/import-json` | Canonical `slideId` identity preserved across import/export. |
-| `lesson_ends` | `/api/lessonEnds/export-json` | `/api/lessonEnds/[lessonEndId]/export-json` | `/api/lessonEnds/import-json` | Canonical `slideId` identity preserved across import/export. |
+| `lesson_ends` | `/api/lesson-ends/export-json` | `/api/lesson-ends/[lessonEndId]/export-json` | `/api/lesson-ends/import-json` | Canonical `slideId` identity preserved across import/export. |
 
 ## Notes
 1. Runtime authority is local CMS sandbox code and local Supabase schema in this repo only.

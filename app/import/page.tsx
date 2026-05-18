@@ -133,7 +133,7 @@ const IMPORT_COMPONENTS: ImportComponentConfig[] = [
     updateButtonLabel: "Import lesson_ends Update JSON",
     createInputId: "lesson_ends-json-file-create",
     updateInputId: "lesson_ends-json-file-update",
-    action: "/api/lessonEnds/import-json",
+    action: "/api/lesson-ends/import-json",
   },
 ];
 
@@ -225,8 +225,8 @@ export default async function ImportPage({
       <h2>Import</h2>
       <p className="meta">Route: /import</p>
       <p className="meta">
-        Contract: identity/parent keys (<code>moduleId</code>, <code>lessonId</code>, <code>groupId</code>,{" "}
-        <code>slideId</code>) must be top-level only and are rejected inside category payloads.
+        Contract: the target component identity key and direct parent key must be top-level only and are rejected inside
+        category payloads.
       </p>
       <p className="meta">
         Template/export parity: create and update payloads now share the same top-level key shape. Create ignores blank

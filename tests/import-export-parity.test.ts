@@ -16,7 +16,7 @@ import { GET as exportGroupJson } from "../app/api/groups/[groupId]/export-json/
 import { GET as exportSlideJson } from "../app/api/slides/[slideId]/export-json/route";
 import { GET as exportActivitySlideJson } from "../app/api/activity-slides/[activitySlideId]/export-json/route";
 import { GET as exportTitleSlideJson } from "../app/api/title-slides/[titleSlideId]/export-json/route";
-import { GET as exportLessonEndJson } from "../app/api/lessonEnds/[lessonEndId]/export-json/route";
+import { GET as exportLessonEndJson } from "../app/api/lesson-ends/[lessonEndId]/export-json/route";
 
 type ComponentName =
   | "modules"

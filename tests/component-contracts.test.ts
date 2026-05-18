@@ -1,6 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { assertRequiredFieldValues, parseFieldInputsFromPayloadEntry, type FieldInputMap } from "../lib/componentCore";
+import {
+  CANONICAL_COMPONENT_FIELD_MAP,
+  getTopLevelOnlyFieldKeys,
+  type HierarchyComponentName,
+} from "../lib/canonicalFieldMap";
 import type { UniversalConfigField } from "../lib/universalConfigs";
 
 test("required-field gate rejects missing required values", () => {
@@ -168,6 +173,39 @@ test("parent linkage key is blocked inside category payloads", () => {
       topLevelOnlyFieldNames: new Set(["moduleId"]),
     });
   }, /top-level-only "moduleId" and cannot be imported in category payloads/i);
+});
+
+test("target component identity and direct parent keys are blocked inside category payloads", () => {
+  const componentNames = Object.keys(CANONICAL_COMPONENT_FIELD_MAP) as HierarchyComponentName[];
+
+  for (const componentName of componentNames) {
+    const componentMap = CANONICAL_COMPONENT_FIELD_MAP[componentName];
+    const targetKeys = [
+      componentMap.identityFieldKey,
+      componentMap.parentFieldKey,
+    ].filter((key): key is string => typeof key === "string");
+    const topLevelOnlyKeys = getTopLevelOnlyFieldKeys(componentName);
+
+    for (const fieldKey of targetKeys) {
+      const entry = {
+        "Identity & Lifecycle": {
+          [fieldKey]: "1fb68633-d9f7-43e3-8dcd-3f6ea82e8adb",
+        },
+      };
+
+      assert.equal(topLevelOnlyKeys.has(fieldKey), true, `${componentName}.${fieldKey} must be top-level-only`);
+      assert.throws(() => {
+        parseFieldInputsFromPayloadEntry({
+          entry,
+          allowedFields: new Set([`Identity & Lifecycle.${fieldKey}`]),
+          componentLabel: componentName,
+          ignoredTopLevelKeys: topLevelOnlyKeys,
+          systemControlledFieldNames: new Set([componentMap.identityFieldKey]),
+          topLevelOnlyFieldNames: topLevelOnlyKeys,
+        });
+      }, /cannot be imported/i);
+    }
+  }
 });
 
 test("structured json/list field payloads are accepted and serialized", () => {

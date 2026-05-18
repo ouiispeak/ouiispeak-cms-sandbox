@@ -1,0 +1,143 @@
+{
+  "slideId": "",
+  "groupId": "",
+  "Identity & Lifecycle": {
+    "activityId": "ACT-022",
+    "groupName": "",
+    "lastUpdatedAt": "",
+    "lastUpdatedBy": "",
+    "lessonId": "",
+    "moduleId": "",
+    "ownerTeam": "",
+    "slug": "",
+    "title": "",
+    "version": "",
+    "visibility": "",
+    "sourceVersion": "",
+    "type": "activity"
+  },
+  "Purpose & Outcomes": {
+    "description": "",
+    "learningObjectives": "",
+    "competencyTags": "",
+    "tags": "",
+    "coreTopics": "",
+    "topicCategory": "",
+    "keywords": ""
+  },
+  "Scope, Prerequisites & Targeting": {
+    "audienceNotes": "",
+    "cefrLevel": "",
+    "levelMax": "",
+    "cefrMax": "",
+    "levelMin": "",
+    "cefrMin": "",
+    "diagnosticChecks": "",
+    "prerequisites": "",
+    "priorLessons": "",
+    "prerequisiteEdges": "",
+    "prerequisiteNodes": "",
+    "prerequisiteSlices": ""
+  },
+  "Content & Media": {
+    "subtitle": "",
+    "note": ""
+  },
+  "Instructions & Flow": {
+    "instructions": "",
+    "allowRetry": false,
+    "retryPolicy": "",
+    "allowSkip": false,
+    "skipPolicy": "",
+    "minAttemptsBeforeSkip": "",
+    "autoAdvance": false,
+    "delayMs": ""
+  },
+  "Pedagogy & Scaffolding": {
+    "differentiationPaths": "",
+    "differentiationStrategies": "",
+    "remediationGuidance": "",
+    "remediationPaths": "",
+    "discourseFocus": "",
+    "grammarFocus": "",
+    "pronunciationFocus": "",
+    "vocabularyTheme": "",
+    "extraPracticeNotes": ""
+  },
+  "Assessment & Mastery": {
+    "assessmentPlan": "",
+    "successCriteria": "",
+    "isRequiredToPass": false,
+    "passRequiredForNext": false,
+    "passingScoreType": "",
+    "passingScoreValue": "",
+    "requiredScore": "",
+    "maxAttempts": "",
+    "maxScoreValue": "",
+    "masteryRule": "",
+    "masteryThreshold": ""
+  },
+  "Structure & Sequencing": {
+    "orderIndex": ""
+  },
+  "Teacher Guidance": {
+    "teacherNotes": "",
+    "teacherOverview": "",
+    "notesForTeacherOrAI": "",
+    "anecdoteOrMemoryHook": "",
+    "commonMisconceptions": ""
+  },
+  "AI Generation & Prompting": {
+    "aiInstructions": "",
+    "exampleResponses": "",
+    "expansionGuidelines": "",
+    "forbiddenPatterns": "",
+    "signatureMetaphors": "",
+    "simplificationGuidelines": "",
+    "styleConstraints": ""
+  },
+  "Links, Dependencies & Summaries": {
+    "linkedResources": "",
+    "estimatedMinutes": ""
+  },
+  "Operations, Provenance & Governance": {
+    "diffLog": {},
+    "extractabilityTier": "",
+    "ingestSource": "",
+    "manualOverrideJson": {},
+    "metadata": {}
+  },
+  "Localization": {
+    "culturalContext": "",
+    "defaultLang": "",
+    "l1InterferenceNotes": "",
+    "registerTone": "",
+    "registerVariants": "",
+    "targetLanguage": ""
+  },
+  "Activities & Interaction": {
+    "propsJson": {
+      "runtimeContractV1": {
+        "contractVersion": "v1",
+        "interaction": {
+          "activity_row_tool": "FreeRecorder",
+          "command_row_controls": [],
+          "status": "active"
+        }
+      },
+      "keywordThreshold": 0,
+      "maxWordCount": 0,
+      "minWordCount": 0,
+      "promptText": "",
+      "targetKeywords": []
+    }
+  },
+  "Telemetry & Analytics": {
+    "expectedCompletionRate": "",
+    "expectedTimeOnTask": "",
+    "targetedEdges": "",
+    "targetedNodes": "",
+    "targetedSlices": "",
+    "telemetryTags": ""
+  }
+}

@@ -121,7 +121,6 @@ groups:
     - changeImpactAssessment
     - diffLog
     - extractabilityTier
-    - ingestPayload
     - ingestSource
     - manualOverrideJson
     - metadata

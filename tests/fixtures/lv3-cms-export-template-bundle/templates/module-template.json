@@ -1,0 +1,99 @@
+{
+  "moduleId": "",
+  "Identity & Lifecycle": {
+    "lastUpdatedAt": "",
+    "lastUpdatedBy": "",
+    "ownerTeam": "",
+    "slug": "",
+    "title": "",
+    "version": "",
+    "visibility": "",
+    "sourceVersion": ""
+  },
+  "Purpose & Outcomes": {
+    "moduleGoal": "",
+    "moduleOutcomes": "",
+    "description": "",
+    "learningObjectives": "",
+    "competencyTags": "",
+    "tags": "",
+    "coreTopics": "",
+    "topicCategory": "",
+    "keywords": ""
+  },
+  "Scope, Prerequisites & Targeting": {
+    "audienceNotes": "",
+    "level": "",
+    "levelMax": "",
+    "cefrMax": "",
+    "levelMin": "",
+    "cefrMin": "",
+    "prerequisiteModules": ""
+  },
+  "Pedagogy & Scaffolding": {
+    "pedagogicalStrategy": "",
+    "differentiationPaths": "",
+    "differentiationStrategies": "",
+    "remediationGuidance": "",
+    "remediationPaths": "",
+    "discourseFocus": "",
+    "grammarFocus": "",
+    "pronunciationFocus": "",
+    "vocabularyTheme": ""
+  },
+  "Assessment & Mastery": {
+    "moduleAssessmentPlan": "",
+    "moduleMasteryRule": "",
+    "moduleMasteryThreshold": ""
+  },
+  "Structure & Sequencing": {
+    "orderIndex": "",
+    "capstoneLesson": "",
+    "lessonSequenceRules": "",
+    "requiredLessons": "",
+    "optionalLessons": "",
+    "progressionNotes": "",
+    "sequenceType": ""
+  },
+  "Teacher Guidance": {
+    "teacherNotes": "",
+    "teacherOverview": "",
+    "authorNotes": "",
+    "commonMisconceptions": "",
+    "shortSummaryTeacherModule": ""
+  },
+  "AI Generation & Prompting": {
+    "aiInstructions": "",
+    "expansionGuidelines": "",
+    "forbiddenPatterns": "",
+    "simplificationGuidelines": "",
+    "styleConstraints": ""
+  },
+  "Links, Dependencies & Summaries": {
+    "learningGoalPreviewModule": "",
+    "linkedModules": "",
+    "linkedResources": ""
+  },
+  "Operations, Provenance & Governance": {
+    "breakingChangeGuard": false,
+    "changeImpactAssessment": "",
+    "diffLog": {},
+    "ingestSource": "",
+    "manualOverrideJson": {},
+    "metadata": {},
+    "publishNotes": "",
+    "reviewRequired": false
+  },
+  "Localization": {
+    "defaultLang": "",
+    "registerTone": "",
+    "targetLanguage": ""
+  },
+  "Telemetry & Analytics": {
+    "canonicalNodeKey": "",
+    "expectedCompletionRate": "",
+    "expectedModuleDurationMinutes": "",
+    "experimentFlag": "",
+    "telemetryTags": ""
+  }
+}

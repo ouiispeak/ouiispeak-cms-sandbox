@@ -29,6 +29,5 @@ title_slides:
     - targetLanguage
   Operations, Provenance & Governance:
     - diffLog
-    - ingestPayload
     - ingestSource
     - metadata

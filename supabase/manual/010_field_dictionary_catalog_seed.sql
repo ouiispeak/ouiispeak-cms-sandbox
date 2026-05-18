@@ -231,13 +231,12 @@ VALUES
   ('changeImpactAssessment', 'Operations, Provenance & Governance', 'text', 2, 'active', NULL),
   ('diffLog', 'Operations, Provenance & Governance', 'text', 3, 'active', NULL),
   ('extractabilityTier', 'Operations, Provenance & Governance', 'text', 4, 'active', NULL),
-  ('ingestPayload', 'Operations, Provenance & Governance', 'text', 5, 'active', NULL),
-  ('ingestSource', 'Operations, Provenance & Governance', 'text', 6, 'active', NULL),
-  ('manualOverrideJson', 'Operations, Provenance & Governance', 'text', 7, 'active', NULL),
-  ('metadata', 'Operations, Provenance & Governance', 'text', 8, 'active', NULL),
-  ('publishNotes', 'Operations, Provenance & Governance', 'text', 9, 'active', NULL),
-  ('reviewRequired', 'Operations, Provenance & Governance', 'checkbox', 10, 'active', NULL),
-  ('runtimeContractV1', 'Operations, Provenance & Governance', 'text', 11, 'active', NULL),
+  ('ingestSource', 'Operations, Provenance & Governance', 'text', 5, 'active', NULL),
+  ('manualOverrideJson', 'Operations, Provenance & Governance', 'text', 6, 'active', NULL),
+  ('metadata', 'Operations, Provenance & Governance', 'text', 7, 'active', NULL),
+  ('publishNotes', 'Operations, Provenance & Governance', 'text', 8, 'active', NULL),
+  ('reviewRequired', 'Operations, Provenance & Governance', 'checkbox', 9, 'active', NULL),
+  ('runtimeContractV1', 'Operations, Provenance & Governance', 'text', 10, 'active', NULL),
   ('sourceVersion', 'Identity & Lifecycle', 'text', 15, 'active', NULL);
 
 UPDATE public.field_dictionary
@@ -245,7 +244,6 @@ SET input_type = 'json'
 WHERE field_key IN (
   'buttons',
   'diffLog',
-  'ingestPayload',
   'lessonEndActions',
   'manualOverrideJson',
   'metadata',
@@ -633,13 +631,12 @@ WITH desired_field_order(field_key, category_name, field_order) AS (
     ('changeImpactAssessment', 'Operations, Provenance & Governance', 2),
     ('diffLog', 'Operations, Provenance & Governance', 3),
     ('extractabilityTier', 'Operations, Provenance & Governance', 4),
-    ('ingestPayload', 'Operations, Provenance & Governance', 5),
-    ('ingestSource', 'Operations, Provenance & Governance', 6),
-    ('manualOverrideJson', 'Operations, Provenance & Governance', 7),
-    ('metadata', 'Operations, Provenance & Governance', 8),
-    ('publishNotes', 'Operations, Provenance & Governance', 9),
-    ('reviewRequired', 'Operations, Provenance & Governance', 10),
-    ('runtimeContractV1', 'Operations, Provenance & Governance', 11)
+    ('ingestSource', 'Operations, Provenance & Governance', 5),
+    ('manualOverrideJson', 'Operations, Provenance & Governance', 6),
+    ('metadata', 'Operations, Provenance & Governance', 7),
+    ('publishNotes', 'Operations, Provenance & Governance', 8),
+    ('reviewRequired', 'Operations, Provenance & Governance', 9),
+    ('runtimeContractV1', 'Operations, Provenance & Governance', 10)
 )
 UPDATE public.field_dictionary fd
 SET

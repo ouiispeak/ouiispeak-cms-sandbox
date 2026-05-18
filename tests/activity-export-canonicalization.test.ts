@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { canonicalizeActivityExportTemplate } from "../lib/activityExportCanonicalization";
+import {
+  buildActivityPropsJsonTemplate,
+  canonicalizeActivityExportTemplate,
+} from "../lib/activityExportCanonicalization";
+import { listActivityProfileExtraFieldKeys } from "../lib/activityProfiles";
 
 test("canonicalizeActivityExportTemplate keeps structured ACT payload in propsJson only", () => {
   const template = {
@@ -119,4 +123,60 @@ test("canonicalizeActivityExportTemplate parses string propsJson and still strip
       ],
     ]
   );
+});
+
+test("buildActivityPropsJsonTemplate derives ACT scaffold from profile, shape-lock, and runtime defaults", () => {
+  const act009 = buildActivityPropsJsonTemplate(
+    "ACT-009",
+    listActivityProfileExtraFieldKeys("act-009")
+  );
+  const act018 = buildActivityPropsJsonTemplate(
+    "ACT-018",
+    listActivityProfileExtraFieldKeys("act-018")
+  );
+
+  assert.deepEqual(act009.runtimeContractV1, {
+    contractVersion: "v1",
+    interaction: {
+      activity_row_tool: "AudioChoiceSelector",
+      command_row_controls: ["play"],
+      status: "active",
+    },
+  });
+  assert.deepEqual(act009.choiceElements, [{ label: "" }, { label: "" }]);
+  assert.equal(act009.correctAnswer, "");
+  assert.deepEqual(act009.audioPrompt, {
+    speech: {
+      mode: "tts",
+      text: "",
+    },
+  });
+  assert.deepEqual(act009.audio, {
+    speech: {
+      mode: "tts",
+      text: "",
+    },
+  });
+
+  assert.deepEqual(act018.runtimeContractV1, {
+    contractVersion: "v1",
+    interaction: {
+      activity_row_tool: "WordBankInput",
+      command_row_controls: [],
+      status: "active",
+    },
+  });
+  assert.deepEqual(act018.wordBank, []);
+  assert.deepEqual(act018.sentenceWithGaps, [
+    {
+      sentence: "",
+      gaps: [
+        {
+          position: 0,
+          accepted_answers: [],
+        },
+      ],
+    },
+  ]);
+  assert.notDeepEqual(act018, act009);
 });

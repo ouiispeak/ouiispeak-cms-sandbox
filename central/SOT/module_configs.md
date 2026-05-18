@@ -85,7 +85,6 @@ modules:
     - breakingChangeGuard
     - changeImpactAssessment
     - diffLog
-    - ingestPayload
     - ingestSource
     - manualOverrideJson
     - metadata

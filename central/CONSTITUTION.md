@@ -234,7 +234,7 @@
       "status": "closed",
       "decision_date": "2026-04-09",
       "component": "lesson_ends",
-      "final_choice": "lesson_ends is the canonical component token; URL collection slug is lessonEnds; route param is lessonEndId; DB FK is lesson_end_id.",
+      "final_choice": "lesson_ends is the canonical component token; URL collection slug is lesson-ends; route param is lessonEndId; DB FK is lesson_end_id.",
       "forbidden_variants": [
         "Lesson End Slide",
         "lesson end",
@@ -242,7 +242,7 @@
         "lessonEnd",
         "lessonEnds"
       ],
-      "enforcement": "No aliasing or fallback naming. Contracts/component_name must use lesson_ends; URL collections use lessonEnds; entity IDs use singular forms."
+      "enforcement": "No aliasing or fallback naming. Contracts/component_name must use lesson_ends; URL collections use lesson-ends; entity IDs use singular forms."
     },
     "NAMING-LAYER-001": {
       "status": "closed",
@@ -257,7 +257,7 @@
       ],
       "examples": {
         "component_token": "lesson_ends",
-        "collection_slug": "lessonEnds",
+        "collection_slug": "lesson-ends",
         "entity_action_slug": "lessonEnd",
         "route_param": "lessonEndId",
         "db_fk": "lesson_end_id"

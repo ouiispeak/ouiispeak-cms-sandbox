@@ -40,6 +40,23 @@ type ParsedNestedLessonEntry = {
   groups: ParsedNestedGroupEntry[];
 };
 
+const IDENTITY_LIFECYCLE_CATEGORY = "Identity & Lifecycle";
+
+function stampIdentityLifecycleField(
+  entry: ObjectEntry,
+  fieldName: string,
+  fieldValue: string
+): ObjectEntry {
+  const normalized: ObjectEntry = { ...entry };
+  const existingCategory = normalized[IDENTITY_LIFECYCLE_CATEGORY];
+  normalized[IDENTITY_LIFECYCLE_CATEGORY] = {
+    ...(isObjectRecord(existingCategory) ? existingCategory : {}),
+    [fieldName]: fieldValue,
+  };
+  delete normalized[fieldName];
+  return normalized;
+}
+
 function valueToFormDataString(value: unknown): string {
   if (value === null || value === undefined) {
     return "";
@@ -243,23 +260,27 @@ function resolveBoundarySlideIdForUpdate(
   );
 }
 
-async function createSlidesForGroup(slides: ObjectEntry[], groupId: string): Promise<void> {
+async function createSlidesForGroup(slides: ObjectEntry[], groupId: string, lessonId: string): Promise<void> {
   for (const slideEntry of slides) {
     const slideFormData = buildFormDataFromComponentEntry({
-      ...slideEntry,
+      ...stampIdentityLifecycleField(slideEntry, "lessonId", lessonId),
       groupId,
     });
     await createSlideFromFormData(slideFormData);
   }
 }
 
-async function createActivitySlidesForGroup(activitySlides: ObjectEntry[], groupId: string): Promise<void> {
+async function createActivitySlidesForGroup(
+  activitySlides: ObjectEntry[],
+  groupId: string,
+  lessonId: string
+): Promise<void> {
   if (activitySlides.length === 0) {
     return;
   }
 
   const createEntries = activitySlides.map((activitySlideEntry) => ({
-    ...activitySlideEntry,
+    ...stampIdentityLifecycleField(activitySlideEntry, "lessonId", lessonId),
     groupId,
   }));
   await importActivitySlidesFromJsonPayload(createEntries);
@@ -364,12 +385,13 @@ async function updateOrCreateBoundariesForLesson(
 async function updateOrCreateSlidesForGroup(
   slides: ObjectEntry[],
   groupId: string,
+  lessonId: string,
   lessonIndex: number,
   groupIndex: number
 ): Promise<void> {
   for (const [slideIndex, slideEntry] of slides.entries()) {
     const normalizedSlideEntry: ObjectEntry = {
-      ...slideEntry,
+      ...stampIdentityLifecycleField(slideEntry, "lessonId", lessonId),
       groupId,
     };
 
@@ -388,6 +410,7 @@ async function updateOrCreateSlidesForGroup(
 async function updateOrCreateActivitySlidesForGroup(
   activitySlides: ObjectEntry[],
   groupId: string,
+  lessonId: string,
   lessonIndex: number,
   groupIndex: number
 ): Promise<void> {
@@ -396,7 +419,7 @@ async function updateOrCreateActivitySlidesForGroup(
 
   for (const [activitySlideIndex, activitySlideEntry] of activitySlides.entries()) {
     const normalizedActivitySlideEntry: ObjectEntry = {
-      ...activitySlideEntry,
+      ...stampIdentityLifecycleField(activitySlideEntry, "lessonId", lessonId),
       groupId,
     };
 
@@ -443,11 +466,11 @@ export async function importNestedLessonsCreateFromJsonPayload(payload: unknown)
         const groupId = await createGroupFromFormData(groupFormData);
 
         if (parsedGroup.slides.length > 0) {
-          await createSlidesForGroup(parsedGroup.slides, groupId);
+          await createSlidesForGroup(parsedGroup.slides, groupId, lessonId);
         }
 
         if (parsedGroup.activitySlides.length > 0) {
-          await createActivitySlidesForGroup(parsedGroup.activitySlides, groupId);
+          await createActivitySlidesForGroup(parsedGroup.activitySlides, groupId, lessonId);
         }
       }
 
@@ -490,13 +513,20 @@ export async function importNestedLessonsUpdateFromJsonPayload(payload: unknown)
         }
 
         if (parsedGroup.slides.length > 0) {
-          await updateOrCreateSlidesForGroup(parsedGroup.slides, groupIdForSlides, index, groupIndex);
+          await updateOrCreateSlidesForGroup(
+            parsedGroup.slides,
+            groupIdForSlides,
+            lessonId,
+            index,
+            groupIndex
+          );
         }
 
         if (parsedGroup.activitySlides.length > 0) {
           await updateOrCreateActivitySlidesForGroup(
             parsedGroup.activitySlides,
             groupIdForSlides,
+            lessonId,
             index,
             groupIndex
           );

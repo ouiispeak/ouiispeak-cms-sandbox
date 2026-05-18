@@ -57,7 +57,6 @@ DECLARE
     'grammarFocus',
     'groupId',
     'groupName',
-    'ingestPayload',
     'ingestSource',
     'instructions',
     'isRequiredToPass',

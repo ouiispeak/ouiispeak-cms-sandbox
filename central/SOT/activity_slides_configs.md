@@ -96,7 +96,6 @@ activity_slides:
     - grammarFocus
     - groupId
     - groupName
-    - ingestPayload
     - ingestSource
     - instructions
     - isRequiredToPass

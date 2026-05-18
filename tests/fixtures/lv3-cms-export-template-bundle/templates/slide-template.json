@@ -1,0 +1,85 @@
+{
+  "slideId": "",
+  "groupId": "",
+  "Identity & Lifecycle": {
+    "groupName": "",
+    "lastUpdatedAt": "",
+    "lastUpdatedBy": "",
+    "lessonId": "",
+    "moduleId": "",
+    "ownerTeam": "",
+    "slug": "",
+    "version": "",
+    "visibility": "",
+    "sourceVersion": "",
+    "type": ""
+  },
+  "Purpose & Outcomes": {
+    "description": "",
+    "learningObjectives": "",
+    "tags": ""
+  },
+  "Content & Media": {
+    "audioId": "",
+    "textSubtype": "",
+    "body1": "",
+    "body2": "",
+    "body3": "",
+    "body4": "",
+    "body5": "",
+    "body6": "",
+    "body7": "",
+    "body8": "",
+    "buttons": {}
+  },
+  "Instructions & Flow": {
+    "instructions": ""
+  },
+  "Pedagogy & Scaffolding": {
+    "differentiationPaths": "",
+    "remediationPaths": "",
+    "extraPracticeNotes": ""
+  },
+  "Assessment & Mastery": {
+    "assessmentPlan": "",
+    "successCriteria": ""
+  },
+  "Structure & Sequencing": {
+    "orderIndex": ""
+  },
+  "Teacher Guidance": {
+    "teacherNotes": "",
+    "teacherOverview": "",
+    "notesForTeacherOrAI": "",
+    "anecdoteOrMemoryHook": "",
+    "commonMisconceptions": "",
+    "shortSummaryTeacherSlide": ""
+  },
+  "AI Generation & Prompting": {
+    "aiInstructions": "",
+    "expansionGuidelines": "",
+    "forbiddenPatterns": "",
+    "signatureMetaphors": "",
+    "simplificationGuidelines": "",
+    "styleConstraints": ""
+  },
+  "Links, Dependencies & Summaries": {
+    "keyTakeawaysSlide": ""
+  },
+  "Operations, Provenance & Governance": {
+    "diffLog": {},
+    "ingestSource": "",
+    "metadata": {}
+  },
+  "Localization": {
+    "culturalContext": "",
+    "defaultLang": "",
+    "l1InterferenceNotes": "",
+    "registerVariants": "",
+    "targetLanguage": ""
+  },
+  "Telemetry & Analytics": {
+    "targetNodeKeys": "",
+    "telemetryTags": ""
+  }
+}
