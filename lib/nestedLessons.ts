@@ -20,6 +20,7 @@ import {
   importTitleSlideUpdatesFromJsonPayload,
 } from "@/lib/titleSlides";
 import { importLessonEndsFromJsonPayload, importLessonEndUpdatesFromJsonPayload } from "@/lib/lessonEnds";
+import { applyGroupSlidesPlanOrderIndexes } from "@/lib/groupSlidesPlanOrderIndex";
 
 type ObjectEntry = Record<string, unknown>;
 
@@ -464,13 +465,18 @@ export async function importNestedLessonsCreateFromJsonPayload(payload: unknown)
           lessonId,
         });
         const groupId = await createGroupFromFormData(groupFormData);
+        const orderedSlides = applyGroupSlidesPlanOrderIndexes(
+          parsedGroup.groupEntry,
+          parsedGroup.slides,
+          parsedGroup.activitySlides
+        );
 
-        if (parsedGroup.slides.length > 0) {
-          await createSlidesForGroup(parsedGroup.slides, groupId, lessonId);
+        if (orderedSlides.slides.length > 0) {
+          await createSlidesForGroup(orderedSlides.slides, groupId, lessonId);
         }
 
-        if (parsedGroup.activitySlides.length > 0) {
-          await createActivitySlidesForGroup(parsedGroup.activitySlides, groupId, lessonId);
+        if (orderedSlides.activitySlides.length > 0) {
+          await createActivitySlidesForGroup(orderedSlides.activitySlides, groupId, lessonId);
         }
       }
 
@@ -512,9 +518,15 @@ export async function importNestedLessonsUpdateFromJsonPayload(payload: unknown)
           groupIdForSlides = await createGroupFromFormData(groupFormData);
         }
 
-        if (parsedGroup.slides.length > 0) {
+        const orderedSlides = applyGroupSlidesPlanOrderIndexes(
+          parsedGroup.groupEntry,
+          parsedGroup.slides,
+          parsedGroup.activitySlides
+        );
+
+        if (orderedSlides.slides.length > 0) {
           await updateOrCreateSlidesForGroup(
-            parsedGroup.slides,
+            orderedSlides.slides,
             groupIdForSlides,
             lessonId,
             index,
@@ -522,9 +534,9 @@ export async function importNestedLessonsUpdateFromJsonPayload(payload: unknown)
           );
         }
 
-        if (parsedGroup.activitySlides.length > 0) {
+        if (orderedSlides.activitySlides.length > 0) {
           await updateOrCreateActivitySlidesForGroup(
-            parsedGroup.activitySlides,
+            orderedSlides.activitySlides,
             groupIdForSlides,
             lessonId,
             index,

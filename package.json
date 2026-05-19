@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/**/*.test.ts",
     "export:template-bundle": "tsx scripts/export-template-bundle.ts",
+    "fix:m2-lesson-contract": "tsx scripts/fix-m2-lesson-contract.ts",
     "check:activity-rpc-boundary": "node scripts/check-activity-rpc-boundary.mjs",
     "check": "npm run lint && npm run typecheck && npm run test && npm run check:activity-rpc-boundary && npm run build"
   },
