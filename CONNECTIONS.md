@@ -14,8 +14,8 @@ This inventory documents external services referenced by this CMS repo, includin
 | Twilio (Supabase Auth SMS provider) | Disabled/config-only | Optional SMS auth provider in Supabase local config template. | `SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN` | Platform Ops (if enabled) | `supabase/config.toml` (`[auth.sms.twilio] enabled = false`) |
 | Apple OAuth (Supabase external auth provider) | Disabled/config-only | Optional external OAuth provider in Supabase local config template. | `SUPABASE_AUTH_EXTERNAL_APPLE_SECRET` | Platform Ops (if enabled) | `supabase/config.toml` (`[auth.external.apple] enabled = false`) |
 | AWS S3 (Supabase experimental OrioleDB/S3 settings) | Config-only; feature not enabled here | Optional experimental storage backend settings in Supabase config. | `S3_HOST`, `S3_REGION`, `S3_ACCESS_KEY`, `S3_SECRET_KEY` | Platform Ops (if enabled) | `supabase/config.toml` (`[experimental]` section) |
-| Whisper | Not detected in this repo | No code or config references found in audited scope. | None in repo | N/A | No touchpoints found (`rg` scan on `whisper`/related API usage) |
-| ElevenLabs | Not detected in this repo | No code or config references found in audited scope. | None in repo | N/A | No touchpoints found (`rg` scan on `elevenlabs`/related API usage) |
+| Whisper ASR | Active (player-owned) | Pronunciation/ASR for speak ACTs; CMS authors speak slides; runtime lives in isolated player `whisper/` service. | `WHISPER_BASE_URL` on player (optional `WHISPER_HEALTH_URL` for CMS-side ping docs) | Lesson Player Team | Player: `whisper/server.py`, `POST /api/pronunciation-assessment`, `GET /api/whisper/health`; see `Ouiispeak-LP_April-2026/central/WHISPER_SPEAKING_STACK_BUILD_PLAN.md` |
+| ElevenLabs TTS | Active (player-owned) | `speech.mode: 'tts'` and model-audio prompts; player `POST /api/tts`. | `ELEVEN_LABS_API_KEY`, `ELEVEN_LABS_VOICE_ID`, `ELEVEN_VOICE_FR_ID`, `ELEVEN_VOICE_EN_ID` on player | Lesson Player Team | Player: `src/app/api/tts/route.ts`, `src/lib/speech.ts`; CMS does not call ElevenLabs directly |
 
 ## 2) Notes
 
